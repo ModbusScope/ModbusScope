@@ -96,7 +96,7 @@ void TestDataPointEditorWidget::buildsDefaultReferenceOnOpen()
     QVERIFY(!_pEditor->hasValidExpression());
 }
 
-void TestDataPointEditorWidget::builtReferenceShownAsPreview()
+void TestDataPointEditorWidget::builtReferenceIsValid()
 {
     createEditor();
     QSignalSpy spy(_pEditor, &DataPointEditorWidget::expressionChanged);
@@ -105,8 +105,6 @@ void TestDataPointEditorWidget::builtReferenceShownAsPreview()
 
     QVERIFY(_pEditor->hasValidExpression());
     QCOMPARE(_pEditor->expression(), QStringLiteral("${h0}"));
-    QVERIFY(_pEditor->_pPreviewLabel->text().contains(QStringLiteral("${h0}")));
-    QVERIFY(_pEditor->_pPreviewLabel->isEnabled());
     QCOMPARE(spy.count(), 1);
 }
 
@@ -121,9 +119,8 @@ void TestDataPointEditorWidget::fieldChangeBuildsReference()
     QCOMPARE(_pModbusManager->buildCalls[1].fields["address"].toInt(), 7);
     QVERIFY(!_pEditor->hasValidExpression());
 
-    /* The last built reference stays visible, greyed out */
-    QVERIFY(_pEditor->_pPreviewLabel->text().contains(QStringLiteral("${h0}")));
-    QVERIFY(!_pEditor->_pPreviewLabel->isEnabled());
+    /* The last built reference is kept while the new one is built */
+    QCOMPARE(_pEditor->expression(), QStringLiteral("${h0}"));
 
     emit _pModbusManager->buildExpressionResult(2, QStringLiteral("${h7}"));
     QCOMPARE(_pEditor->expression(), QStringLiteral("${h7}"));
@@ -261,7 +258,7 @@ void TestDataPointEditorWidget::buildFailureShowsError()
     QVERIFY(error.startsWith(QStringLiteral("Address out of range")));
     QVERIFY(error.contains(QStringLiteral("retry")));
     QVERIFY(!_pEditor->hasValidExpression());
-    QCOMPARE(_pEditor->_pPreviewLabel->text(), QString());
+    QCOMPARE(_pEditor->expression(), QString());
 }
 
 void TestDataPointEditorWidget::emptyBuildResultShowsError()

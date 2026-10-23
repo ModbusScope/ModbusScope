@@ -66,6 +66,7 @@ SignalEditorPanel::SignalEditorPanel(GraphDataModel* pGraphDataModel,
 
     applyMode(false);
     _pUi->btnAdd->setEnabled(_pEditor->hasValidExpression());
+    updateExpressionLabel();
     updateStatus();
 }
 
@@ -111,6 +112,7 @@ void SignalEditorPanel::showAddMode()
     applyMode(false);
 
     _pUi->btnAdd->setEnabled(_pEditor->hasValidExpression());
+    updateExpressionLabel();
     updateStatus();
 }
 
@@ -219,6 +221,7 @@ void SignalEditorPanel::onExpressionChanged()
     }
 
     _pUi->btnAdd->setEnabled(_pEditor->hasValidExpression());
+    updateExpressionLabel();
 
     /* A field or device change started the next signal; the form no longer shows the added one */
     if (!_pEditor->hasValidExpression() && !_addedMessage.isEmpty())
@@ -455,7 +458,6 @@ void SignalEditorPanel::applyMode(bool bEditMode)
     _pUi->addressContainer->setVisible(true);
     _pUi->lblDataPoints->setVisible(false);
     _pUi->listDataPoints->setVisible(false);
-    _pUi->lblExpression->setVisible(false);
 }
 
 /*!
@@ -597,25 +599,40 @@ void SignalEditorPanel::updateDataPointList()
 }
 
 /*!
- * \brief Show the expression with the edited data point in bold, when the expression is more than that data point.
+ * \brief Show the whole expression of the signal, after an "Expression:" caption.
+ *
+ * Add mode shows the reference the editor built, greyed out while a newer one is being built. Edit
+ * mode shows the row's expression with the edited data point in bold.
  */
 void SignalEditorPanel::updateExpressionLabel()
 {
-    const QString expression = _pGraphDataModel->expression(editedGraph());
-    if (_references.isEmpty() || (_references.size() == 1 && expression.trimmed() == _references.first().text))
+    QString html;
+    bool bEnabled = true;
+    if (!_bEditMode)
     {
-        _pUi->lblExpression->setVisible(false);
-        return;
+        html = _pEditor->expression().toHtmlEscaped();
+        bEnabled = _pEditor->hasValidExpression();
+    }
+    else if (_references.isEmpty())
+    {
+        html = _pGraphDataModel->expression(editedGraph()).toHtmlEscaped();
+    }
+    else
+    {
+        const QString expression = _pGraphDataModel->expression(editedGraph());
+        const ExpressionReferences::Reference& reference = _references.at(_referenceIdx);
+        const QString before = expression.left(reference.start);
+        const QString after = expression.mid(reference.start + reference.length);
+
+        /* The expression can come from a project file: escape it, only the mark is markup */
+        html = QStringLiteral("%1<b>%2</b>%3")
+                 .arg(before.toHtmlEscaped(), reference.text.toHtmlEscaped(), after.toHtmlEscaped());
     }
 
-    const ExpressionReferences::Reference& reference = _references.at(_referenceIdx);
-    const QString before = expression.left(reference.start);
-    const QString after = expression.mid(reference.start + reference.length);
-
-    /* The expression can come from a project file: escape it, only the mark is markup */
-    _pUi->lblExpression->setText(QStringLiteral("<span style=\"white-space: pre-wrap\">%1<b>%2</b>%3</span>")
-                                   .arg(before.toHtmlEscaped(), reference.text.toHtmlEscaped(), after.toHtmlEscaped()));
-    _pUi->lblExpression->setVisible(true);
+    _pUi->lblExpression->setText(
+      QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">%1</span>").arg(html));
+    _pUi->lblExpression->setEnabled(bEnabled);
+    _pUi->lblExpression->setVisible(!html.isEmpty());
 }
 
 /*!

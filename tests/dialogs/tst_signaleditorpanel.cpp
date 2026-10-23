@@ -303,6 +303,32 @@ void TestSignalEditorPanel::addDisabledWhileBuildPending()
     QCOMPARE(_pMockDataPointManager->buildCalls.size(), 2);
 }
 
+//! Add mode shows the built reference as the expression, greyed out while a newer one is built.
+void TestSignalEditorPanel::addModeShowsBuiltExpression()
+{
+    QVERIFY(_pPanel->_pUi->lblExpression->isHidden());
+
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
+
+    QVERIFY(!_pPanel->_pUi->lblExpression->isHidden());
+    QVERIFY(_pPanel->_pUi->lblExpression->isEnabled());
+    QCOMPARE(_pPanel->_pUi->lblExpression->text(),
+             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">${h0}</span>"));
+
+    setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
+                            { QStringLiteral("address"), 5 } });
+
+    QVERIFY(!_pPanel->_pUi->lblExpression->isEnabled());
+    QCOMPARE(_pPanel->_pUi->lblExpression->text(),
+             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">${h0}</span>"));
+
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h5}"));
+
+    QVERIFY(_pPanel->_pUi->lblExpression->isEnabled());
+    QCOMPARE(_pPanel->_pUi->lblExpression->text(),
+             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">${h5}</span>"));
+}
+
 /*!
  * \brief Regression test: an adapter error for buildExpression used to stop the adapter. The form
  * must stay usable, so the user can correct the address and try again.
@@ -620,7 +646,9 @@ void TestSignalEditorPanel::editModeLoadsReferenceWhenDescribed()
     QVERIFY(_pPanel->_pEditor->isEnabled());
     QCOMPARE(addressForm(_pPanel)->values().value("address").toInt(), 4);
     QCOMPARE(_pPanel->_pEditor->expression(), QStringLiteral("${h4}"));
-    QVERIFY(_pPanel->_pUi->lblExpression->isHidden());
+    QVERIFY(!_pPanel->_pUi->lblExpression->isHidden());
+    QCOMPARE(_pPanel->_pUi->lblExpression->text(),
+             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\"><b>${h4}</b></span>"));
     QVERIFY(_pPanel->_pUi->listDataPoints->isHidden());
 }
 
@@ -650,14 +678,14 @@ void TestSignalEditorPanel::editKeepsArithmeticAroundReference()
 
     QVERIFY(!_pPanel->_pUi->lblExpression->isHidden());
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("<span style=\"white-space: pre-wrap\"><b>${40001}</b>/2</span>"));
+             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\"><b>${40001}</b>/2</span>"));
 
     setAddress(holdingRegisterFields(5));
     _pMockDataPointManager->injectBuildResult(QStringLiteral("${h5}"));
 
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h5}/2"));
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("<span style=\"white-space: pre-wrap\"><b>${h5}</b>/2</span>"));
+             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\"><b>${h5}</b>/2</span>"));
 }
 
 //! Only the selected occurrence of a data point used twice is replaced, and it stays selected.
@@ -698,7 +726,7 @@ void TestSignalEditorPanel::selectingDataPointLoadsIt()
     QCOMPARE(_pPanel->_pEditor->expression(), QStringLiteral("${h7}"));
     QCOMPARE(addressForm(_pPanel)->values().value("address").toInt(), 7);
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("<span style=\"white-space: pre-wrap\">${h3}*10 + <b>${h7}</b></span>"));
+             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">${h3}*10 + <b>${h7}</b></span>"));
 }
 
 void TestSignalEditorPanel::syntaxErrorShowsOnlyErrorAndEditExpression()
@@ -713,7 +741,9 @@ void TestSignalEditorPanel::syntaxErrorShowsOnlyErrorAndEditExpression()
 
     QVERIFY(_pPanel->_pUi->addressContainer->isHidden());
     QVERIFY(_pPanel->_pUi->listDataPoints->isHidden());
-    QVERIFY(_pPanel->_pUi->lblExpression->isHidden());
+    QVERIFY(!_pPanel->_pUi->lblExpression->isHidden());
+    QCOMPARE(_pPanel->_pUi->lblExpression->text(),
+             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">${h0} +</span>"));
     QVERIFY(!_pPanel->_pUi->btnEditExpression->isHidden());
     QCOMPARE(_pPanel->_pUi->lblStatus->text(), QStringLiteral("Unexpected end of expression"));
     QVERIFY(_pMockDataPointManager->describeCalls.isEmpty());
@@ -819,6 +849,8 @@ void TestSignalEditorPanel::showAddModeClearsNameAndShowsAdd()
     QVERIFY(!_pPanel->_pUi->btnAdd->isHidden());
     QVERIFY(_pPanel->_pEditor->isEnabled());
     QVERIFY(_pPanel->_pUi->listDataPoints->isHidden());
+    QCOMPARE(_pPanel->_pUi->lblExpression->text(),
+             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">${h0}</span>"));
 }
 
 //! The description of the reference the panel just wrote does not rebuild the form being edited.
@@ -847,7 +879,7 @@ void TestSignalEditorPanel::expressionLabelIsEscaped()
     editNewSignal(QStringLiteral("${h0} < 2 & 1"));
 
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("<span style=\"white-space: pre-wrap\"><b>${h0}</b> &lt; 2 &amp; 1</span>"));
+             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\"><b>${h0}</b> &lt; 2 &amp; 1</span>"));
 }
 
 void TestSignalEditorPanel::expressionWithoutDataPointShowsHint()
@@ -857,6 +889,8 @@ void TestSignalEditorPanel::expressionWithoutDataPointShowsHint()
     QVERIFY(_pPanel->_pUi->addressContainer->isHidden());
     QVERIFY(!_pPanel->_pUi->btnEditExpression->isHidden());
     QCOMPARE(_pPanel->_pUi->lblStatus->text(), QStringLiteral("This signal reads no data point."));
+    QCOMPARE(_pPanel->_pUi->lblExpression->text(),
+             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">5</span>"));
 }
 
 void TestSignalEditorPanel::clickAdd()

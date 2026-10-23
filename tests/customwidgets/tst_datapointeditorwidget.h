@@ -19,7 +19,7 @@ private slots:
     void cleanup();
 
     void buildsDefaultReferenceOnOpen();
-    void builtReferenceShownAsPreview();
+    void builtReferenceIsValid();
     void fieldChangeBuildsReference();
     void unchangedValuesKeepBuiltReference();
     void unchangedValuesKeepSetReference();
