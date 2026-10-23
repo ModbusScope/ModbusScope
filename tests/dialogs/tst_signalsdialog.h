@@ -33,6 +33,7 @@ private slots:
     void escapeDiscardsChanges();
     void cancelWithoutChangesClosesWithoutQuestion();
     void cancelQuestionKeepsDialogOpen();
+    void closeWithOpenCellEditAsksQuestion();
     void okAppliesChanges();
     void okWithoutChangesLeavesSourceUntouched();
 

@@ -321,6 +321,31 @@ void TestSignalsDialog::escapeDiscardsChanges()
     QCOMPARE(_pGraphDataModel->dataSeries(GraphIdx(0))->size(), 3);
 }
 
+//! An edit still open in a table cell counts as a change when the window is closed.
+void TestSignalsDialog::closeWithOpenCellEditAsksQuestion()
+{
+    openWithReadyAdapter(1);
+    _pDialog->activateWindow();
+    QVERIFY(QTest::qWaitForWindowActive(_pDialog));
+    if (QApplication::activeWindow() != _pDialog)
+    {
+        /* Committing the edit relies on a focus change, which only reaches an active window */
+        QSKIP("The platform does not activate windows");
+    }
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    pView->edit(pView->model()->index(0, GraphDataModel::column::TEXT));
+    auto* pEditor = qobject_cast<QLineEdit*>(QApplication::focusWidget());
+    QVERIFY(pEditor != nullptr);
+    pEditor->setText(QStringLiteral("renamed"));
+    answerNextQuestion(QMessageBox::Cancel);
+
+    _pDialog->close();
+
+    QCOMPARE(_answeredQuestions, 1);
+    QVERIFY(_pDialog->isVisible());
+    QCOMPARE(draftModel()->label(GraphIdx(0)), QStringLiteral("renamed"));
+}
+
 void TestSignalsDialog::okAppliesChanges()
 {
     seedSignals(4);

@@ -138,6 +138,9 @@ void SignalsDialog::accept()
  */
 void SignalsDialog::reject()
 {
+    /* Closing the window keeps the focus in an open cell editor; moving it commits the edit */
+    _pUi->buttonBox->setFocus();
+
     bool bDiscard = true;
     if (_pDraft->hasChanges())
     {
