@@ -153,7 +153,7 @@ QVariant SignalTableProxyModel::headerData(int section, Qt::Orientation orientat
 {
     if (orientation == Qt::Horizontal && section == dataPointColumn())
     {
-        return role == Qt::DisplayRole ? QVariant(tr("Data point")) : QVariant();
+        return role == Qt::DisplayRole ? QVariant(QStringLiteral("Data point")) : QVariant();
     }
 
     return QIdentityProxyModel::headerData(section, orientation, role);
@@ -240,7 +240,7 @@ SignalTableProxyModel::RowText SignalTableProxyModel::dataPointText(int row) con
     {
         const QModelIndex expressionIndex = _pGraphDataModel->index(row, GraphDataModel::column::EXPRESSION);
         rowText.toolTip = _pGraphDataModel->data(expressionIndex, Qt::ToolTipRole).toString();
-        rowText.text = state == ExpressionState::SYNTAX_ERROR ? rowText.toolTip : tr("Unknown device");
+        rowText.text = state == ExpressionState::SYNTAX_ERROR ? rowText.toolTip : QStringLiteral("Unknown device");
         rowText.bError = true;
         return rowText;
     }
@@ -266,7 +266,7 @@ SignalTableProxyModel::RowText SignalTableProxyModel::dataPointText(int row) con
         }
     }
 
-    rowText.text = references.size() == 1 ? lines.first() : tr("%1 data points").arg(references.size());
+    rowText.text = references.size() == 1 ? lines.first() : QStringLiteral("%1 data points").arg(references.size());
     rowText.toolTip = lines.join('\n');
 
     /* A single data point shows its reference, its reason is in the tooltip */
@@ -311,7 +311,7 @@ QVariant SignalTableProxyModel::expressionToolTip(int row) const
         const QString error = invalidReferenceError(row);
         if (!error.isEmpty())
         {
-            toolTip = tr("Invalid data point: %1").arg(error);
+            toolTip = QStringLiteral("Invalid data point: %1").arg(error);
         }
     }
 

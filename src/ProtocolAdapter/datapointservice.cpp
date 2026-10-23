@@ -164,7 +164,7 @@ void DataPointService::onManagerDestroyed(QObject* pObject)
     {
         if (static_cast<QObject*>(it->pManager) == pObject)
         {
-            failLater(it.key(), tr("The adapter stopped"));
+            failLater(it.key(), QStringLiteral("The adapter stopped"));
             it = _pendingRequests.erase(it);
         }
         else
@@ -216,7 +216,7 @@ quint64 DataPointService::track(AdapterManager* pManager, int requestId)
     const quint64 ticket = ++_lastTicket;
     if (requestId < 0)
     {
-        failLater(ticket, tr("The adapter did not accept the request"));
+        failLater(ticket, QStringLiteral("The adapter did not accept the request"));
         return ticket;
     }
 
@@ -316,15 +316,15 @@ void DataPointService::onRequestTimeout(quint64 ticket)
     }
 
     qCWarning(scopeComm) << "DataPointService: request" << ticket << "timed out";
-    failLater(ticket, tr("The adapter did not respond"));
+    failLater(ticket, QStringLiteral("The adapter did not respond"));
 }
 
 QString DataPointService::unusableReason(deviceId_t deviceId) const
 {
     if (!_pSettingsModel->hasDevice(deviceId))
     {
-        return tr("Device %1 does not exist").arg(deviceId);
+        return QStringLiteral("Device %1 does not exist").arg(deviceId);
     }
 
-    return tr("The adapter is not running");
+    return QStringLiteral("The adapter is not running");
 }

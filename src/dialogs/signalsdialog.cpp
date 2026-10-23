@@ -279,7 +279,7 @@ QString SignalsDialog::dataPointLimitWarningMessage() const
         return QString();
     }
 
-    warnings.append(tr("A license removes this limit - see Help > About > Request License."));
+    warnings.append(QStringLiteral("A license removes this limit - see Help > About > Request License."));
     return warnings.join('\n');
 }
 

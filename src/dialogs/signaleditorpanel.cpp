@@ -177,7 +177,7 @@ void SignalEditorPanel::handleAdd()
     _pGraphDataModel->add(graphData);
 
     const QString label = _pGraphDataModel->label(GraphIdx(_pGraphDataModel->size() - 1));
-    _addedMessage = tr("Added \"%1\"").arg(label);
+    _addedMessage = QStringLiteral("Added \"%1\"").arg(label);
     updateStatus();
 
     startAdd();
@@ -259,12 +259,12 @@ void SignalEditorPanel::updateStatus()
     }
     else if (_bEditMode && _references.isEmpty())
     {
-        text = tr("This signal reads no data point.");
+        text = QStringLiteral("This signal reads no data point.");
         bError = false;
     }
     else if (_pEditor->deviceId() == 0)
     {
-        text = tr("Add a device in the connection settings first.");
+        text = QStringLiteral("Add a device in the connection settings first.");
     }
     else if (!_buildError.isEmpty())
     {
@@ -448,7 +448,7 @@ GraphIdx SignalEditorPanel::editedGraph() const
  */
 void SignalEditorPanel::applyMode(bool bEditMode)
 {
-    _pUi->lblTitle->setText(bEditMode ? tr("Edit signal") : tr("New signal"));
+    _pUi->lblTitle->setText(bEditMode ? QStringLiteral("Edit signal") : QStringLiteral("New signal"));
     _pUi->btnAdd->setVisible(!bEditMode);
     _pUi->btnEditExpression->setVisible(bEditMode);
 
@@ -556,7 +556,7 @@ void SignalEditorPanel::updateDataPointList()
         return;
     }
 
-    _pUi->lblDataPoints->setText(tr("This signal combines %1 data points.").arg(_references.size()));
+    _pUi->lblDataPoints->setText(QStringLiteral("This signal combines %1 data points.").arg(_references.size()));
 
     const QSignalBlocker blocker(_pUi->listDataPoints);
     if (_pUi->listDataPoints->count() != _references.size())
@@ -581,7 +581,8 @@ void SignalEditorPanel::updateDataPointList()
         }
         else if (description.state == State::Invalid)
         {
-            const QString error = description.error.isEmpty() ? tr("Not a valid data point") : description.error;
+            const QString error =
+              description.error.isEmpty() ? QStringLiteral("Not a valid data point") : description.error;
             text = QStringLiteral("%1  %2").arg(reference.text, error);
             bError = true;
         }
@@ -639,12 +640,12 @@ QString SignalEditorPanel::referenceProblem() const
     switch (description.state)
     {
     case State::Invalid:
-        return tr("The adapter rejects this data point: %1. Change a field to replace it.")
-          .arg(description.error.isEmpty() ? tr("Not a valid data point") : description.error);
+        return QStringLiteral("The adapter rejects this data point: %1. Change a field to replace it.")
+          .arg(description.error.isEmpty() ? QStringLiteral("Not a valid data point") : description.error);
     case State::Failed:
-        return tr("The data point could not be described: %1").arg(description.error);
+        return QStringLiteral("The data point could not be described: %1").arg(description.error);
     case State::Unavailable:
-        return tr("The adapter of this device is not running.");
+        return QStringLiteral("The adapter of this device is not running.");
     default:
         return QString();
     }

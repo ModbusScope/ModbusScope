@@ -87,7 +87,8 @@ void DataPointEditorWidget::setReference(const QString& referenceText, const QJs
     if (!_pSettingsModel->hasDevice(referenceDeviceId))
     {
         setExpression(referenceText, false);
-        setError(tr("Device %1 does not exist. Select a device to change the data point.").arg(referenceDeviceId));
+        setError(
+          QStringLiteral("Device %1 does not exist. Select a device to change the data point.").arg(referenceDeviceId));
         return;
     }
 
@@ -216,7 +217,7 @@ void DataPointEditorWidget::onExpressionBuilt(quint64 ticket, const QString& exp
     if (expression.isEmpty())
     {
         setExpression(QString(), false);
-        setError(tr("The adapter did not return a data point reference."));
+        setError(QStringLiteral("The adapter did not return a data point reference."));
         return;
     }
 
@@ -238,13 +239,13 @@ void DataPointEditorWidget::onRequestFailed(quint64 ticket, const QString& error
     _pendingTicket = 0;
     _bWaitingForAdapter = !_pDataPointService->isDeviceUsable(deviceId());
 
-    QString reason = error.isEmpty() ? tr("The adapter did not accept the address") : error;
+    QString reason = error.isEmpty() ? QStringLiteral("The adapter did not accept the address") : error;
     if (reason.endsWith(QLatin1Char('.')))
     {
         reason.chop(1);
     }
     setExpression(QString(), false);
-    setError(tr("%1. Change a field or select the device again to retry.").arg(reason));
+    setError(QStringLiteral("%1. Change a field or select the device again to retry.").arg(reason));
 }
 
 /*!
@@ -273,7 +274,7 @@ void DataPointEditorWidget::applyDevice(deviceId_t deviceId, const QJsonObject& 
     if (_pSettingsModel->hasDevice(deviceId))
     {
         const QString adapterId = _pDataPointService->adapterIdForDevice(deviceId);
-        _pProtocolLabel->setText(tr("Protocol: %1").arg(_pSettingsModel->adapterDisplayName(adapterId)));
+        _pProtocolLabel->setText(QStringLiteral("Protocol: %1").arg(_pSettingsModel->adapterDisplayName(adapterId)));
     }
     else
     {
@@ -326,6 +327,6 @@ void DataPointEditorWidget::setError(const QString& error)
  */
 void DataPointEditorWidget::updatePreview()
 {
-    _pPreviewLabel->setText(_expression.isEmpty() ? QString() : tr("Reference: %1").arg(_expression));
+    _pPreviewLabel->setText(_expression.isEmpty() ? QString() : QStringLiteral("Reference: %1").arg(_expression));
     _pPreviewLabel->setEnabled(_pendingTicket == 0);
 }
