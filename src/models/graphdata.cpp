@@ -81,6 +81,7 @@ void GraphData::setExpression(QString expression)
 {
     _expression = expression;
     _expressionState = ExpressionState::UNKNOWN;
+    _expressionError.clear();
 }
 
 GraphData::ExpressionState GraphData::expressionState() const
@@ -93,9 +94,16 @@ bool GraphData::isExpressionValid() const
     return (_expressionState == ExpressionState::VALID) || (_expressionState == ExpressionState::UNKNOWN);
 }
 
-void GraphData::setExpressionState(GraphData::ExpressionState status)
+//! Parser error of the expression, empty unless the state is SYNTAX_ERROR
+QString GraphData::expressionError() const
+{
+    return _expressionError;
+}
+
+void GraphData::setExpressionState(GraphData::ExpressionState status, const QString& error)
 {
     _expressionState = status;
+    _expressionError = error;
 }
 
 QSharedPointer<const GraphDataSeries> GraphData::dataSeries() const

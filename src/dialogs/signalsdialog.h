@@ -2,6 +2,7 @@
 #define SIGNALSDIALOG_H
 
 #include "customwidgets/centeredbox.h"
+#include "util/graphindex.h"
 
 #include <QDialog>
 
@@ -13,6 +14,7 @@ class DataPointService;
 class SettingsModel;
 class SignalEditorPanel;
 class SignalListDraft;
+class SignalTableProxyModel;
 class ValueAxisDelegate;
 class ActionButtonDelegate;
 
@@ -40,6 +42,8 @@ private slots:
     void activatedCell(QModelIndex modelIndex);
     void onSignalInserted(const QModelIndex& parent, int first, int last);
     void handleExpressionEdit(const QModelIndex& index);
+    void openExpressionDialog(GraphIdx graphIdx);
+    void onSelectionChanged();
     void updateDataPointLimitIndication();
 
 private:
@@ -54,6 +58,7 @@ private:
     AdapterHub* _pAdapterHub;
     DataPointService* _pDataPointService;
     DataPointDescriptionCache* _pDescriptionCache;
+    SignalTableProxyModel* _pTableModel;
     SignalEditorPanel* _pPanel{ nullptr };
 
     CenteredBoxProxyStyle _centeredBoxStyle;
@@ -63,6 +68,7 @@ private:
 
     static constexpr int cMinimumWidth = 680;
     static constexpr int cMinimumHeight = 400;
+    static constexpr int cPanelWidth = 400;
 };
 
 #endif // SIGNALSDIALOG_H

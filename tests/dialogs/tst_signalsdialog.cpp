@@ -6,14 +6,17 @@
 #include "dialogs/signalsdialog.h"
 #include "models/graphdatamodel.h"
 
+#include <QAbstractProxyModel>
 #include <QDialogButtonBox>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMimeData>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSignalSpy>
+#include <QSpinBox>
 #include <QTableView>
 #include <QTest>
 
@@ -166,7 +169,9 @@ GraphDataModel* TestSignalsDialog::draftModel() const
 {
     auto* pView = _pDialog->findChild<QTableView*>("signalView");
     Q_ASSERT(pView != nullptr);
-    return qobject_cast<GraphDataModel*>(pView->model());
+    auto* pProxy = qobject_cast<QAbstractProxyModel*>(pView->model());
+    Q_ASSERT(pProxy != nullptr);
+    return qobject_cast<GraphDataModel*>(pProxy->sourceModel());
 }
 
 //! Give every signal in the source model three samples, as after a stopped log.
@@ -333,7 +338,7 @@ void TestSignalsDialog::addedSignalScrolledIntoViewNotSelected()
 
     QCOMPARE(draftModel()->size(), 41);
     QVERIFY(!pView->selectionModel()->hasSelection());
-    const QRect lastRowRect = pView->visualRect(draftModel()->index(40, 0));
+    const QRect lastRowRect = pView->visualRect(pView->model()->index(40, 0));
     QVERIFY(pView->viewport()->rect().intersects(lastRowRect));
 }
 
@@ -359,11 +364,12 @@ void TestSignalsDialog::deleteInNameFieldKeepsRows()
     pName->setFocus();
     QTest::keyClicks(pName, "ab");
     QTest::keyClick(pName, Qt::Key_Home);
+    const QString nameBefore = pName->text();
 
     QTest::keyClick(pName, Qt::Key_Delete);
 
     QCOMPARE(draftModel()->size(), 2);
-    QCOMPARE(pName->text(), QStringLiteral("b"));
+    QCOMPARE(pName->text(), nameBefore.mid(1));
 }
 
 void TestSignalsDialog::cancelDiscardsPanelAdds()
@@ -396,6 +402,180 @@ void TestSignalsDialog::minimumSizeKeepsTableAndPanelUsable()
     pScrollArea->ensureWidgetVisible(pAddSignal);
     const QRect addRect(pAddSignal->mapTo(pScrollArea->viewport(), QPoint(0, 0)), pAddSignal->size());
     QVERIFY(pScrollArea->viewport()->rect().contains(addRect));
+}
+
+//! The panel opens wider than its minimum, so the address fields are not cramped.
+void TestSignalsDialog::panelOpensWiderThanItsMinimum()
+{
+    openWithReadyAdapter(3);
+
+    auto* pScrollArea = _pDialog->findChild<QScrollArea*>("panelScrollArea");
+    QVERIFY(pScrollArea->width() > pScrollArea->minimumWidth());
+}
+
+//! Extra dialog width goes to the table; the panel keeps its width.
+void TestSignalsDialog::widerDialogWidensOnlyTheTable()
+{
+    openWithReadyAdapter(3);
+
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    auto* pScrollArea = _pDialog->findChild<QScrollArea*>("panelScrollArea");
+    const int viewWidth = pView->width();
+    const int panelWidth = pScrollArea->width();
+
+    _pDialog->resize(_pDialog->width() + 200, _pDialog->height());
+
+    QTRY_VERIFY(pView->width() > viewWidth);
+    QCOMPARE(pScrollArea->width(), panelWidth);
+}
+
+//! Expressions of the draft signals, in table order.
+QStringList TestSignalsDialog::draftExpressions() const
+{
+    QStringList expressions;
+    for (qint32 idx = 0; idx < draftModel()->size(); idx++)
+    {
+        expressions.append(draftModel()->expression(GraphIdx(idx)));
+    }
+    return expressions;
+}
+
+void TestSignalsDialog::dataPointColumnShowsDescription()
+{
+    openWithReadyAdapter(1);
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    const QModelIndex dataPointIndex = pView->model()->index(0, GraphDataModel::column::COUNT);
+
+    QCOMPARE(pView->model()->headerData(GraphDataModel::column::COUNT, Qt::Horizontal).toString(),
+             QStringLiteral("Data point"));
+    QCOMPARE(dataPointIndex.data().toString(), QStringLiteral("${40001}"));
+    QCOMPARE(_pMockAdapterManager->describeCalls, QStringList({ QStringLiteral("${40001}") }));
+
+    _pMockAdapterManager->injectDescribeResult(0, QStringLiteral("Holding register 40001"));
+
+    QCOMPARE(dataPointIndex.data().toString(), QStringLiteral("Holding register 40001"));
+}
+
+//! Dragging a row by its Data point cell moves the signal, and OK applies the new order.
+void TestSignalsDialog::dragFromDataPointColumnReordersSignals()
+{
+    openWithReadyAdapter(3);
+    QAbstractItemModel* pModel = _pDialog->findChild<QTableView*>("signalView")->model();
+
+    QScopedPointer<QMimeData> pData(pModel->mimeData({ pModel->index(0, GraphDataModel::column::COUNT) }));
+    QVERIFY(pData);
+    QVERIFY(pModel->canDropMimeData(pData.data(), Qt::MoveAction, 3, -1, QModelIndex()));
+    pModel->dropMimeData(pData.data(), Qt::MoveAction, 3, -1, QModelIndex());
+
+    const QStringList expected = { QStringLiteral("${40002}"), QStringLiteral("${40003}"), QStringLiteral("${40001}") };
+    QCOMPARE(draftExpressions(), expected);
+
+    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Ok)->click();
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), expected.at(0));
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(2)), expected.at(2));
+}
+
+void TestSignalsDialog::clickOnDataPointColumnSelectsRowForRemove()
+{
+    openWithReadyAdapter(3);
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+
+    const QRect cellRect = pView->visualRect(pView->model()->index(1, GraphDataModel::column::COUNT));
+    QTest::mouseClick(pView->viewport(), Qt::LeftButton, Qt::NoModifier, cellRect.center());
+
+    const QModelIndexList selectedRows = pView->selectionModel()->selectedRows();
+    QCOMPARE(selectedRows.size(), 1);
+    QCOMPARE(selectedRows.first().row(), 1);
+
+    QTest::mouseClick(_pDialog->findChild<QPushButton*>("btnRemove"), Qt::LeftButton);
+
+    QCOMPARE(draftExpressions(), QStringList({ QStringLiteral("${40001}"), QStringLiteral("${40003}") }));
+}
+
+/*!
+ * \brief Select the first signal, change its address in the panel and answer the build request.
+ * \param address        The address to enter.
+ * \param builtReference The reference the adapter builds for it.
+ */
+void TestSignalsDialog::editFirstSignalAddressThroughPanel(int address, const QString& builtReference)
+{
+    _pDialog->findChild<QTableView*>("signalView")->selectRow(0);
+
+    const qsizetype describeIdx = _pMockAdapterManager->describeCalls.indexOf(draftModel()->expression(GraphIdx(0)));
+    QVERIFY(describeIdx >= 0);
+    _pMockAdapterManager->injectDescribeResult(static_cast<int>(describeIdx), QStringLiteral("described"));
+
+    auto* pAddressSpin = panel()->findChild<QSpinBox*>();
+    QVERIFY(pAddressSpin != nullptr);
+    QVERIFY(pAddressSpin->isEnabled());
+    pAddressSpin->setValue(address);
+    _pMockAdapterManager->injectBuildExpressionResult(builtReference);
+
+    QCOMPARE(draftModel()->expression(GraphIdx(0)), builtReference);
+}
+
+void TestSignalsDialog::selectingRowEditsSignalInPanel()
+{
+    openWithReadyAdapter(2);
+    draftModel()->setLabel(GraphIdx(1), QStringLiteral("Second"));
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    auto* pName = panel()->findChild<QLineEdit*>("lineName");
+    auto* pTitle = panel()->findChild<QLabel*>("lblTitle");
+
+    pView->selectRow(1);
+
+    QCOMPARE(pTitle->text(), QStringLiteral("Edit signal"));
+    QCOMPARE(pName->text(), QStringLiteral("Second"));
+
+    pView->clearSelection();
+
+    QCOMPARE(pTitle->text(), QStringLiteral("New signal"));
+    QCOMPARE(pName->text(), QString());
+
+    pView->selectRow(0);
+    QTest::mouseClick(_pDialog->findChild<QPushButton*>("btnAdd"), Qt::LeftButton);
+
+    QCOMPARE(pTitle->text(), QStringLiteral("New signal"));
+}
+
+void TestSignalsDialog::cancelDiscardsPanelEdits()
+{
+    openWithReadyAdapter(1);
+    editFirstSignalAddressThroughPanel(5, QStringLiteral("${h5}"));
+
+    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Cancel)->click();
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001}"));
+}
+
+void TestSignalsDialog::okAppliesPanelEdits()
+{
+    openWithReadyAdapter(1);
+    editFirstSignalAddressThroughPanel(5, QStringLiteral("${h5}"));
+
+    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Ok)->click();
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h5}"));
+}
+
+//! The panel keeps editing the same signal after it was dragged to another row.
+void TestSignalsDialog::editModeFollowsMovedRow()
+{
+    openWithReadyAdapter(3);
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    pView->selectRow(0);
+
+    QAbstractItemModel* pModel = pView->model();
+    QScopedPointer<QMimeData> pData(pModel->mimeData({ pModel->index(0, GraphDataModel::column::TEXT) }));
+    pModel->dropMimeData(pData.data(), Qt::MoveAction, 3, -1, QModelIndex());
+    QCOMPARE(draftModel()->expression(GraphIdx(2)), QStringLiteral("${40001}"));
+
+    auto* pName = panel()->findChild<QLineEdit*>("lineName");
+    pName->selectAll();
+    QTest::keyClicks(pName, "Moved");
+
+    QCOMPARE(draftModel()->label(GraphIdx(2)), QStringLiteral("Moved"));
 }
 
 QTEST_MAIN(TestSignalsDialog)

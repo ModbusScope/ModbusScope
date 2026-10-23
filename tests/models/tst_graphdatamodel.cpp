@@ -4,6 +4,7 @@
 #include "models/graphdatamodel.h"
 #include "util/graphindex.h"
 
+#include <QAbstractItemModelTester>
 #include <QSignalSpy>
 #include <QTest>
 
@@ -304,6 +305,38 @@ void TestGraphDataModel::moveSignalToSamePositionDoesNothing()
     QCOMPARE(labels(model), QStringList({ "a", "b" }));
     QCOMPARE(spyMoved.count(), 0);
     QCOMPARE(spyMovedSignal.count(), 0);
+}
+
+void TestGraphDataModel::modelTester()
+{
+    GraphDataModel model;
+    QAbstractItemModelTester tester(&model, QAbstractItemModelTester::FailureReportingMode::QtTest);
+
+    addLabels(model, { "a", "b", "c" });
+    model.setExpression(GraphIdx(1), QStringLiteral("${40002}"));
+    model.moveSignal(GraphIdx(0), GraphIdx(2));
+    model.removeSignals({ GraphIdx(1) });
+    model.clear();
+}
+
+void TestGraphDataModel::syntaxErrorToolTipShowsParserError()
+{
+    GraphDataModel model;
+    model.add();
+    model.setExpressionState(GraphIdx(0), GraphData::ExpressionState::SYNTAX_ERROR, QStringLiteral("Unexpected end"));
+
+    const QModelIndex index = model.index(0, GraphDataModel::column::EXPRESSION);
+    QCOMPARE(model.data(index, Qt::ToolTipRole).toString(), QStringLiteral("Unexpected end"));
+}
+
+void TestGraphDataModel::syntaxErrorToolTipFallsBackToGenericText()
+{
+    GraphDataModel model;
+    model.add();
+    model.setExpressionState(GraphIdx(0), GraphData::ExpressionState::SYNTAX_ERROR);
+
+    const QModelIndex index = model.index(0, GraphDataModel::column::EXPRESSION);
+    QCOMPARE(model.data(index, Qt::ToolTipRole).toString(), QStringLiteral("The expression has a syntax error"));
 }
 
 QTEST_GUILESS_MAIN(TestGraphDataModel)

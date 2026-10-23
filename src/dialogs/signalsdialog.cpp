@@ -7,6 +7,7 @@
 #include "datahandling/datapointusage.h"
 #include "dialogs/expressionsdialog.h"
 #include "dialogs/signaleditorpanel.h"
+#include "dialogs/signaltableproxymodel.h"
 #include "dialogs/ui_signalsdialog.h"
 #include "models/datapointdescriptioncache.h"
 #include "models/graphdatamodel.h"
@@ -33,9 +34,10 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     _pAdapterHub = pAdapterHub;
     _pDataPointService = new DataPointService(_pSettingsModel, _pAdapterHub, this);
     _pDescriptionCache = new DataPointDescriptionCache(_pDataPointService, this);
+    _pTableModel = new SignalTableProxyModel(_pDraft->model(), _pDescriptionCache, this);
 
     // Setup signalView
-    _pUi->signalView->setModel(_pDraft->model());
+    _pUi->signalView->setModel(_pTableModel);
     _pUi->signalView->verticalHeader()->hide();
 
     _valueAxisDelegate = std::make_unique<ValueAxisDelegate>(_pUi->signalView);
@@ -53,6 +55,7 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     _pUi->signalView->horizontalHeader()->setSectionResizeMode(GraphDataModel::column::TEXT, QHeaderView::Stretch);
     _pUi->signalView->horizontalHeader()->setSectionResizeMode(GraphDataModel::column::EXPRESSION,
                                                                QHeaderView::Stretch);
+    _pUi->signalView->horizontalHeader()->setSectionResizeMode(_pTableModel->dataPointColumn(), QHeaderView::Stretch);
 
     auto triggers = QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed;
     _pUi->signalView->setEditTriggers(triggers);
@@ -86,6 +89,10 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
 
 SignalsDialog::~SignalsDialog()
 {
+    /* The delegates are destroyed before QDialog hides the table, which can still ask them for a column size */
+    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, nullptr);
+    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, nullptr);
+
     delete _pUi;
 }
 
@@ -118,7 +125,7 @@ void SignalsDialog::activatedCell(QModelIndex modelIndex)
 
         if (color.isValid())
         {
-            _pDraft->model()->setData(modelIndex, color, Qt::EditRole);
+            _pTableModel->setData(modelIndex, color, Qt::EditRole);
         }
     }
 }
@@ -129,7 +136,7 @@ void SignalsDialog::onSignalInserted(const QModelIndex& parent, int first, int l
     Q_UNUSED(last);
 
     /* Only scroll: selecting a row is reserved for editing that signal */
-    _pUi->signalView->scrollTo(_pDraft->model()->index(first, 0));
+    _pUi->signalView->scrollTo(_pTableModel->index(first, 0));
 }
 
 void SignalsDialog::removeSelectedSignals()
@@ -159,25 +166,58 @@ void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
     {
         _pUi->signalView->closePersistentEditor(index);
 
-        ExpressionsDialog exprDialog(_pDraft->model(), GraphIdx(index.row()), _pAdapterHub, _pSettingsModel,
-                                     _pDataPointService, _pDescriptionCache, this);
-
-        exprDialog.exec();
+        openExpressionDialog(GraphIdx(index.row()));
     }
 }
 
 /*!
- * \brief Place the signal editor panel next to the table; extra width goes to the table.
+ * \brief Open Compose expression for a signal; Accept writes the expression to the draft.
+ * \param graphIdx The signal to edit.
+ */
+void SignalsDialog::openExpressionDialog(GraphIdx graphIdx)
+{
+    ExpressionsDialog exprDialog(_pDraft->model(), graphIdx, _pAdapterHub, _pSettingsModel, _pDataPointService,
+                                 _pDescriptionCache, this);
+
+    exprDialog.exec();
+}
+
+/*!
+ * \brief Edit the selected signal in the panel; without a selection the panel adds signals.
+ */
+void SignalsDialog::onSelectionChanged()
+{
+    const QModelIndexList rowList = _pUi->signalView->selectionModel()->selectedRows();
+    if (rowList.size() == 1)
+    {
+        _pPanel->editSignal(GraphIdx(rowList.first().row()));
+    }
+    else
+    {
+        _pPanel->showAddMode();
+    }
+}
+
+/*!
+ * \brief Place the signal editor panel next to the table; the panel opens at a comfortable width
+ *  and extra width goes to the table.
+ *
+ * Selecting a row edits that signal in the panel.
  */
 void SignalsDialog::setupEditorPanel()
 {
-    _pPanel = new SignalEditorPanel(_pDraft->model(), _pSettingsModel, _pDataPointService, this);
+    _pPanel = new SignalEditorPanel(_pDraft->model(), _pSettingsModel, _pDataPointService, _pDescriptionCache, this);
     _pUi->panelScrollArea->setWidget(_pPanel);
+
+    connect(_pUi->signalView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
+            &SignalsDialog::onSelectionChanged);
+    connect(_pPanel, &SignalEditorPanel::editExpressionRequested, this, &SignalsDialog::openExpressionDialog);
 
     _pUi->splitter->setStretchFactor(0, 1);
     _pUi->splitter->setStretchFactor(1, 0);
     _pUi->splitter->setCollapsible(0, false);
     _pUi->splitter->setCollapsible(1, false);
+    _pUi->splitter->setSizes({ width() - cPanelWidth, cPanelWidth });
 
     setMinimumSize(cMinimumWidth, cMinimumHeight);
 }

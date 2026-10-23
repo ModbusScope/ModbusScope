@@ -22,6 +22,8 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * Signals are added in a panel next to the table that stays open: Add signal (or Enter) keeps the device, address fields and axis for the next signal. Add no longer inserts a row with a default expression
 * Compose expression: Insert data point adds a data point at the cursor from an address form, without typing its syntax
 * Compose expression: the data point table has a row for each occurrence of a data point, a data point the adapter rejects is shown in red and blocks Accept, and a syntax error marks only the part of the expression where it was found
+* The Signals table has a Data point column that shows what each signal reads, as described by the adapter, and the error of an expression that does not parse
+* Selecting a signal edits it in the panel: its name, axis, and the device and address fields of each data point, without changing the rest of the expression
 
 ## [v5.0.1](https://github.com/jgeudens/ModbusScope/releases/tag/5.0.1) (09/10/2026)
 
