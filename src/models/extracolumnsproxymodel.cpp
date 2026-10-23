@@ -71,6 +71,7 @@ void ExtraColumnsProxyModel::setSourceModel(QAbstractItemModel* pSourceModel)
     }
 }
 
+//! Returns the source columns plus the extra columns; a flat table, so 0 below the top level.
 int ExtraColumnsProxyModel::columnCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
@@ -81,6 +82,7 @@ int ExtraColumnsProxyModel::columnCount(const QModelIndex& parent) const
     return firstExtraColumn() + _extraColumnCount;
 }
 
+//! Returns the source rows; a flat table, so 0 below the top level.
 int ExtraColumnsProxyModel::rowCount(const QModelIndex& parent) const
 {
     if (parent.isValid())
@@ -91,11 +93,13 @@ int ExtraColumnsProxyModel::rowCount(const QModelIndex& parent) const
     return QIdentityProxyModel::rowCount(parent);
 }
 
+//! Returns true only for the top level, when it has rows and columns.
 bool ExtraColumnsProxyModel::hasChildren(const QModelIndex& parent) const
 {
     return rowCount(parent) > 0 && columnCount(parent) > 0;
 }
 
+//! Returns the index at \a row and \a column; an extra column gets an index of this proxy without a source.
 QModelIndex ExtraColumnsProxyModel::index(int row, int column, const QModelIndex& parent) const
 {
     if (extraColumnIndex(column) < 0)
@@ -111,6 +115,7 @@ QModelIndex ExtraColumnsProxyModel::index(int row, int column, const QModelIndex
     return createIndex(row, column);
 }
 
+//! Returns the parent of \a child; an extra column is always top level.
 QModelIndex ExtraColumnsProxyModel::parent(const QModelIndex& child) const
 {
     if (extraColumnIndex(child.column()) >= 0)
@@ -121,11 +126,13 @@ QModelIndex ExtraColumnsProxyModel::parent(const QModelIndex& child) const
     return QIdentityProxyModel::parent(child);
 }
 
+//! Returns the sibling at \a row and \a column, which may be an extra column.
 QModelIndex ExtraColumnsProxyModel::sibling(int row, int column, const QModelIndex& idx) const
 {
     return index(row, column, parent(idx));
 }
 
+//! Maps \a proxyIndex to the source; an extra column maps to an invalid index.
 QModelIndex ExtraColumnsProxyModel::mapToSource(const QModelIndex& proxyIndex) const
 {
     if (extraColumnIndex(proxyIndex.column()) >= 0)
@@ -159,6 +166,7 @@ QItemSelection ExtraColumnsProxyModel::mapSelectionToSource(const QItemSelection
     return QIdentityProxyModel::mapSelectionToSource(sourceColumns);
 }
 
+//! Returns the data for \a index; an extra column gets it from extraColumnData().
 QVariant ExtraColumnsProxyModel::data(const QModelIndex& index, int role) const
 {
     const int extraColumn = extraColumnIndex(index.column());
@@ -181,6 +189,7 @@ bool ExtraColumnsProxyModel::setData(const QModelIndex& index, const QVariant& v
     return QIdentityProxyModel::setData(index, value, role);
 }
 
+//! Returns the header data; a horizontal extra column header gets it from extraHeaderData().
 QVariant ExtraColumnsProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     const int extraColumn = extraColumnIndex(section);
@@ -192,6 +201,7 @@ QVariant ExtraColumnsProxyModel::headerData(int section, Qt::Orientation orienta
     return QIdentityProxyModel::headerData(section, orientation, role);
 }
 
+//! Returns the item flags; an extra column gets them from extraColumnFlags().
 Qt::ItemFlags ExtraColumnsProxyModel::flags(const QModelIndex& index) const
 {
     const int extraColumn = extraColumnIndex(index.column());
