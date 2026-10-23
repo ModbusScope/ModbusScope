@@ -5,9 +5,13 @@
 #include "dialogs/signalsdialog.h"
 #include "models/graphdatamodel.h"
 
+#include <QDialogButtonBox>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
+#include <QPushButton>
+#include <QSignalSpy>
+#include <QTableView>
 #include <QTest>
 
 namespace {
@@ -238,7 +242,7 @@ void TestSignalsDialog::dataPointLimitWarningHiddenWhenSignalDeactivated()
     QVERIFY(warningLabel != nullptr);
     QVERIFY(!warningLabel->isHidden());
 
-    _pGraphDataModel->setActive(GraphIdx(0), false);
+    draftModel()->setActive(GraphIdx(0), false);
 
     QVERIFY(warningLabel->isHidden());
 }
@@ -255,6 +259,128 @@ void TestSignalsDialog::dataPointLimitWarningHiddenWhenAdapterReportsNoLimit()
     auto* warningLabel = _pDialog->findChild<QLabel*>("dataPointLimitWarningLabel");
     QVERIFY(warningLabel != nullptr);
     QVERIFY(warningLabel->isHidden());
+}
+
+//! The model the dialog's table edits.
+GraphDataModel* TestSignalsDialog::draftModel() const
+{
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    Q_ASSERT(pView != nullptr);
+    return qobject_cast<GraphDataModel*>(pView->model());
+}
+
+//! Give every signal in the source model three samples, as after a stopped log.
+void TestSignalsDialog::seedSamples()
+{
+    for (qint32 idx = 0; idx < _pGraphDataModel->size(); idx++)
+    {
+        _pGraphDataModel->mutableDataSeries(GraphIdx(idx))->setSamples({ 0, 1, 2 }, { 10, 11, 12 });
+    }
+}
+
+//! Add a signal, remove the second one, deactivate the first and edit the expression of the third.
+void TestSignalsDialog::editDraft()
+{
+    GraphData data;
+    data.setLabel("added");
+    data.setExpression("${40100}");
+    draftModel()->add(data);
+    draftModel()->removeSignals({ GraphIdx(1) });
+    draftModel()->setActive(GraphIdx(0), false);
+    draftModel()->setExpression(GraphIdx(1), "${40200}");
+}
+
+void TestSignalsDialog::buttonBoxHasOkAndCancel()
+{
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+
+    auto* pButtonBox = _pDialog->findChild<QDialogButtonBox*>("buttonBox");
+    QVERIFY(pButtonBox != nullptr);
+    QVERIFY(pButtonBox->button(QDialogButtonBox::Ok) != nullptr);
+    QVERIFY(pButtonBox->button(QDialogButtonBox::Cancel) != nullptr);
+}
+
+void TestSignalsDialog::tableEditsDraftNotSource()
+{
+    seedSignals(2);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    QVERIFY(draftModel() != _pGraphDataModel);
+
+    draftModel()->setData(draftModel()->index(0, GraphDataModel::column::TEXT), "renamed", Qt::EditRole);
+
+    QCOMPARE(draftModel()->label(GraphIdx(0)), QString("renamed"));
+    QVERIFY(_pGraphDataModel->label(GraphIdx(0)) != QString("renamed"));
+}
+
+void TestSignalsDialog::cancelDiscardsChanges()
+{
+    seedSignals(3);
+    seedSamples();
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    editDraft();
+
+    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Cancel)->click();
+
+    QCOMPARE(_pDialog->result(), int(QDialog::Rejected));
+    QCOMPARE(_pGraphDataModel->size(), 3);
+    for (qint32 idx = 0; idx < 3; idx++)
+    {
+        QVERIFY(_pGraphDataModel->isActive(GraphIdx(idx)));
+        QCOMPARE(_pGraphDataModel->expression(GraphIdx(idx)), QString("${%1}").arg(40001 + idx));
+        QCOMPARE(_pGraphDataModel->dataSeries(GraphIdx(idx))->size(), 3);
+    }
+}
+
+void TestSignalsDialog::escapeDiscardsChanges()
+{
+    seedSignals(1);
+    seedSamples();
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    draftModel()->setActive(GraphIdx(0), false);
+
+    QTest::keyClick(_pDialog, Qt::Key_Escape);
+
+    QCOMPARE(_pDialog->result(), int(QDialog::Rejected));
+    QVERIFY(_pGraphDataModel->isActive(GraphIdx(0)));
+    QCOMPARE(_pGraphDataModel->dataSeries(GraphIdx(0))->size(), 3);
+}
+
+void TestSignalsDialog::okAppliesChanges()
+{
+    seedSignals(4);
+    seedSamples();
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    editDraft();
+
+    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Ok)->click();
+
+    QCOMPARE(_pDialog->result(), int(QDialog::Accepted));
+    QCOMPARE(_pGraphDataModel->size(), 4);
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QString("${40001}"));
+    QVERIFY(!_pGraphDataModel->isActive(GraphIdx(0)));
+    QCOMPARE(_pGraphDataModel->dataSeries(GraphIdx(0))->size(), 0);
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(1)), QString("${40200}"));
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(2)), QString("${40004}"));
+    QCOMPARE(_pGraphDataModel->dataSeries(GraphIdx(2))->size(), 3);
+    QCOMPARE(_pGraphDataModel->label(GraphIdx(3)), QString("added"));
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(3)), QString("${40100}"));
+}
+
+void TestSignalsDialog::okWithoutChangesLeavesSourceUntouched()
+{
+    seedSignals(2);
+    seedSamples();
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    QSignalSpy spyDataChanged(_pGraphDataModel, &GraphDataModel::dataChanged);
+    QSignalSpy spyInserted(_pGraphDataModel, &GraphDataModel::rowsInserted);
+    QSignalSpy spyRemoved(_pGraphDataModel, &GraphDataModel::rowsRemoved);
+
+    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Ok)->click();
+
+    QCOMPARE(spyDataChanged.count(), 0);
+    QCOMPARE(spyInserted.count(), 0);
+    QCOMPARE(spyRemoved.count(), 0);
+    QCOMPARE(_pGraphDataModel->dataSeries(GraphIdx(0))->size(), 3);
 }
 
 QTEST_MAIN(TestSignalsDialog)

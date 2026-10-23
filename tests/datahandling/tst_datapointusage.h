@@ -2,6 +2,9 @@
 #ifndef TEST_DATAPOINTUSAGE_H__
 #define TEST_DATAPOINTUSAGE_H__
 
+#include "communication/datapoint.h"
+
+#include <QJsonObject>
 #include <QObject>
 
 /* Forward declaration */
@@ -26,7 +29,16 @@ private slots:
     void countPerAdapterCountsSingleAdapter();
     void countPerAdapterSplitsOverAdapters();
 
+    void limitWarningsEmptyWithinLimit();
+    void limitWarningsEmptyAtLimit();
+    void limitWarningsReportsAdapterOverLimit();
+    void limitWarningsIgnoresUnknownAdapter();
+    void limitWarningsUsesIdForAdapterWithoutName();
+
 private:
+    static QJsonObject describeWithLimit(const QString& name, int maxRegisters);
+    QList<DataPoint> seedDataPoints(int count);
+
     SettingsModel* _pSettingsModel;
     GraphDataModel* _pGraphDataModel;
 };

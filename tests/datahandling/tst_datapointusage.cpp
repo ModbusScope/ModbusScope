@@ -112,4 +112,80 @@ void TestDataPointUsage::countPerAdapterSplitsOverAdapters()
     QCOMPARE(counts.value("dummy"), 2);
 }
 
+//! Describe response of an adapter called \a name that allows \a maxRegisters data points.
+QJsonObject TestDataPointUsage::describeWithLimit(const QString& name, int maxRegisters)
+{
+    QJsonObject capabilities;
+    capabilities["maxRegisters"] = maxRegisters;
+
+    QJsonObject describeResult;
+    describeResult["name"] = name;
+    describeResult["capabilities"] = capabilities;
+    return describeResult;
+}
+
+//! Add \a count signals on the first device, each with its own data point, and return those data points.
+QList<DataPoint> TestDataPointUsage::seedDataPoints(int count)
+{
+    QStringList exprList;
+    for (int idx = 0; idx < count; idx++)
+    {
+        exprList.append(QString("${%1}").arg(40001 + idx));
+    }
+    CommunicationHelpers::addExpressionsToModel(_pGraphDataModel, exprList);
+
+    return DataPointUsage::activeDataPoints(_pGraphDataModel);
+}
+
+void TestDataPointUsage::limitWarningsEmptyWithinLimit()
+{
+    DeviceListHelpers::seedDevice(_pSettingsModel, Device::cFirstDeviceId, QString(cModbusAdapterId));
+    _pSettingsModel->updateAdapterFromDescribe(QString(cModbusAdapterId), describeWithLimit("Modbus", 3));
+
+    QVERIFY(DataPointUsage::limitWarnings(seedDataPoints(2), _pSettingsModel).isEmpty());
+}
+
+void TestDataPointUsage::limitWarningsEmptyAtLimit()
+{
+    DeviceListHelpers::seedDevice(_pSettingsModel, Device::cFirstDeviceId, QString(cModbusAdapterId));
+    _pSettingsModel->updateAdapterFromDescribe(QString(cModbusAdapterId), describeWithLimit("Modbus", 3));
+
+    QVERIFY(DataPointUsage::limitWarnings(seedDataPoints(3), _pSettingsModel).isEmpty());
+}
+
+void TestDataPointUsage::limitWarningsReportsAdapterOverLimit()
+{
+    DeviceListHelpers::seedDevice(_pSettingsModel, Device::cFirstDeviceId, QString(cModbusAdapterId));
+    _pSettingsModel->updateAdapterFromDescribe(QString(cModbusAdapterId), describeWithLimit("Modbus", 3));
+
+    const QStringList warnings = DataPointUsage::limitWarnings(seedDataPoints(4), _pSettingsModel);
+
+    QCOMPARE(warnings.size(), 1);
+    QCOMPARE(warnings.first(), QString("Modbus allows at most 3 data point(s), but 4 are configured."));
+}
+
+/*!
+ * \brief An adapter SettingsModel does not know cannot have reported a limit, and checking it must
+ * not insert a phantom adapter entry.
+ */
+void TestDataPointUsage::limitWarningsIgnoresUnknownAdapter()
+{
+    DeviceListHelpers::seedDevice(_pSettingsModel, Device::cFirstDeviceId, "ghost");
+    const QStringList adapterIdsBefore = _pSettingsModel->adapterIds();
+
+    QVERIFY(DataPointUsage::limitWarnings(seedDataPoints(1), _pSettingsModel).isEmpty());
+    QCOMPARE(_pSettingsModel->adapterIds(), adapterIdsBefore);
+}
+
+void TestDataPointUsage::limitWarningsUsesIdForAdapterWithoutName()
+{
+    DeviceListHelpers::seedDevice(_pSettingsModel, Device::cFirstDeviceId, QString(cModbusAdapterId));
+    _pSettingsModel->updateAdapterFromDescribe(QString(cModbusAdapterId), describeWithLimit(QString(), 1));
+
+    const QStringList warnings = DataPointUsage::limitWarnings(seedDataPoints(2), _pSettingsModel);
+
+    QCOMPARE(warnings.size(), 1);
+    QVERIFY(warnings.first().startsWith(QString("%1 allows at most 1").arg(cModbusAdapterId)));
+}
+
 QTEST_GUILESS_MAIN(TestDataPointUsage)

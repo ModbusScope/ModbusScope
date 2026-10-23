@@ -3,6 +3,9 @@
 #define TST_GRAPHDATAMODEL_H
 
 #include <QObject>
+#include <QStringList>
+
+class GraphDataModel;
 
 class TestGraphDataModel : public QObject
 {
@@ -30,6 +33,23 @@ private slots:
 
     void setAllDataPassesQualities();
     void setAllDataDropsMisalignedQualities();
+
+    void removeSignalsRemovesUnsortedIndices();
+    void removeSignalsIgnoresDuplicateAndInvalidIndices();
+
+    void rowAfterRemovalKeepsPositionInMiddle();
+    void rowAfterRemovalSelectsLastRowAtEnd();
+    void rowAfterRemovalReturnsNoneWhenEmpty();
+
+    void moveSignalDown();
+    void moveSignalUp();
+    void moveSignalToLastRow();
+    void moveSignalToFirstRow();
+    void moveSignalToSamePositionDoesNothing();
+
+private:
+    static QStringList labels(const GraphDataModel& model);
+    static void addLabels(GraphDataModel& model, const QStringList& labelList);
 };
 
 #endif /* TST_GRAPHDATAMODEL_H */

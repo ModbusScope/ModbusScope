@@ -8,6 +8,9 @@
 
 #include <QMimeData>
 
+#include <algorithm>
+#include <functional>
+
 const QColor GraphDataModel::lightRed = QColor(240, 128, 128); // #f08080
 
 GraphDataModel::GraphDataModel(QObject* parent)
@@ -588,6 +591,71 @@ void GraphDataModel::removeRegister(GraphIdx idx)
     {
         removeFromModel(idx.v);
     }
+}
+
+/*!
+ * \brief Removes several signals at once.
+ *
+ * Rows are removed highest first, so the remaining indices stay valid while removing. Invalid,
+ * out-of-range and duplicate indices are ignored.
+ * \param indices Rows to remove, in any order.
+ */
+void GraphDataModel::removeSignals(const QList<GraphIdx>& indices)
+{
+    QList<int> rows;
+    for (const GraphIdx idx : indices)
+    {
+        if (idx.isValid() && idx.v < _pStore->size() && !rows.contains(idx.v))
+        {
+            rows.append(idx.v);
+        }
+    }
+
+    std::sort(rows.begin(), rows.end(), std::greater<int>());
+
+    for (const int row : std::as_const(rows))
+    {
+        removeFromModel(row);
+    }
+}
+
+/*!
+ * \brief Moves a signal to another position.
+ * \param from Row of the signal to move.
+ * \param to   Row the signal has after the move.
+ */
+void GraphDataModel::moveSignal(GraphIdx from, GraphIdx to)
+{
+    if (!from.isValid() || !to.isValid() || from.v >= size() || to.v >= size() || from == to)
+    {
+        return;
+    }
+
+    /* moveRow() takes the row the signal is dropped before, as a drop does */
+    const int dropRow = to.v > from.v ? to.v + 1 : to.v;
+    moveRow(from.v, dropRow);
+}
+
+/*!
+ * \brief Returns the row to select after removing signals.
+ * \param firstRemovedRow Lowest row that was removed.
+ * \param rowCount        Number of rows left after the removal.
+ * \return The row that took the place of the first removed row, the last row when the removed
+ *         rows were at the end, or -1 when no rows are left.
+ */
+int GraphDataModel::rowAfterRemoval(int firstRemovedRow, int rowCount)
+{
+    if (rowCount <= 0)
+    {
+        return -1;
+    }
+
+    if (firstRemovedRow < rowCount)
+    {
+        return firstRemovedRow;
+    }
+
+    return rowCount - 1;
 }
 
 void GraphDataModel::clear()

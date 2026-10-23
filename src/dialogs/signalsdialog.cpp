@@ -9,10 +9,10 @@
 #include "dialogs/addregisterwidget.h"
 #include "dialogs/expressionsdialog.h"
 #include "dialogs/ui_signalsdialog.h"
-#include "models/adapterdata.h"
 #include "models/datapointdescriptioncache.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
+#include "models/signallistdraft.h"
 #include "valueaxisdelegate.h"
 
 #include <QColorDialog>
@@ -29,7 +29,7 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     /* Disable question mark button */
     setWindowFlags(windowFlags() & ~Qt::WindowContextHelpButtonHint);
 
-    _pGraphDataModel = pGraphDataModel;
+    _pDraft = new SignalListDraft(pGraphDataModel, pSettingsModel, this);
     _pSettingsModel = pSettingsModel;
     _pAdapterHub = pAdapterHub;
     _pDataPointService = new DataPointService(_pSettingsModel, _pAdapterHub, this);
@@ -56,7 +56,7 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     }
 
     // Setup signalView
-    _pUi->signalView->setModel(_pGraphDataModel);
+    _pUi->signalView->setModel(_pDraft->model());
     _pUi->signalView->verticalHeader()->hide();
 
     _valueAxisDelegate = std::make_unique<ValueAxisDelegate>(_pUi->signalView);
@@ -98,7 +98,7 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     // Setup handler for buttons
     connect(_pUi->btnAdd, &QPushButton::released, this, &SignalsDialog::addDefaultSignal);
     connect(_pUi->btnRemove, &QPushButton::released, this, &SignalsDialog::removeSelectedSignals);
-    connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &SignalsDialog::onSignalInserted);
+    connect(_pDraft->model(), &GraphDataModel::rowsInserted, this, &SignalsDialog::onSignalInserted);
 
     if (!deviceIds.isEmpty())
     {
@@ -118,25 +118,37 @@ SignalsDialog::~SignalsDialog()
     delete _pUi;
 }
 
+/*!
+ * \brief Applies the changes made in the dialog to the signal list and closes the dialog.
+ */
+void SignalsDialog::accept()
+{
+    /* OK through its shortcut keeps the focus in an open cell editor; moving it commits the edit */
+    _pUi->buttonBox->setFocus();
+
+    _pDraft->apply();
+    QDialog::accept();
+}
+
 void SignalsDialog::addSignal(const GraphData& graphData)
 {
-    _pGraphDataModel->add(graphData);
+    _pDraft->model()->add(graphData);
 }
 
 void SignalsDialog::addDefaultSignal()
 {
-    _pGraphDataModel->add();
+    _pDraft->model()->add();
 }
 
 void SignalsDialog::activatedCell(QModelIndex modelIndex)
 {
-    if ((modelIndex.column() == GraphDataModel::column::COLOR) && (modelIndex.row() < _pGraphDataModel->size()))
+    if ((modelIndex.column() == GraphDataModel::column::COLOR) && (modelIndex.row() < _pDraft->model()->size()))
     {
-        QColor color = QColorDialog::getColor(_pGraphDataModel->color(GraphIdx(modelIndex.row())));
+        QColor color = QColorDialog::getColor(_pDraft->model()->color(GraphIdx(modelIndex.row())));
 
         if (color.isValid())
         {
-            _pGraphDataModel->setData(modelIndex, color, Qt::EditRole);
+            _pDraft->model()->setData(modelIndex, color, Qt::EditRole);
         }
     }
 }
@@ -152,23 +164,23 @@ void SignalsDialog::onSignalInserted(const QModelIndex& parent, int first, int l
 
 void SignalsDialog::removeSelectedSignals()
 {
-    // get list of selected rows
-    QItemSelectionModel* selected = _pUi->signalView->selectionModel();
-    QModelIndexList rowList = selected->selectedRows();
-
-    // sort QModelIndexList
-    // We need to remove the highest rows first
-    std::sort(rowList.begin(), rowList.end(), &SignalsDialog::sortRegistersLastFirst);
-
-    for (const QModelIndex& rowIndex : std::as_const(rowList))
+    const QModelIndexList rowList = _pUi->signalView->selectionModel()->selectedRows();
+    if (rowList.isEmpty())
     {
-        _pGraphDataModel->removeRow(rowIndex.row());
+        return;
     }
 
-    if (rowList.size() > 0)
+    QList<GraphIdx> indices;
+    int firstRow = rowList.first().row();
+    for (const QModelIndex& rowIndex : rowList)
     {
-        _pUi->signalView->selectRow(selectedRowAfterDelete(rowList.first().row(), _pGraphDataModel->size()));
+        indices.append(GraphIdx(rowIndex.row()));
+        firstRow = qMin(firstRow, rowIndex.row());
     }
+
+    _pDraft->model()->removeSignals(indices);
+
+    _pUi->signalView->selectRow(GraphDataModel::rowAfterRemoval(firstRow, _pDraft->model()->size()));
 }
 
 void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
@@ -177,7 +189,7 @@ void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
     {
         _pUi->signalView->closePersistentEditor(index);
 
-        ExpressionsDialog exprDialog(_pGraphDataModel, GraphIdx(index.row()), _pAdapterHub, _pSettingsModel,
+        ExpressionsDialog exprDialog(_pDraft->model(), GraphIdx(index.row()), _pAdapterHub, _pSettingsModel,
                                      _pDescriptionCache, this);
 
         exprDialog.exec();
@@ -203,31 +215,6 @@ void SignalsDialog::initDefaultExpressionTarget(const QList<deviceId_t>& deviceI
     _defaultExpressionDeviceId = deviceIds.first();
     const QString adapterId = _pDataPointService->adapterIdForDevice(_defaultExpressionDeviceId);
     _pDefaultExpressionManager = _pAdapterHub->adapterManager(adapterId);
-}
-
-int SignalsDialog::selectedRowAfterDelete(int deletedStartIndex, int rowCnt)
-{
-    int nextSelectedRow = -1;
-
-    if (rowCnt > 0)
-    {
-        if (deletedStartIndex < rowCnt)
-        {
-            nextSelectedRow = deletedStartIndex;
-        }
-        else
-        {
-
-            nextSelectedRow = rowCnt - 1;
-        }
-    }
-
-    return nextSelectedRow;
-}
-
-bool SignalsDialog::sortRegistersLastFirst(const QModelIndex& s1, const QModelIndex& s2)
-{
-    return s1.row() > s2.row();
 }
 
 /*!
@@ -267,7 +254,7 @@ void SignalsDialog::onDefaultExpressionBuilt(quint64 ticket, const QString& expr
 
     if (!expression.isEmpty())
     {
-        _pGraphDataModel->setDefaultExpression(expression);
+        _pDraft->model()->setDefaultExpression(expression);
     }
 }
 
@@ -284,10 +271,10 @@ void SignalsDialog::setupDataPointLimitIndication()
 
     /* dataChanged covers activating a signal and editing its expression, including edits made
      * through the expression dialog: the model emits it for the complete row. */
-    connect(_pGraphDataModel, &GraphDataModel::rowsInserted, this, &SignalsDialog::updateDataPointLimitIndication);
-    connect(_pGraphDataModel, &GraphDataModel::rowsRemoved, this, &SignalsDialog::updateDataPointLimitIndication);
-    connect(_pGraphDataModel, &GraphDataModel::modelReset, this, &SignalsDialog::updateDataPointLimitIndication);
-    connect(_pGraphDataModel, &GraphDataModel::dataChanged, this, &SignalsDialog::updateDataPointLimitIndication);
+    connect(_pDraft->model(), &GraphDataModel::rowsInserted, this, &SignalsDialog::updateDataPointLimitIndication);
+    connect(_pDraft->model(), &GraphDataModel::rowsRemoved, this, &SignalsDialog::updateDataPointLimitIndication);
+    connect(_pDraft->model(), &GraphDataModel::modelReset, this, &SignalsDialog::updateDataPointLimitIndication);
+    connect(_pDraft->model(), &GraphDataModel::dataChanged, this, &SignalsDialog::updateDataPointLimitIndication);
 
     updateDataPointLimitIndication();
 }
@@ -295,39 +282,11 @@ void SignalsDialog::setupDataPointLimitIndication()
 /*!
  * \brief Build a warning message listing adapters that are asked to read more data points than
  *  they currently allow, or an empty string when every adapter is within its limit.
- *
- * The limit is the adapter's reported capabilities.maxRegisters, which is only present while the
- * adapter enforces a cap (for example when no valid license is found).
  */
 QString SignalsDialog::dataPointLimitWarningMessage() const
 {
-    const QList<DataPoint> dataPoints = DataPointUsage::activeDataPoints(_pGraphDataModel);
-    const QMap<QString, int> countByAdapter = DataPointUsage::countPerAdapter(dataPoints, _pSettingsModel);
-
-    /* adapterData() inserts a default entry for an unknown adapterId, which would leave a phantom
-       entry behind for a warning alone. An adapter SettingsModel has never heard of cannot have
-       reported a limit either, so there is nothing to warn about. */
-    const QStringList knownAdapterIds = _pSettingsModel->adapterIds();
-
-    QStringList warnings;
-    for (auto it = countByAdapter.constBegin(); it != countByAdapter.constEnd(); ++it)
-    {
-        if (!knownAdapterIds.contains(it.key()))
-        {
-            continue;
-        }
-
-        const AdapterData* pAdapter = _pSettingsModel->adapterData(it.key());
-        const int dataPointLimit = pAdapter->maxRegisters();
-        if (it.value() > dataPointLimit)
-        {
-            warnings.append(QString("%1 allows at most %2 data point(s), but %3 are configured.")
-                              .arg(_pSettingsModel->adapterDisplayName(it.key()))
-                              .arg(dataPointLimit)
-                              .arg(it.value()));
-        }
-    }
-
+    const QList<DataPoint> dataPoints = DataPointUsage::activeDataPoints(_pDraft->model());
+    QStringList warnings = DataPointUsage::limitWarnings(dataPoints, _pSettingsModel);
     if (warnings.isEmpty())
     {
         return QString();

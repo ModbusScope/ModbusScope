@@ -1,6 +1,7 @@
 #include "datapointusage.h"
 
 #include "datahandling/expressionparser.h"
+#include "models/adapterdata.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
 
@@ -54,6 +55,46 @@ QMap<QString, int> countPerAdapter(const QList<DataPoint>& dataPoints, const Set
     }
 
     return countByAdapter;
+}
+
+/*!
+ * \brief Describe every adapter that is asked to read more data points than it currently allows.
+ *
+ * The limit is the adapter's reported capabilities.maxRegisters, which is only present while the
+ * adapter enforces a cap (for example when no valid license is found).
+ * \param dataPoints The data points to check, typically from activeDataPoints().
+ * \param pSettingsModel Model resolving the adapter of a device and its limit.
+ * \return One line per adapter over its limit, ordered by adapter id; empty when every adapter is
+ *         within its limit.
+ */
+QStringList limitWarnings(const QList<DataPoint>& dataPoints, SettingsModel* pSettingsModel)
+{
+    const QMap<QString, int> countByAdapter = countPerAdapter(dataPoints, pSettingsModel);
+
+    /* adapterData() inserts a default entry for an unknown adapterId, which would leave a phantom
+       entry behind for a warning alone. An adapter SettingsModel has never heard of cannot have
+       reported a limit either, so there is nothing to warn about. */
+    const QStringList knownAdapterIds = pSettingsModel->adapterIds();
+
+    QStringList warnings;
+    for (auto it = countByAdapter.constBegin(); it != countByAdapter.constEnd(); ++it)
+    {
+        if (!knownAdapterIds.contains(it.key()))
+        {
+            continue;
+        }
+
+        const int dataPointLimit = pSettingsModel->adapterData(it.key())->maxRegisters();
+        if (it.value() > dataPointLimit)
+        {
+            warnings.append(QString("%1 allows at most %2 data point(s), but %3 are configured.")
+                              .arg(pSettingsModel->adapterDisplayName(it.key()))
+                              .arg(dataPointLimit)
+                              .arg(it.value()));
+        }
+    }
+
+    return warnings;
 }
 
 } // namespace DataPointUsage

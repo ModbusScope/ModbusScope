@@ -15,6 +15,7 @@ class AdapterManager;
 class DataPointDescriptionCache;
 class DataPointService;
 class SettingsModel;
+class SignalListDraft;
 class ValueAxisDelegate;
 class ActionButtonDelegate;
 class GraphData;
@@ -34,6 +35,9 @@ public:
                            QWidget* parent = nullptr);
     ~SignalsDialog();
 
+public slots:
+    void accept() override;
+
 private slots:
     void addSignal(const GraphData& graphData);
     void addDefaultSignal();
@@ -46,15 +50,13 @@ private slots:
     void updateDataPointLimitIndication();
 
 private:
-    int selectedRowAfterDelete(int deletedStartIndex, int rowCnt);
     void initDefaultExpressionTarget(const QList<deviceId_t>& deviceIds);
     void setupDataPointLimitIndication();
     QString dataPointLimitWarningMessage() const;
-    static bool sortRegistersLastFirst(const QModelIndex& s1, const QModelIndex& s2);
 
     Ui::SignalsDialog* _pUi;
 
-    GraphDataModel* _pGraphDataModel;
+    SignalListDraft* _pDraft;
     SettingsModel* _pSettingsModel;
     AdapterHub* _pAdapterHub;
     DataPointService* _pDataPointService;

@@ -4,6 +4,7 @@
 #include "models/graphdatamodel.h"
 #include "util/graphindex.h"
 
+#include <QSignalSpy>
 #include <QTest>
 
 void TestGraphDataModel::init()
@@ -222,6 +223,119 @@ void TestGraphDataModel::setAllDataDropsMisalignedQualities()
                                  { Quality{ State::Degraded, Flag::OldData } } };
 
     QVERIFY(emittedQualities(timeData, data, qualities).isEmpty());
+}
+
+QStringList TestGraphDataModel::labels(const GraphDataModel& model)
+{
+    QStringList result;
+    for (qint32 idx = 0; idx < model.size(); idx++)
+    {
+        result.append(model.label(GraphIdx(idx)));
+    }
+    return result;
+}
+
+void TestGraphDataModel::addLabels(GraphDataModel& model, const QStringList& labelList)
+{
+    for (const QString& label : labelList)
+    {
+        GraphData data;
+        data.setLabel(label);
+        model.add(data);
+    }
+}
+
+void TestGraphDataModel::removeSignalsRemovesUnsortedIndices()
+{
+    GraphDataModel model;
+    addLabels(model, { "a", "b", "c", "d", "e" });
+
+    model.removeSignals({ GraphIdx(1), GraphIdx(4), GraphIdx(2) });
+
+    QCOMPARE(labels(model), QStringList({ "a", "d" }));
+}
+
+void TestGraphDataModel::removeSignalsIgnoresDuplicateAndInvalidIndices()
+{
+    GraphDataModel model;
+    addLabels(model, { "a", "b", "c" });
+    QSignalSpy spyRemoved(&model, &GraphDataModel::rowsRemoved);
+
+    model.removeSignals({ GraphIdx(1), GraphIdx(1), GraphIdx(), GraphIdx(7) });
+
+    QCOMPARE(labels(model), QStringList({ "a", "c" }));
+    QCOMPARE(spyRemoved.count(), 1);
+}
+
+void TestGraphDataModel::rowAfterRemovalKeepsPositionInMiddle()
+{
+    QCOMPARE(GraphDataModel::rowAfterRemoval(1, 3), 1);
+}
+
+void TestGraphDataModel::rowAfterRemovalSelectsLastRowAtEnd()
+{
+    QCOMPARE(GraphDataModel::rowAfterRemoval(3, 3), 2);
+}
+
+void TestGraphDataModel::rowAfterRemovalReturnsNoneWhenEmpty()
+{
+    QCOMPARE(GraphDataModel::rowAfterRemoval(0, 0), -1);
+}
+
+void TestGraphDataModel::moveSignalDown()
+{
+    GraphDataModel model;
+    addLabels(model, { "a", "b", "c", "d" });
+    QSignalSpy spyMoved(&model, &GraphDataModel::rowsMoved);
+
+    model.moveSignal(GraphIdx(0), GraphIdx(2));
+
+    QCOMPARE(labels(model), QStringList({ "b", "c", "a", "d" }));
+    QCOMPARE(spyMoved.count(), 1);
+}
+
+void TestGraphDataModel::moveSignalUp()
+{
+    GraphDataModel model;
+    addLabels(model, { "a", "b", "c", "d" });
+
+    model.moveSignal(GraphIdx(3), GraphIdx(1));
+
+    QCOMPARE(labels(model), QStringList({ "a", "d", "b", "c" }));
+}
+
+void TestGraphDataModel::moveSignalToLastRow()
+{
+    GraphDataModel model;
+    addLabels(model, { "a", "b", "c" });
+
+    model.moveSignal(GraphIdx(0), GraphIdx(2));
+
+    QCOMPARE(labels(model), QStringList({ "b", "c", "a" }));
+}
+
+void TestGraphDataModel::moveSignalToFirstRow()
+{
+    GraphDataModel model;
+    addLabels(model, { "a", "b", "c" });
+
+    model.moveSignal(GraphIdx(2), GraphIdx(0));
+
+    QCOMPARE(labels(model), QStringList({ "c", "a", "b" }));
+}
+
+void TestGraphDataModel::moveSignalToSamePositionDoesNothing()
+{
+    GraphDataModel model;
+    addLabels(model, { "a", "b" });
+    QSignalSpy spyMoved(&model, &GraphDataModel::rowsMoved);
+    QSignalSpy spyMovedSignal(&model, &GraphDataModel::moved);
+
+    model.moveSignal(GraphIdx(1), GraphIdx(1));
+
+    QCOMPARE(labels(model), QStringList({ "a", "b" }));
+    QCOMPARE(spyMoved.count(), 0);
+    QCOMPARE(spyMovedSignal.count(), 0);
 }
 
 QTEST_GUILESS_MAIN(TestGraphDataModel)
