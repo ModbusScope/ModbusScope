@@ -405,6 +405,11 @@ GraphData::ExpressionState GraphDataModel::expressionState(GraphIdx index) const
     return _pStore->expressionState(index);
 }
 
+/*!
+ * \brief Returns the parser error of the signal's expression.
+ * \param index GraphIdx identifying the signal.
+ * \return The error; empty unless the state is SYNTAX_ERROR, and empty if \a index is invalid.
+ */
 QString GraphDataModel::expressionError(GraphIdx index) const
 {
     return _pStore->expressionError(index);
