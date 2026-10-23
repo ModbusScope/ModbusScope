@@ -55,6 +55,15 @@ public:
         emit describeDataPointResult(requestId, result);
     }
 
+    //! Simulate the adapter rejecting the data point of the request with the given id.
+    void injectDescribeInvalid(int requestId, const QString& error)
+    {
+        QJsonObject result;
+        result["valid"] = false;
+        result["error"] = error;
+        emit describeDataPointResult(requestId, result);
+    }
+
     //! Simulate the adapter answering the request with the given id with an error.
     void injectDescribeFailure(int requestId, const QString& error)
     {
@@ -116,6 +125,9 @@ private slots:
     void acceptEnabledOnDivisionByZeroExample();
     void acceptEnabledOnInvalidExampleValue();
     void acceptAppliesValidExpression();
+    void acceptDisabledOnInvalidDataPoint();
+    void acceptEnabledAfterInvalidDataPointRemoved();
+    void acceptEnabledOnFailedDescribe();
 
     void buttonBoxHasAcceptAndCancel();
     void enterInExampleTableIgnored();

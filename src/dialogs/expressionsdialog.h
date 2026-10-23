@@ -53,6 +53,8 @@ private slots:
 private:
     void showDescription(qint32 row);
     QString rowReferenceText(qint32 row) const;
+    QString firstInvalidReferenceError() const;
+    void updateAcceptState();
     void populateHelpDevices();
     void requestHelpForAdapter(const QString& adapterId);
     void setupButtons();
@@ -64,6 +66,7 @@ private:
     //! Data roles of the data point column.
     static constexpr int cReferenceTextRole = Qt::UserRole;
     static constexpr int cDeviceIdRole = Qt::UserRole + 1;
+    static constexpr int cInvalidErrorRole = Qt::UserRole + 2;
 
     Ui::ExpressionsDialog* _pUi;
 
@@ -81,7 +84,7 @@ private:
 
     bool _bUpdating;
 
-    //! Whether the expression can be applied: no syntax error and every device exists.
+    //! Whether the expression can be applied: no syntax error, every device exists and no data point is rejected.
     bool _bCanAccept{ false };
 };
 

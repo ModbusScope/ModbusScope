@@ -441,8 +441,9 @@ void ExpressionsDialog::onHelpDeviceChanged(deviceId_t deviceId)
 /*!
  * \brief Show the adapter's description of the data point in a table row, when it is known.
  *
- * A row with an unknown device shows "Invalid device". A row whose description is not available
- * (pending, invalid, failed or adapter not running) keeps the parser description.
+ * A row with an unknown device shows "Invalid device". A data point the adapter rejects shows its
+ * reference in red, with the adapter's error as tooltip. A row whose description is not available
+ * (pending, failed or adapter not running) keeps the parser description.
  * \param row Row index into the data point table.
  */
 void ExpressionsDialog::showDescription(qint32 row)
@@ -455,6 +456,10 @@ void ExpressionsDialog::showDescription(qint32 row)
 
     /* The description column does not change the evaluation, so don't evaluate again */
     const QSignalBlocker blocker(_pUi->tblExpressionInput);
+
+    pItem->setData(cInvalidErrorRole, QString());
+    pItem->setData(Qt::ForegroundRole, QVariant());
+    pItem->setToolTip(QString());
 
     const auto deviceId = pItem->data(cDeviceIdRole).value<deviceId_t>();
     if (!_pSettingsModel->hasDevice(deviceId))
@@ -470,6 +475,32 @@ void ExpressionsDialog::showDescription(qint32 row)
     {
         pItem->setText(description.description);
     }
+    else if (description.state == DataPointDescription::State::Invalid)
+    {
+        const QString error =
+          description.error.isEmpty() ? QStringLiteral("Not a valid data point") : description.error;
+        pItem->setText(referenceText);
+        pItem->setForeground(QColorConstants::Red);
+        pItem->setToolTip(error);
+        pItem->setData(cInvalidErrorRole, error);
+    }
+}
+
+/*!
+ * \brief Return the adapter's error for the first data point it rejects, or an empty string.
+ */
+QString ExpressionsDialog::firstInvalidReferenceError() const
+{
+    for (qint32 row = 0; row < _pUi->tblExpressionInput->rowCount(); row++)
+    {
+        const QTableWidgetItem* pItem = _pUi->tblExpressionInput->item(row, 0);
+        if (pItem != nullptr && !pItem->data(cInvalidErrorRole).toString().isEmpty())
+        {
+            return pItem->data(cInvalidErrorRole).toString();
+        }
+    }
+
+    return QString();
 }
 
 /*!
@@ -485,13 +516,12 @@ void ExpressionsDialog::handleDescriptionChanged(const QString& referenceText)
             showDescription(row);
         }
     }
+
+    updateAcceptState();
 }
 
 /*!
- * \brief Show the evaluation result and allow Accept only when the expression can be applied.
- *
- * An error that depends on the example values (such as a division by zero) is shown but does not
- * block Accept; a syntax error or a reference to an unknown device does.
+ * \brief Show the evaluation result and the error state.
  * \param valid Whether the expression evaluated with the example values.
  */
 void ExpressionsDialog::handleResultReady(bool valid)
@@ -499,33 +529,53 @@ void ExpressionsDialog::handleResultReady(bool valid)
     _pHighlighter->setExpressionErrorPosition(_expressionChecker.errorPos());
     _pHighlighter->rehighlight();
 
-    QString numOutput;
-    QString backgroundStyle;
-    QString strError;
     if (valid)
     {
-        strError = "";
-        numOutput = QString("%1").arg(_expressionChecker.result());
-        backgroundStyle = "background-color: rgba(0,0,0,0%);";
+        _pUi->lblOut->setText(QString("%1").arg(_expressionChecker.result()));
     }
     else
     {
+        _pUi->lblOut->setText(QStringLiteral("-"));
+    }
+
+    updateAcceptState();
+}
+
+/*!
+ * \brief Show the error and allow Accept only when the expression can be applied.
+ *
+ * An error that depends on the example values (such as a division by zero) is shown but does not
+ * block Accept; a syntax error, a reference to an unknown device or a data point the adapter
+ * rejects does.
+ */
+void ExpressionsDialog::updateAcceptState()
+{
+    const QString errorStyle = QStringLiteral("background-color: rgba(255,0,0,50%);");
+
+    QString backgroundStyle = QStringLiteral("background-color: rgba(0,0,0,0%);");
+    QString strError;
+    if (!_expressionChecker.isValid())
+    {
         strError = _expressionChecker.strError();
-        numOutput = QStringLiteral("-");
-        backgroundStyle = "background-color: rgba(255,0,0,50%);";
+        backgroundStyle = errorStyle;
     }
 
     const bool bDevicesKnown = _expressionChecker.checkForDevices(_pSettingsModel->deviceList());
     if (!bDevicesKnown && !_expressionChecker.syntaxError())
     {
         strError = QStringLiteral("Unknown device in expression");
-        backgroundStyle = "background-color: rgba(255,0,0,50%);";
+        backgroundStyle = errorStyle;
     }
 
-    _bCanAccept = !_expressionChecker.syntaxError() && bDevicesKnown;
-    _pAcceptButton->setEnabled(_bCanAccept);
+    const QString invalidReferenceError = firstInvalidReferenceError();
+    if (!invalidReferenceError.isEmpty() && strError.isEmpty())
+    {
+        strError = QStringLiteral("Invalid data point: %1").arg(invalidReferenceError);
+        backgroundStyle = errorStyle;
+    }
 
-    _pUi->lblOut->setText(numOutput);
+    _bCanAccept = !_expressionChecker.syntaxError() && bDevicesKnown && invalidReferenceError.isEmpty();
+    _pAcceptButton->setEnabled(_bCanAccept);
 
     _pUi->lblError->setText(strError);
     _pUi->lblError->setStyleSheet(backgroundStyle);

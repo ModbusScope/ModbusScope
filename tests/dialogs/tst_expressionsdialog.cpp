@@ -657,4 +657,49 @@ void TestExpressionsDialog::expressionEditorWraps()
     QCOMPARE(_pDialog->_pUi->lineExpression->verticalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
 }
 
+//! A data point the adapter rejects is shown in red with the reason, and Accept stays disabled.
+void TestExpressionsDialog::acceptDisabledOnInvalidDataPoint()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} * 2"));
+    QVERIFY(_pDialog->_pAcceptButton->isEnabled());
+
+    _pMockAdapterManager->injectDescribeInvalid(1, QStringLiteral("Address out of range"));
+
+    const QTableWidgetItem* pItem = _pDialog->_pUi->tblExpressionInput->item(0, 0);
+    QCOMPARE(pItem->text(), QStringLiteral("${40001}"));
+    QCOMPARE(pItem->toolTip(), QStringLiteral("Address out of range"));
+    QCOMPARE(pItem->foreground().color(), QColor(QColorConstants::Red));
+    QCOMPARE(_pDialog->_pUi->lblError->text(), QStringLiteral("Invalid data point: Address out of range"));
+    QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
+
+    _pDialog->handleAccept();
+    QCOMPARE(_pDialog->result(), static_cast<int>(QDialog::Rejected));
+}
+
+//! Removing the rejected data point from the expression allows Accept again.
+void TestExpressionsDialog::acceptEnabledAfterInvalidDataPointRemoved()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
+    _pMockAdapterManager->injectDescribeInvalid(1, QStringLiteral("Address out of range"));
+    QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
+
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40002}"));
+    QVERIFY(_pDialog->_pAcceptButton->isEnabled());
+    QVERIFY(_pDialog->_pUi->lblError->text().isEmpty());
+
+    const QTableWidgetItem* pItem = _pDialog->_pUi->tblExpressionInput->item(0, 0);
+    QVERIFY(pItem->toolTip().isEmpty());
+}
+
+//! A describe request that fails (no answer from the adapter) does not block Accept.
+void TestExpressionsDialog::acceptEnabledOnFailedDescribe()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
+    _pMockAdapterManager->injectDescribeFailure(1, QStringLiteral("The adapter did not respond"));
+    QTest::qWait(0);
+
+    QVERIFY(_pDialog->_pAcceptButton->isEnabled());
+    QVERIFY(_pDialog->_pUi->lblError->text().isEmpty());
+}
+
 QTEST_MAIN(TestExpressionsDialog)
