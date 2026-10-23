@@ -173,7 +173,7 @@ deviceId_t TestSignalEditorPanel::addSimAdapter()
     _settingsModel.setAdapterDataPointSchema("sim", buildSimRegisterSchema());
 
     QJsonObject describeResult;
-    describeResult["name"] = QStringLiteral("Simulator");
+    describeResult["protocolName"] = QStringLiteral("Simulator");
     _settingsModel.updateAdapterFromDescribe(QStringLiteral("sim"), describeResult);
 
     _pMockSimAdapterManager = new MockDataPointManager(QStringLiteral("sim"), &_settingsModel);
@@ -567,7 +567,7 @@ void TestSignalEditorPanel::deviceAddedToEmptyListAppliesConfiguredAdapter()
 {
     _settingsModel.setAdapterDataPointSchema("sim", buildSimRegisterSchema());
     QJsonObject describeResult;
-    describeResult["name"] = QStringLiteral("Simulator");
+    describeResult["protocolName"] = QStringLiteral("Simulator");
     _settingsModel.updateAdapterFromDescribe(QStringLiteral("sim"), describeResult);
     _pMockSimAdapterManager = new MockDataPointManager(QStringLiteral("sim"), &_settingsModel);
     _pMockHub->addManager(QStringLiteral("sim"), _pMockSimAdapterManager);

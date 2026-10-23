@@ -129,6 +129,7 @@ capabilities. Call this after `adapter.initialize` to discover what
 ```json
 {
   "name": "<adapter-id>",
+  "protocolName": "<display-name>",
   "version": "<semver>",
   "configVersion": 1,
   "protocolVersion": 2,
@@ -149,7 +150,8 @@ See the adapter's implementation spec for a concrete response example.
 
 | Field | Description |
 | --- | --- |
-| `name` | Adapter identifier |
+| `name` | Internal adapter identifier (e.g. `modbusAdapter`); not meant to be shown to the user |
+| `protocolName` | User-facing name of the protocol the adapter speaks (e.g. `modbus`). Clients fall back to the adapter id when it is absent |
 | `version` | Adapter software version. Release builds carry a plain semver (`"<semver>"`). Debug builds MAY append a pre-release tag and/or `+<build-metadata>` suffix identifying the branch, commit, or other build info. Consumers must not treat `version` as a fixed literal; parse or compare it accordingly. The exact debug format is defined by the adapter's implementation spec. |
 | `configVersion` | Current config schema version |
 | `protocolVersion` | Version of the generic `adapter.*` contract this adapter speaks — see below |

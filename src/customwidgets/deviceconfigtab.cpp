@@ -64,7 +64,7 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
           pAdapter->schema().value("properties").toObject().value("devices").toObject().value("items").toObject();
         if (!itemSchema.isEmpty())
         {
-            _pAdapterCombo->addItem(id, id);
+            _pAdapterCombo->addItem(pSettingsModel->adapterDisplayName(id), id);
         }
     }
 

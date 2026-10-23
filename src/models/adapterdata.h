@@ -58,6 +58,7 @@ public:
     void setDataPointSchema(const QJsonObject& schema);
 
     QString name() const;
+    QString protocolName() const;
     QString version() const;
     int configVersion() const;
     int protocolVersion() const;
@@ -124,6 +125,7 @@ private:
     void backfillDevices(QJsonObject& config) const;
 
     QString _name;
+    QString _protocolName;
     QString _version;
     int _configVersion{ 0 };
     int _protocolVersion{ 0 };

@@ -199,9 +199,8 @@ QString AdapterDeviceSettings::deviceLimitWarningMessage() const
         const int deviceLimit = pAdapter->maxDevices();
         if (it.value() > deviceLimit)
         {
-            const QString adapterName = pAdapter->name().isEmpty() ? it.key() : pAdapter->name();
             warnings.append(QString("%1 allows at most %2 device(s), but %3 are configured.")
-                              .arg(adapterName)
+                              .arg(_pSettingsModel->adapterDisplayName(it.key()))
                               .arg(deviceLimit)
                               .arg(it.value()));
         }

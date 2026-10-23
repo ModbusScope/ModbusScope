@@ -19,6 +19,7 @@ private slots:
     void init();
     void cleanup();
     void describeResultHasRequiredFields();
+    void describeResultHasProtocolName();
     void fullLifecycleSessionStarts();
     void readRegistersReturnsValidData();
     void multipleReadCyclesAllSucceed();

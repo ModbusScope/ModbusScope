@@ -55,6 +55,7 @@ QJsonObject describeWithoutDeviceLimit(const AdapterData* pAdapterData)
 
     QJsonObject describe;
     describe["name"] = pAdapterData->name();
+    describe["protocolName"] = pAdapterData->protocolName();
     describe["version"] = pAdapterData->version();
     describe["configVersion"] = pAdapterData->configVersion();
     describe["protocolVersion"] = pAdapterData->protocolVersion();

@@ -123,6 +123,20 @@ void TestDummyAdapter::describeResultHasRequiredFields()
     QCOMPARE(result[QStringLiteral("name")].toString(), QStringLiteral("modbusAdapter"));
 }
 
+void TestDummyAdapter::describeResultHasProtocolName()
+{
+    QSignalSpy spyDescribe(_pClient, &AdapterClient::describeResult);
+
+    _pClient->prepareAdapter(QString::fromUtf8(DUMMY_ADAPTER_EXECUTABLE));
+
+    QVERIFY2(spyDescribe.wait(cSessionTimeoutMs), "No describeResult signal received");
+
+    const QJsonObject result = spyDescribe.at(0).at(0).value<QJsonObject>();
+
+    QVERIFY2(result.contains(QStringLiteral("protocolName")), "describe result missing 'protocolName'");
+    QCOMPARE(result[QStringLiteral("protocolName")].toString(), QStringLiteral("modbus"));
+}
+
 void TestDummyAdapter::fullLifecycleSessionStarts()
 {
     connect(

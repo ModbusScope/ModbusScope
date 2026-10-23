@@ -195,14 +195,25 @@ void TestSettingsModel::reconcileIsSilentWhenNothingChanges()
     QCOMPARE(spy.count(), 0);
 }
 
-void TestSettingsModel::adapterDisplayNameUsesAdapterName()
+void TestSettingsModel::adapterDisplayNameUsesProtocolName()
 {
     SettingsModel model;
     QJsonObject describe;
-    describe["name"] = QStringLiteral("Modbus TCP/RTU");
+    describe["name"] = QStringLiteral("modbusAdapter");
+    describe["protocolName"] = QStringLiteral("Modbus TCP/RTU");
     model.updateAdapterFromDescribe("modbus", describe);
 
     QCOMPARE(model.adapterDisplayName("modbus"), QStringLiteral("Modbus TCP/RTU"));
+}
+
+void TestSettingsModel::adapterDisplayNameIgnoresAdapterName()
+{
+    SettingsModel model;
+    QJsonObject describe;
+    describe["name"] = QStringLiteral("modbusAdapter");
+    model.updateAdapterFromDescribe("modbus", describe);
+
+    QCOMPARE(model.adapterDisplayName("modbus"), QStringLiteral("modbus"));
 }
 
 void TestSettingsModel::adapterDisplayNameFallsBackToIdWithoutName()
