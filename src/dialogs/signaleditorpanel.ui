@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>SignalEditorPanel</class>
+ <widget class="QWidget" name="SignalEditorPanel">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>280</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
+    <widget class="QLabel" name="lblTitle">
+     <property name="text">
+      <string>New signal</string>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QLabel { font-weight: bold; }</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="lineName">
+     <property name="placeholderText">
+      <string>Name of signal</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="addressContainer" native="true"/>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="axisLayout">
+     <item>
+      <widget class="QRadioButton" name="radioPrimary">
+       <property name="text">
+        <string>Y1 axis</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QRadioButton" name="radioSecondary">
+       <property name="text">
+        <string>Y2 axis</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLabel" name="lblStatus">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="text">
+      <string/>
+     </property>
+     <property name="textFormat">
+      <enum>Qt::TextFormat::PlainText</enum>
+     </property>
+     <property name="wordWrap">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <widget class="QPushButton" name="btnAdd">
+     <property name="text">
+      <string>Add signal</string>
+     </property>
+     <property name="autoDefault">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>0</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>lineName</tabstop>
+  <tabstop>radioPrimary</tabstop>
+  <tabstop>radioSecondary</tabstop>
+  <tabstop>btnAdd</tabstop>
+ </tabstops>
+ <resources/>
+ <connections/>
+</ui>

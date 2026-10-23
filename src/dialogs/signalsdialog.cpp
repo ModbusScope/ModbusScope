@@ -2,12 +2,11 @@
 #include "signalsdialog.h"
 
 #include "ProtocolAdapter/adapterhub.h"
-#include "ProtocolAdapter/adaptermanager.h"
 #include "ProtocolAdapter/datapointservice.h"
 #include "customwidgets/actionbuttondelegate.h"
 #include "datahandling/datapointusage.h"
-#include "dialogs/addregisterwidget.h"
 #include "dialogs/expressionsdialog.h"
+#include "dialogs/signaleditorpanel.h"
 #include "dialogs/ui_signalsdialog.h"
 #include "models/datapointdescriptioncache.h"
 #include "models/graphdatamodel.h"
@@ -34,26 +33,6 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     _pAdapterHub = pAdapterHub;
     _pDataPointService = new DataPointService(_pSettingsModel, _pAdapterHub, this);
     _pDescriptionCache = new DataPointDescriptionCache(_pDataPointService, this);
-    connect(_pDataPointService, &DataPointService::expressionBuilt, this, &SignalsDialog::onDefaultExpressionBuilt);
-
-    const QList<deviceId_t> deviceIds = _pSettingsModel->deviceList();
-    initDefaultExpressionTarget(deviceIds);
-
-    if (_pDefaultExpressionManager != nullptr)
-    {
-        connect(_pDefaultExpressionManager, &AdapterManager::sessionStarted, this,
-                &SignalsDialog::requestDefaultExpression);
-
-        /* sessionStarted() only fires once per session: if the adapter is already active, or
-         * already past adapter.describe and awaiting configuration (both states buildExpression()
-         * accepts, and the schema is already available in either), that emission has already
-         * happened and the connection above will never fire for it. Request the default
-         * expression directly for that case. */
-        if (_pDefaultExpressionManager->isAdapterActive() || _pDefaultExpressionManager->isAdapterReady())
-        {
-            requestDefaultExpression();
-        }
-    }
 
     // Setup signalView
     _pUi->signalView->setModel(_pDraft->model());
@@ -91,25 +70,17 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
 
     _pUi->signalView->setStyle(&_centeredBoxStyle);
 
-    // Handle delete
+    /* Only while the table has the focus, so Delete in a panel field edits that field */
     QShortcut* shortcut = new QShortcut(QKeySequence(QKeySequence::Delete), _pUi->signalView);
+    shortcut->setContext(Qt::WidgetWithChildrenShortcut);
     connect(shortcut, &QShortcut::activated, this, &SignalsDialog::removeSelectedSignals);
 
     // Setup handler for buttons
-    connect(_pUi->btnAdd, &QPushButton::released, this, &SignalsDialog::addDefaultSignal);
-    connect(_pUi->btnRemove, &QPushButton::released, this, &SignalsDialog::removeSelectedSignals);
+    connect(_pUi->btnAdd, &QPushButton::clicked, this, &SignalsDialog::startAddSignal);
+    connect(_pUi->btnRemove, &QPushButton::clicked, this, &SignalsDialog::removeSelectedSignals);
     connect(_pDraft->model(), &GraphDataModel::rowsInserted, this, &SignalsDialog::onSignalInserted);
 
-    if (!deviceIds.isEmpty())
-    {
-        auto pAddSignalWidget = new AddRegisterWidget(_pSettingsModel, _pDataPointService, this);
-        connect(pAddSignalWidget, &AddRegisterWidget::graphDataConfigured, this, &SignalsDialog::addSignal);
-
-        _addSignalAction = std::make_unique<QWidgetAction>(this);
-        _addSignalAction->setDefaultWidget(pAddSignalWidget);
-        _pUi->btnAdd->addAction(_addSignalAction.get());
-    }
-
+    setupEditorPanel();
     setupDataPointLimitIndication();
 }
 
@@ -130,14 +101,13 @@ void SignalsDialog::accept()
     QDialog::accept();
 }
 
-void SignalsDialog::addSignal(const GraphData& graphData)
+/*!
+ * \brief Put the panel in add mode: no row selected, the name field ready for input.
+ */
+void SignalsDialog::startAddSignal()
 {
-    _pDraft->model()->add(graphData);
-}
-
-void SignalsDialog::addDefaultSignal()
-{
-    _pDraft->model()->add();
+    _pUi->signalView->clearSelection();
+    _pPanel->startAdd();
 }
 
 void SignalsDialog::activatedCell(QModelIndex modelIndex)
@@ -158,8 +128,8 @@ void SignalsDialog::onSignalInserted(const QModelIndex& parent, int first, int l
     Q_UNUSED(parent);
     Q_UNUSED(last);
 
-    /* select the first new row, this will also make the row visible */
-    _pUi->signalView->selectRow(first);
+    /* Only scroll: selecting a row is reserved for editing that signal */
+    _pUi->signalView->scrollTo(_pDraft->model()->index(first, 0));
 }
 
 void SignalsDialog::removeSelectedSignals()
@@ -197,65 +167,19 @@ void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
 }
 
 /*!
- * \brief Determine which device and adapter manager drive the default new-register expression.
- *
- * Uses the first configured device and its adapter, consistent with AddRegisterWidget's
- * device-first selection. Sets _pDefaultExpressionManager to nullptr when no devices are
- * configured.
- * \param deviceIds The currently configured device IDs, as returned by SettingsModel::deviceList().
+ * \brief Place the signal editor panel next to the table; extra width goes to the table.
  */
-void SignalsDialog::initDefaultExpressionTarget(const QList<deviceId_t>& deviceIds)
+void SignalsDialog::setupEditorPanel()
 {
-    if (deviceIds.isEmpty())
-    {
-        _pDefaultExpressionManager = nullptr;
-        return;
-    }
+    _pPanel = new SignalEditorPanel(_pDraft->model(), _pSettingsModel, _pDataPointService, this);
+    _pUi->panelScrollArea->setWidget(_pPanel);
 
-    _defaultExpressionDeviceId = deviceIds.first();
-    const QString adapterId = _pDataPointService->adapterIdForDevice(_defaultExpressionDeviceId);
-    _pDefaultExpressionManager = _pAdapterHub->adapterManager(adapterId);
-}
+    _pUi->splitter->setStretchFactor(0, 1);
+    _pUi->splitter->setStretchFactor(1, 0);
+    _pUi->splitter->setCollapsible(0, false);
+    _pUi->splitter->setCollapsible(1, false);
 
-/*!
- * \brief Requests a default expression from the adapter using its own schema defaults.
- *
- * Called when the adapter session starts. The result is used to keep the default new-register
- * expression in sync with whatever the adapter considers its default data point.
- */
-void SignalsDialog::requestDefaultExpression()
-{
-    if (_pDefaultExpressionManager == nullptr)
-    {
-        return;
-    }
-
-    const QJsonObject defaults = _pDataPointService->defaults(_defaultExpressionDeviceId);
-    if (defaults.isEmpty())
-    {
-        return;
-    }
-
-    /* Only the latest request counts: a reply to an earlier one is ignored */
-    _defaultExpressionTicket = _pDataPointService->buildExpression(_defaultExpressionDeviceId, defaults);
-}
-
-/*!
- * \brief Applies the adapter-provided default expression to the graph data model.
- * \param ticket     Ticket of the finished request; results of other requests are ignored.
- * \param expression The default expression string returned by the adapter.
- */
-void SignalsDialog::onDefaultExpressionBuilt(quint64 ticket, const QString& expression)
-{
-    if (ticket != _defaultExpressionTicket)
-    {
-        return;
-    }
-
-    if (!expression.isEmpty())
-    {
-        _pDraft->model()->setDefaultExpression(expression);
-    }
+    setMinimumSize(cMinimumWidth, cMinimumHeight);
 }
 
 /*!

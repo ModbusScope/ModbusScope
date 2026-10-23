@@ -12,9 +12,9 @@
 #include <functional>
 
 const QColor GraphDataModel::lightRed = QColor(240, 128, 128); // #f08080
+const QString GraphDataModel::cDefaultExpression = QStringLiteral("${h0}");
 
-GraphDataModel::GraphDataModel(QObject* parent)
-    : QAbstractTableModel(parent), _defaultExpression(QStringLiteral("${h0}")), _pStore(new GraphDataStore(this))
+GraphDataModel::GraphDataModel(QObject* parent) : QAbstractTableModel(parent), _pStore(new GraphDataStore(this))
 {
     connect(_pStore, &GraphDataStore::valueAxisChanged, this, &GraphDataModel::valueAxisChanged);
     connect(_pStore, &GraphDataStore::visibilityChanged, this, &GraphDataModel::visibilityChanged);
@@ -504,21 +504,8 @@ void GraphDataModel::add(QList<GraphData> graphDataList)
 void GraphDataModel::add()
 {
     GraphData data;
-    data.setExpression(_defaultExpression);
+    data.setExpression(cDefaultExpression);
     add(data);
-}
-
-/*!
- * \brief Sets the default expression used when adding a new signal without an explicit expression.
- * \param expression The expression string to use as the default (e.g. \c ${h0}).
- */
-void GraphDataModel::setDefaultExpression(const QString& expression)
-{
-    if (expression.isEmpty())
-    {
-        return;
-    }
-    _defaultExpression = expression;
 }
 
 /*!
@@ -533,7 +520,7 @@ void GraphDataModel::add(QList<QString> labelList)
     {
         GraphData data;
         data.setLabel(label);
-        data.setExpression(_defaultExpression);
+        data.setExpression(cDefaultExpression);
         add(data);
     }
 }

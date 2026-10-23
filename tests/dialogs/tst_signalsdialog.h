@@ -10,13 +10,14 @@
 #include <QObject>
 
 class GraphDataModel;
+class SignalEditorPanel;
 class SignalsDialog;
 
 /*!
  * \brief Test double for AdapterManager.
  *
- * Captures buildExpression() calls and provides an inject helper to simulate
- * the adapter session starting, without a real adapter process.
+ * Captures buildExpression() calls and provides an inject helper to answer
+ * them, without a real adapter process.
  */
 class MockAdapterManager : public AdapterManager
 {
@@ -43,26 +44,18 @@ public:
         return buildCalls.size();
     }
 
-    bool isAdapterActive() const override
-    {
-        return mockActive;
-    }
-
     bool isAdapterReady() const override
     {
         return mockReady;
     }
 
-    //! Simulate the adapter session starting, which SignalsDialog waits for
-    //! before requesting its default expression.
-    void injectSessionStarted()
+    //! Simulate the adapter returning an expression string for the last buildExpression() request.
+    void injectBuildExpressionResult(const QString& expression)
     {
-        mockActive = true;
-        emit sessionStarted();
+        emit buildExpressionResult(static_cast<int>(buildCalls.size()), expression);
     }
 
     QList<BuildCall> buildCalls;
-    bool mockActive{ false };
     bool mockReady{ false };
 };
 
@@ -73,13 +66,6 @@ class TestSignalsDialog : public QObject
 private slots:
     void init();
     void cleanup();
-
-    void defaultSignalUsesLowestConfiguredDeviceId();
-    void defaultSignalUsesDeviceOneWhenPresent();
-    void defaultSignalSkipsBuildExpressionWhenNoDevices();
-    void defaultSignalRequestedImmediatelyWhenSessionAlreadyActive();
-    void defaultSignalRequestedImmediatelyWhenAdapterAlreadyReady();
-    void defaultSignalRequestedAgainWhenSessionRestartsAfterAlreadyActive();
 
     void dataPointLimitWarningHiddenWhenWithinLimit();
     void dataPointLimitWarningShownWhenExceeded();
@@ -93,6 +79,13 @@ private slots:
     void okAppliesChanges();
     void okWithoutChangesLeavesSourceUntouched();
 
+    void addButtonClearsSelectionAndFocusesName();
+    void addedSignalScrolledIntoViewNotSelected();
+    void enterInPanelDoesNotCloseDialog();
+    void deleteInNameFieldKeepsRows();
+    void cancelDiscardsPanelAdds();
+    void minimumSizeKeepsTableAndPanelUsable();
+
 private:
     static QJsonObject buildTestRegisterSchema();
     static QJsonObject buildDescribeWithMaxRegisters(int maxRegisters);
@@ -100,6 +93,9 @@ private:
     void seedSamples();
     void editDraft();
     GraphDataModel* draftModel() const;
+    SignalEditorPanel* panel() const;
+    void openWithReadyAdapter(int signalCount);
+    void addSignalThroughPanel(const QString& expression);
 
     SettingsModel _settingsModel;
     GraphDataModel* _pGraphDataModel{ nullptr };

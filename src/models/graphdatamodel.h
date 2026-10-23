@@ -70,8 +70,6 @@ public:
     void setExpressionState(GraphIdx index, GraphData::ExpressionState status);
     void setSelectedGraph(GraphIdx index);
 
-    void setDefaultExpression(const QString& expression);
-
     void add(GraphData rowData);
     void add(QList<GraphData> graphDataList);
     void add();
@@ -120,7 +118,8 @@ private:
     QString uniqueLabel(const QString& base) const;
     bool labelInUse(const QString& candidateLabel) const;
 
-    QString _defaultExpression;
+    //! Expression of a signal added without one
+    static const QString cDefaultExpression;
 
     GraphDataStore* _pStore;
 };
