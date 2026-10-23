@@ -64,7 +64,7 @@ SignalEditorPanel::SignalEditorPanel(GraphDataModel* pGraphDataModel,
     connect(_pDescriptionCache, &DataPointDescriptionCache::descriptionChanged, this,
             &SignalEditorPanel::onDescriptionChanged);
 
-    setEditWidgetsVisible(false);
+    applyMode(false);
     _pUi->btnAdd->setEnabled(_pEditor->hasValidExpression());
     updateStatus();
 }
@@ -108,7 +108,7 @@ void SignalEditorPanel::showAddMode()
 
     _pUi->lineName->clear();
     _pEditor->setEnabled(true);
-    setEditWidgetsVisible(false);
+    applyMode(false);
 
     _pUi->btnAdd->setEnabled(_pEditor->hasValidExpression());
     updateStatus();
@@ -137,7 +137,7 @@ void SignalEditorPanel::editSignal(GraphIdx graphIdx)
     _editedRow = QPersistentModelIndex(index);
     _addedMessage.clear();
 
-    setEditWidgetsVisible(true);
+    applyMode(true);
     refresh(true);
 }
 
@@ -442,14 +442,15 @@ GraphIdx SignalEditorPanel::editedGraph() const
 }
 
 /*!
- * \brief Switch the widgets between add mode and edit mode.
- * \param bVisible True for edit mode.
+ * \brief Set up the widgets for add mode or edit mode: title, buttons, and the edit-only widgets hidden
+ * until refresh() fills them.
+ * \param bEditMode True for edit mode.
  */
-void SignalEditorPanel::setEditWidgetsVisible(bool bVisible)
+void SignalEditorPanel::applyMode(bool bEditMode)
 {
-    _pUi->lblTitle->setText(bVisible ? tr("Edit signal") : tr("New signal"));
-    _pUi->btnAdd->setVisible(!bVisible);
-    _pUi->btnEditExpression->setVisible(bVisible);
+    _pUi->lblTitle->setText(bEditMode ? tr("Edit signal") : tr("New signal"));
+    _pUi->btnAdd->setVisible(!bEditMode);
+    _pUi->btnEditExpression->setVisible(bEditMode);
 
     _pUi->addressContainer->setVisible(true);
     _pUi->lblDataPoints->setVisible(false);
