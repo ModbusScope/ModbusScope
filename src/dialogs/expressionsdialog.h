@@ -11,6 +11,8 @@
 class AdapterHub;
 class AdapterManager;
 class DataPointDescriptionCache;
+class DataPointEditorWidget;
+class DataPointService;
 class ExpressionHighlighting;
 class QKeyEvent;
 class QPushButton;
@@ -31,6 +33,7 @@ public:
                                GraphIdx idx,
                                AdapterHub* pAdapterHub,
                                SettingsModel* pSettingsModel,
+                               DataPointService* pDataPointService,
                                DataPointDescriptionCache* pDescriptionCache,
                                QWidget* parent = nullptr);
     ~ExpressionsDialog();
@@ -41,6 +44,7 @@ protected:
 
 private slots:
     void handleExpressionChange();
+    void handleCellChanged(int row, int column);
     void handleInputChange();
     void handleCancel();
     void handleAccept();
@@ -48,16 +52,29 @@ private slots:
     void handleExpressionHelpResult(const QString& helpText);
     void handleDescriptionChanged(const QString& referenceText);
     void onHelpDeviceChanged(deviceId_t deviceId);
+    void handleInsertDataPointToggled(bool bChecked);
+    void updateInsertButton();
+    void insertDataPoint();
 
 private:
-    void showDescription(qint32 row, deviceId_t deviceId);
+    void showDescription(qint32 row);
+    QString rowReferenceText(qint32 row) const;
+    void copyValueToDuplicateRows(qint32 row);
+    QString firstInvalidReferenceError() const;
+    void updateAcceptState();
     void populateHelpDevices();
     void requestHelpForAdapter(const QString& adapterId);
     void setupButtons();
     static bool isEnterKey(const QKeyEvent* pEvent);
     void setupExpressionEditor();
+    void setupInsertDataPoint();
 
     static constexpr int cExpressionEditorLines = 3;
+
+    //! Data roles of the data point column.
+    static constexpr int cReferenceTextRole = Qt::UserRole;
+    static constexpr int cDeviceIdRole = Qt::UserRole + 1;
+    static constexpr int cInvalidErrorRole = Qt::UserRole + 2;
 
     Ui::ExpressionsDialog* _pUi;
 
@@ -66,7 +83,9 @@ private:
     GraphDataModel* _pGraphDataModel;
     AdapterHub* _pAdapterHub;
     SettingsModel* _pSettingsModel;
+    DataPointService* _pDataPointService;
     DataPointDescriptionCache* _pDescriptionCache;
+    DataPointEditorWidget* _pInsertEditor = nullptr;
     AdapterManager* _pHelpManager = nullptr;
     QPushButton* _pAcceptButton = nullptr;
 
@@ -75,7 +94,7 @@ private:
 
     bool _bUpdating;
 
-    //! Whether the expression can be applied: no syntax error and every device exists.
+    //! Whether the expression can be applied: no syntax error, every device exists and no data point is rejected.
     bool _bCanAccept{ false };
 };
 

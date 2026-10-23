@@ -61,6 +61,9 @@ private:
 
     QString _expression;
     bool _bValid{ false };
+
+    //! Form values that _expression was set or built from.
+    QJsonObject _expressionValues;
     QString _error;
     quint64 _pendingTicket{ 0 };
 

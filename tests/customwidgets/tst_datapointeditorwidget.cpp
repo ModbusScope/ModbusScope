@@ -130,6 +130,34 @@ void TestDataPointEditorWidget::fieldChangeBuildsReference()
     QVERIFY(_pEditor->hasValidExpression());
 }
 
+//! A change notification without a changed value (a spin box emits one on Enter) keeps the built reference.
+void TestDataPointEditorWidget::unchangedValuesKeepBuiltReference()
+{
+    createEditor();
+    emit _pModbusManager->buildExpressionResult(1, QStringLiteral("${h0}"));
+
+    emit _pEditor->_pAddressForm->valuesChanged();
+
+    QCOMPARE(_pModbusManager->buildCalls.size(), 1);
+    QVERIFY(_pEditor->hasValidExpression());
+    QCOMPARE(_pEditor->expression(), QStringLiteral("${h0}"));
+}
+
+//! A change notification without a changed value keeps a reference set with setReference().
+void TestDataPointEditorWidget::unchangedValuesKeepSetReference()
+{
+    createEditor();
+    emit _pModbusManager->buildExpressionResult(1, QStringLiteral("${h0}"));
+    _pEditor->setReference(
+      QStringLiteral("${40003:s16b}"),
+      QJsonObject{ { "deviceId", 1 }, { "objectType", "holding register" }, { "address", 2 }, { "dataType", "s16b" } });
+
+    emit _pEditor->_pAddressForm->valuesChanged();
+
+    QCOMPARE(_pModbusManager->buildCalls.size(), 1);
+    QCOMPARE(_pEditor->expression(), QStringLiteral("${40003:s16b}"));
+}
+
 void TestDataPointEditorWidget::staleReplyIgnored()
 {
     createEditor();

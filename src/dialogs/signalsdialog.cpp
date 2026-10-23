@@ -160,7 +160,7 @@ void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
         _pUi->signalView->closePersistentEditor(index);
 
         ExpressionsDialog exprDialog(_pDraft->model(), GraphIdx(index.row()), _pAdapterHub, _pSettingsModel,
-                                     _pDescriptionCache, this);
+                                     _pDataPointService, _pDescriptionCache, this);
 
         exprDialog.exec();
     }

@@ -1,6 +1,7 @@
 
 #include "tst_expressionsdialog.h"
 
+#include "customwidgets/datapointeditorwidget.h"
 #include "dialogs/expressionsdialog.h"
 #include "models/datapointdescriptioncache.h"
 #include "models/device.h"
@@ -11,9 +12,11 @@
 
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QJsonObject>
 #include <QLabel>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QSpinBox>
 #include <QTableWidget>
 #include <QTest>
 
@@ -31,7 +34,8 @@ void TestExpressionsDialog::init()
     _pDataPointService = new DataPointService(_pSettingsModel, _pMockHub, this);
     _pDescriptionCache = new DataPointDescriptionCache(_pDataPointService, this);
 
-    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDescriptionCache);
+    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDataPointService,
+                                     _pDescriptionCache);
 }
 
 void TestExpressionsDialog::cleanup()
@@ -65,7 +69,8 @@ void TestExpressionsDialog::recreateDialog()
 {
     delete _pDialog;
     _pMockAdapterManager->helpRequestCount = 0;
-    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDescriptionCache);
+    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDataPointService,
+                                     _pDescriptionCache);
 }
 
 void TestExpressionsDialog::describeDispatch_singleAddress()
@@ -165,6 +170,76 @@ void TestExpressionsDialog::describeDispatch_failureKeepsParserDescription()
     QTest::qWait(0);
 
     QCOMPARE(pTable->item(0, 0)->text(), parserDescription);
+}
+
+//! Each occurrence of a reference gets its own row, described with one request.
+void TestExpressionsDialog::describeDispatch_duplicateReferences()
+{
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+
+    pEdit->setPlainText(QStringLiteral("${40001} - ${40001}"));
+    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
+
+    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Reg 1"));
+
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    QCOMPARE(pTable->rowCount(), 2);
+    QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("Reg 1"));
+    QCOMPARE(pTable->item(1, 0)->text(), QStringLiteral("Reg 1"));
+}
+
+//! Rows are listed in the order the references appear in the expression.
+void TestExpressionsDialog::rowsFollowExpressionOrder()
+{
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+    pEdit->setPlainText(QStringLiteral("${40002} + ${40001} + ${40002}"));
+
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    QCOMPARE(pTable->rowCount(), 3);
+    QCOMPARE(pTable->item(0, 0)->data(Qt::UserRole).toString(), QStringLiteral("${40002}"));
+    QCOMPARE(pTable->item(1, 0)->data(Qt::UserRole).toString(), QStringLiteral("${40001}"));
+    QCOMPARE(pTable->item(2, 0)->data(Qt::UserRole).toString(), QStringLiteral("${40002}"));
+}
+
+//! Editing the value of one occurrence updates the other occurrences of the same reference.
+void TestExpressionsDialog::duplicateReferencesShareExampleValue()
+{
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+    pEdit->setPlainText(QStringLiteral("${40001} * ${40001}"));
+
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    pTable->item(1, 1)->setText(QStringLiteral("3"));
+
+    QCOMPARE(pTable->item(0, 1)->text(), QStringLiteral("3"));
+
+    auto* pOutput = _pDialog->findChild<QLabel*>("lblOut");
+    QVERIFY(pOutput != nullptr);
+    QCOMPARE(pOutput->text(), QStringLiteral("9"));
+}
+
+//! Each distinct data point is evaluated with the value of its own rows.
+void TestExpressionsDialog::exampleValuesFollowDistinctDataPoints()
+{
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+    pEdit->setPlainText(QStringLiteral("${40001} + 10 * ${40002} + 100 * ${40001}"));
+
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    pTable->item(0, 1)->setText(QStringLiteral("2"));
+    pTable->item(1, 1)->setText(QStringLiteral("5"));
+
+    QCOMPARE(pTable->item(2, 1)->text(), QStringLiteral("2"));
+
+    auto* pOutput = _pDialog->findChild<QLabel*>("lblOut");
+    QVERIFY(pOutput != nullptr);
+    QCOMPARE(pOutput->text(), QStringLiteral("252"));
 }
 
 void TestExpressionsDialog::describeRoutedPerDeviceAdapter()
@@ -585,6 +660,203 @@ void TestExpressionsDialog::expressionEditorWraps()
 {
     QCOMPARE(_pDialog->_pUi->lineExpression->lineWrapMode(), QPlainTextEdit::WidgetWidth);
     QCOMPARE(_pDialog->_pUi->lineExpression->verticalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
+}
+
+//! A data point the adapter rejects is shown in red with the reason, and Accept stays disabled.
+void TestExpressionsDialog::acceptDisabledOnInvalidDataPoint()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} * 2"));
+    QVERIFY(_pDialog->_pAcceptButton->isEnabled());
+
+    _pMockAdapterManager->injectDescribeInvalid(1, QStringLiteral("Address out of range"));
+
+    const QTableWidgetItem* pItem = _pDialog->_pUi->tblExpressionInput->item(0, 0);
+    QCOMPARE(pItem->text(), QStringLiteral("${40001}"));
+    QCOMPARE(pItem->toolTip(), QStringLiteral("Address out of range"));
+    QCOMPARE(pItem->foreground().color(), QColor(QColorConstants::Red));
+    QCOMPARE(_pDialog->_pUi->lblError->text(), QStringLiteral("Invalid data point: Address out of range"));
+    QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
+
+    _pDialog->handleAccept();
+    QCOMPARE(_pDialog->result(), static_cast<int>(QDialog::Rejected));
+}
+
+//! The rejected data point that blocks Accept is named instead of an error of the example values.
+void TestExpressionsDialog::invalidDataPointShownOverExampleError()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} / 0"));
+    _pMockAdapterManager->injectDescribeInvalid(1, QStringLiteral("Address out of range"));
+
+    QCOMPARE(_pDialog->_pUi->lblError->text(), QStringLiteral("Invalid data point: Address out of range"));
+    QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
+}
+
+//! Error text from the adapter is shown as typed, never interpreted as rich text.
+void TestExpressionsDialog::adapterErrorShownAsPlainText()
+{
+    QCOMPARE(_pDialog->_pUi->lblError->textFormat(), Qt::PlainText);
+    QCOMPARE(_pDialog->_pUi->lblInsertError->textFormat(), Qt::PlainText);
+
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
+    _pMockAdapterManager->injectDescribeInvalid(1, QStringLiteral("<b>Address</b> out of range"));
+
+    const QTableWidgetItem* pItem = _pDialog->_pUi->tblExpressionInput->item(0, 0);
+    QCOMPARE(pItem->toolTip(), QStringLiteral("<qt>&lt;b&gt;Address&lt;/b&gt; out of range</qt>"));
+}
+
+//! Removing the rejected data point from the expression allows Accept again.
+void TestExpressionsDialog::acceptEnabledAfterInvalidDataPointRemoved()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
+    _pMockAdapterManager->injectDescribeInvalid(1, QStringLiteral("Address out of range"));
+    QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
+
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40002}"));
+    QVERIFY(_pDialog->_pAcceptButton->isEnabled());
+    QVERIFY(_pDialog->_pUi->lblError->text().isEmpty());
+
+    const QTableWidgetItem* pItem = _pDialog->_pUi->tblExpressionInput->item(0, 0);
+    QVERIFY(pItem->toolTip().isEmpty());
+}
+
+//! A describe request that fails (no answer from the adapter) does not block Accept.
+void TestExpressionsDialog::acceptEnabledOnFailedDescribe()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
+    _pMockAdapterManager->injectDescribeFailure(1, QStringLiteral("The adapter did not respond"));
+    QTest::qWait(0);
+
+    QVERIFY(_pDialog->_pAcceptButton->isEnabled());
+    QVERIFY(_pDialog->_pUi->lblError->text().isEmpty());
+}
+
+//! The insert form is hidden and asks nothing of the adapter until Insert data point is checked.
+void TestExpressionsDialog::insertFormCreatedWhenShown()
+{
+    QVERIFY(_pDialog->_pUi->widgetInsertDataPoint->isHidden());
+    QVERIFY(_pMockAdapterManager->buildCalls.isEmpty());
+
+    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+
+    QVERIFY(!_pDialog->_pUi->widgetInsertDataPoint->isHidden());
+    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 1);
+
+    _pDialog->_pUi->btnInsertDataPoint->setChecked(false);
+    QVERIFY(_pDialog->_pUi->widgetInsertDataPoint->isHidden());
+}
+
+//! The insert form starts on the device of the first data point in the expression.
+void TestExpressionsDialog::insertFormStartsOnFirstDataPointDevice()
+{
+    MockAdapterManager* pSimManager = addSimAdapter();
+    _pSettingsModel->deviceSettings(2)->setAdapterId("sim");
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001@2} + ${40001}"));
+
+    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+
+    QCOMPARE(_pDialog->_pInsertEditor->deviceId(), deviceId_t(2));
+    QCOMPARE(pSimManager->buildCalls.size(), 1);
+    QCOMPARE(pSimManager->buildCalls[0], deviceId_t(2));
+}
+
+//! Insert at cursor puts the built reference at the cursor and lists it in the table.
+void TestExpressionsDialog::insertAtCursor()
+{
+    QPlainTextEdit* pEdit = _pDialog->_pUi->lineExpression;
+    pEdit->setPlainText(QStringLiteral("1 + * 2"));
+    QTextCursor cursor = pEdit->textCursor();
+    cursor.setPosition(4);
+    pEdit->setTextCursor(cursor);
+
+    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pMockAdapterManager->injectBuildResult(QStringLiteral("${h1}"));
+
+    QVERIFY(_pDialog->_pUi->btnInsertAtCursor->isEnabled());
+    _pDialog->_pUi->btnInsertAtCursor->click();
+
+    QCOMPARE(pEdit->toPlainText(), QStringLiteral("1 + ${h1}* 2"));
+    QCOMPARE(pEdit->textCursor().position(), 9);
+    QCOMPARE(_pDialog->_pUi->tblExpressionInput->rowCount(), 1);
+    QCOMPARE(_pDialog->_pUi->tblExpressionInput->item(0, 0)->data(Qt::UserRole).toString(), QStringLiteral("${h1}"));
+}
+
+//! Insert at cursor replaces the selected text.
+void TestExpressionsDialog::insertReplacesSelection()
+{
+    QPlainTextEdit* pEdit = _pDialog->_pUi->lineExpression;
+    pEdit->setPlainText(QStringLiteral("${40001} + 2"));
+    QTextCursor cursor = pEdit->textCursor();
+    cursor.setPosition(11);
+    cursor.setPosition(12, QTextCursor::KeepAnchor);
+    pEdit->setTextCursor(cursor);
+
+    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pMockAdapterManager->injectBuildResult(QStringLiteral("${h2}"));
+    _pDialog->_pUi->btnInsertAtCursor->click();
+
+    QCOMPARE(pEdit->toPlainText(), QStringLiteral("${40001} + ${h2}"));
+}
+
+//! Insert at cursor is disabled while the reference is being built.
+void TestExpressionsDialog::insertDisabledUntilBuilt()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("1"));
+    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+
+    QVERIFY(!_pDialog->_pUi->btnInsertAtCursor->isEnabled());
+    _pDialog->insertDataPoint();
+    QCOMPARE(_pDialog->_pUi->lineExpression->toPlainText(), QStringLiteral("1"));
+
+    _pMockAdapterManager->injectBuildResult(QStringLiteral("${h1}"));
+    QVERIFY(_pDialog->_pUi->btnInsertAtCursor->isEnabled());
+}
+
+//! A failed build shows the reason and keeps Insert at cursor disabled.
+void TestExpressionsDialog::insertFailureShowsError()
+{
+    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pMockAdapterManager->injectBuildFailure(QStringLiteral("Address out of range"));
+    QTest::qWait(0);
+
+    QVERIFY(_pDialog->_pUi->lblInsertError->text().contains(QStringLiteral("Address out of range")));
+    QVERIFY(!_pDialog->_pUi->btnInsertAtCursor->isEnabled());
+}
+
+//! Enter in an address field of the insert form inserts the data point and does not accept the dialog.
+void TestExpressionsDialog::enterInInsertFormInserts()
+{
+    QJsonObject addressField;
+    addressField["type"] = QStringLiteral("integer");
+    addressField["title"] = QStringLiteral("Address");
+    QJsonObject properties;
+    properties["address"] = addressField;
+    QJsonObject addressSchema;
+    addressSchema["type"] = QStringLiteral("object");
+    addressSchema["properties"] = properties;
+    QJsonObject schema;
+    schema["addressSchema"] = addressSchema;
+    _pSettingsModel->setAdapterDataPointSchema(QStringLiteral("modbus"), schema);
+
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("2 * "));
+    recreateDialog();
+    _pDialog->show();
+    QVERIFY(QTest::qWaitForWindowExposed(_pDialog));
+
+    QTextCursor cursor = _pDialog->_pUi->lineExpression->textCursor();
+    cursor.movePosition(QTextCursor::End);
+    _pDialog->_pUi->lineExpression->setTextCursor(cursor);
+
+    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pMockAdapterManager->injectBuildResult(QStringLiteral("${h1}"));
+
+    auto* pAddressSpin = _pDialog->_pInsertEditor->findChild<QSpinBox*>();
+    QVERIFY(pAddressSpin != nullptr);
+    pAddressSpin->setFocus();
+    QTest::keyClick(pAddressSpin, Qt::Key_Return);
+
+    QVERIFY(_pDialog->isVisible());
+    QCOMPARE(_pDialog->_pUi->lineExpression->toPlainText(), QStringLiteral("2 * ${h1}"));
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("2 * "));
 }
 
 QTEST_MAIN(TestExpressionsDialog)
