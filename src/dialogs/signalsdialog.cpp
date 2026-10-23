@@ -66,13 +66,14 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     _pUi->signalView->setModel(_pTableModel);
     _pUi->signalView->verticalHeader()->hide();
 
-    _valueAxisDelegate = std::make_unique<ValueAxisDelegate>(_pUi->signalView);
-    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, _valueAxisDelegate.get());
+    /* The view owns its delegates, so they live as long as the view asks them for sizes */
+    _pValueAxisDelegate = new ValueAxisDelegate(_pUi->signalView);
+    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, _pValueAxisDelegate);
 
-    _expressionDelegate = std::make_unique<ActionButtonDelegate>(_pUi->signalView);
-    _expressionDelegate->setCharacter(QChar(0x2026));
-    connect(_expressionDelegate.get(), &ActionButtonDelegate::clicked, this, &SignalsDialog::handleExpressionEdit);
-    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, _expressionDelegate.get());
+    _pExpressionDelegate = new ActionButtonDelegate(_pUi->signalView);
+    _pExpressionDelegate->setCharacter(QChar(0x2026));
+    connect(_pExpressionDelegate, &ActionButtonDelegate::clicked, this, &SignalsDialog::handleExpressionEdit);
+    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, _pExpressionDelegate);
 
     /* Don't stretch columns */
     _pUi->signalView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -115,10 +116,6 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
 
 SignalsDialog::~SignalsDialog()
 {
-    /* The delegates are destroyed before QDialog hides the table, which can still ask them for a column size */
-    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, nullptr);
-    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, nullptr);
-
     delete _pUi;
 }
 
