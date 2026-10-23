@@ -1,6 +1,6 @@
 #include "tst_datapointservice.h"
 
-#include "../dialogs/mockadapterhub.h"
+#include "../mocks/mockadapterhub.h"
 #include "../models/devicelisthelpers.h"
 #include "ProtocolAdapter/datapointservice.h"
 
@@ -74,6 +74,34 @@ void TestDataPointService::requestsRoutedToDeviceAdapter()
 
     QCOMPARE(_pModbusManager->describeCalls, QStringList{ QStringLiteral("${40001}") });
     QCOMPARE(_pSimManager->describeCalls, QStringList{ QStringLiteral("${1@2}") });
+}
+
+void TestDataPointService::expressionHelpRoutedToDeviceAdapter()
+{
+    _pService->requestExpressionHelp(cSimDeviceId);
+
+    QCOMPARE(_pSimManager->helpRequestCount, 1);
+    QCOMPARE(_pModbusManager->helpRequestCount, 0);
+}
+
+void TestDataPointService::expressionHelpCarriesAdapterId()
+{
+    QSignalSpy spyHelp(_pService, &DataPointService::expressionHelpReceived);
+
+    _pService->requestExpressionHelp(cSimDeviceId);
+    _pSimManager->injectExpressionHelp(QStringLiteral("Sim help"));
+
+    QCOMPARE(spyHelp.count(), 1);
+    QCOMPARE(spyHelp.at(0).at(0).toString(), QStringLiteral("sim"));
+    QCOMPARE(spyHelp.at(0).at(1).toString(), QStringLiteral("Sim help"));
+}
+
+void TestDataPointService::expressionHelpForUnknownDeviceSendsNothing()
+{
+    _pService->requestExpressionHelp(99);
+
+    QCOMPARE(_pModbusManager->helpRequestCount, 0);
+    QCOMPARE(_pSimManager->helpRequestCount, 0);
 }
 
 void TestDataPointService::describeResultCarriesTicket()

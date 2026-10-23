@@ -8,8 +8,6 @@
 #include <QStringList>
 
 /* Forward declarations */
-class AdapterHub;
-class AdapterManager;
 class DataPointDescriptionCache;
 class DataPointEditorWidget;
 class DataPointService;
@@ -31,7 +29,6 @@ class ExpressionsDialog : public QDialog
 public:
     explicit ExpressionsDialog(GraphDataModel* pGraphDataModel,
                                GraphIdx idx,
-                               AdapterHub* pAdapterHub,
                                SettingsModel* pSettingsModel,
                                DataPointService* pDataPointService,
                                DataPointDescriptionCache* pDescriptionCache,
@@ -49,9 +46,9 @@ private slots:
     void handleCancel();
     void handleAccept();
     void handleResultReady(bool valid);
-    void handleExpressionHelpResult(const QString& helpText);
+    void handleExpressionHelpResult(const QString& adapterId, const QString& helpText);
     void handleDescriptionChanged(const QString& referenceText);
-    void onHelpDeviceChanged(deviceId_t deviceId);
+    void requestHelpForDevice(deviceId_t deviceId);
     void handleInsertDataPointToggled(bool bChecked);
     void updateInsertButton();
     void insertDataPoint();
@@ -63,7 +60,6 @@ private:
     QString firstInvalidReferenceError() const;
     void updateAcceptState();
     void populateHelpDevices();
-    void requestHelpForAdapter(const QString& adapterId);
     void setupButtons();
     static bool isEnterKey(const QKeyEvent* pEvent);
     void setupExpressionEditor();
@@ -81,13 +77,14 @@ private:
     GraphIdx _graphIdx;
 
     GraphDataModel* _pGraphDataModel;
-    AdapterHub* _pAdapterHub;
     SettingsModel* _pSettingsModel;
     DataPointService* _pDataPointService;
     DataPointDescriptionCache* _pDescriptionCache;
     DataPointEditorWidget* _pInsertEditor = nullptr;
-    AdapterManager* _pHelpManager = nullptr;
     QPushButton* _pAcceptButton = nullptr;
+
+    //! Adapter whose expression help is shown or requested; empty when there is none.
+    QString _helpAdapterId;
 
     ExpressionChecker _expressionChecker;
     ExpressionHighlighting* _pHighlighter;

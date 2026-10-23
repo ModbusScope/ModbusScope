@@ -1,7 +1,6 @@
 
 #include "signalsdialog.h"
 
-#include "ProtocolAdapter/adapterhub.h"
 #include "ProtocolAdapter/datapointservice.h"
 #include "customwidgets/actionbuttondelegate.h"
 #include "datahandling/datapointusage.h"
@@ -16,7 +15,34 @@
 #include "valueaxisdelegate.h"
 
 #include <QColorDialog>
+#include <QMessageBox>
 #include <QShortcut>
+
+namespace {
+
+/*!
+ * \brief Returns the row to select after removing signals.
+ * \param firstRemovedRow Lowest row that was removed.
+ * \param rowCount        Number of rows left after the removal.
+ * \return The row that took the place of the first removed row, the last row when the removed
+ *         rows were at the end, or -1 when no rows are left.
+ */
+int rowAfterRemoval(int firstRemovedRow, int rowCount)
+{
+    if (rowCount <= 0)
+    {
+        return -1;
+    }
+
+    if (firstRemovedRow < rowCount)
+    {
+        return firstRemovedRow;
+    }
+
+    return rowCount - 1;
+}
+
+} // namespace
 
 SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
                              SettingsModel* pSettingsModel,
@@ -31,8 +57,7 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
 
     _pDraft = new SignalListDraft(pGraphDataModel, pSettingsModel, this);
     _pSettingsModel = pSettingsModel;
-    _pAdapterHub = pAdapterHub;
-    _pDataPointService = new DataPointService(_pSettingsModel, _pAdapterHub, this);
+    _pDataPointService = new DataPointService(_pSettingsModel, pAdapterHub, this);
     _pDescriptionCache = new DataPointDescriptionCache(_pDataPointService, this);
     _pTableModel = new SignalTableProxyModel(_pDraft->model(), _pDescriptionCache, this);
 
@@ -40,13 +65,14 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     _pUi->signalView->setModel(_pTableModel);
     _pUi->signalView->verticalHeader()->hide();
 
-    _valueAxisDelegate = std::make_unique<ValueAxisDelegate>(_pUi->signalView);
-    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, _valueAxisDelegate.get());
+    /* The view owns its delegates, so they live as long as the view asks them for sizes */
+    _pValueAxisDelegate = new ValueAxisDelegate(_pUi->signalView);
+    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, _pValueAxisDelegate);
 
-    _expressionDelegate = std::make_unique<ActionButtonDelegate>(_pUi->signalView);
-    _expressionDelegate->setCharacter(QChar(0x2026));
-    connect(_expressionDelegate.get(), &ActionButtonDelegate::clicked, this, &SignalsDialog::handleExpressionEdit);
-    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, _expressionDelegate.get());
+    _pExpressionDelegate = new ActionButtonDelegate(_pUi->signalView);
+    _pExpressionDelegate->setCharacter(QChar(0x2026));
+    connect(_pExpressionDelegate, &ActionButtonDelegate::clicked, this, &SignalsDialog::handleExpressionEdit);
+    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, _pExpressionDelegate);
 
     /* Don't stretch columns */
     _pUi->signalView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -89,10 +115,6 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
 
 SignalsDialog::~SignalsDialog()
 {
-    /* The delegates are destroyed before QDialog hides the table, which can still ask them for a column size */
-    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::VALUE_AXIS, nullptr);
-    _pUi->signalView->setItemDelegateForColumn(GraphDataModel::column::EXPRESSION, nullptr);
-
     delete _pUi;
 }
 
@@ -106,6 +128,32 @@ void SignalsDialog::accept()
 
     _pDraft->apply();
     QDialog::accept();
+}
+
+/*!
+ * \brief Closes the dialog without applying the changes.
+ *
+ * Cancel, Esc and closing the window all end here. When the signal list was changed, the user
+ * confirms first that the changes are discarded.
+ */
+void SignalsDialog::reject()
+{
+    /* Closing the window keeps the focus in an open cell editor; moving it commits the edit */
+    _pUi->buttonBox->setFocus();
+
+    bool bDiscard = true;
+    if (_pDraft->hasChanges())
+    {
+        const auto reply = QMessageBox::question(this, QStringLiteral("Discard changes"),
+                                                 QStringLiteral("Discard the changes to the signals?"),
+                                                 QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Cancel);
+        bDiscard = reply == QMessageBox::Discard;
+    }
+
+    if (bDiscard)
+    {
+        QDialog::reject();
+    }
 }
 
 /*!
@@ -157,7 +205,7 @@ void SignalsDialog::removeSelectedSignals()
 
     _pDraft->model()->removeSignals(indices);
 
-    _pUi->signalView->selectRow(GraphDataModel::rowAfterRemoval(firstRow, _pDraft->model()->size()));
+    _pUi->signalView->selectRow(rowAfterRemoval(firstRow, _pDraft->model()->size()));
 }
 
 void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
@@ -176,8 +224,8 @@ void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
  */
 void SignalsDialog::openExpressionDialog(GraphIdx graphIdx)
 {
-    ExpressionsDialog exprDialog(_pDraft->model(), graphIdx, _pAdapterHub, _pSettingsModel, _pDataPointService,
-                                 _pDescriptionCache, this);
+    ExpressionsDialog exprDialog(_pDraft->model(), graphIdx, _pSettingsModel, _pDataPointService, _pDescriptionCache,
+                                 this);
 
     exprDialog.exec();
 }
@@ -256,7 +304,7 @@ QString SignalsDialog::dataPointLimitWarningMessage() const
         return QString();
     }
 
-    warnings.append(tr("A license removes this limit - see Help > About > Request License."));
+    warnings.append(QStringLiteral("A license removes this limit - see Help > About > Request License."));
     return warnings.join('\n');
 }
 

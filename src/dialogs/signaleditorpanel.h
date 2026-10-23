@@ -59,7 +59,7 @@ private slots:
 private:
     bool hasEditedRow() const;
     GraphIdx editedGraph() const;
-    void setEditWidgetsVisible(bool bVisible);
+    void applyMode(bool bEditMode);
     void refresh(bool bReloadEditor);
     void loadReference();
     void updateDataPointList();
@@ -76,6 +76,9 @@ private:
     QString _buildError;
     QString _addedMessage;
 
+    //! Edit mode or add mode. Edit mode can briefly have an invalid _editedRow: after its row is
+    //! removed or the model is reset, until onRowsRemoved() switches to add mode. hasEditedRow()
+    //! guards that window.
     bool _bEditMode{ false };
 
     //! Row in edit mode; invalid in add mode.

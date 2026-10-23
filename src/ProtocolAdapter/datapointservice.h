@@ -40,11 +40,13 @@ public:
 
     quint64 buildExpression(deviceId_t deviceId, const QJsonObject& fields);
     quint64 describeDataPoint(deviceId_t deviceId, const QString& reference);
+    void requestExpressionHelp(deviceId_t deviceId);
 
 signals:
     void expressionBuilt(quint64 ticket, QString expression);
     void dataPointDescribed(quint64 ticket, QJsonObject result);
     void requestFailed(quint64 ticket, QString error);
+    void expressionHelpReceived(QString adapterId, QString helpText);
     void adaptersChanged();
 
 private slots:

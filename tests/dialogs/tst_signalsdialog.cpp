@@ -7,11 +7,13 @@
 #include "models/graphdatamodel.h"
 
 #include <QAbstractProxyModel>
+#include <QApplication>
 #include <QDialogButtonBox>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMessageBox>
 #include <QMimeData>
 #include <QPushButton>
 #include <QScrollArea>
@@ -19,6 +21,7 @@
 #include <QSpinBox>
 #include <QTableView>
 #include <QTest>
+#include <QTimer>
 
 /*!
  * \brief Builds a minimal "modbus" data-point schema with non-empty defaults, so the panel
@@ -49,13 +52,15 @@ QJsonObject TestSignalsDialog::buildTestRegisterSchema()
 
 void TestSignalsDialog::init()
 {
+    _answeredQuestions = 0;
     DeviceListHelpers::clearDevices(&_settingsModel);
     _settingsModel.setAdapterDataPointSchema("modbus", buildTestRegisterSchema());
 
     _pGraphDataModel = new GraphDataModel();
-    _pMockAdapterManager = new MockAdapterManager(&_settingsModel);
+    _pMockDataPointManager = new MockDataPointManager(QStringLiteral("modbus"), &_settingsModel);
+    _pMockDataPointManager->mockReady = false;
     _pMockHub = new MockAdapterHub();
-    _pMockHub->addManager(QStringLiteral("modbus"), _pMockAdapterManager);
+    _pMockHub->addManager(QStringLiteral("modbus"), _pMockDataPointManager);
 }
 
 void TestSignalsDialog::cleanup()
@@ -64,8 +69,8 @@ void TestSignalsDialog::cleanup()
     _pDialog = nullptr;
     delete _pGraphDataModel;
     _pGraphDataModel = nullptr;
-    delete _pMockAdapterManager;
-    _pMockAdapterManager = nullptr;
+    delete _pMockDataPointManager;
+    _pMockDataPointManager = nullptr;
     delete _pMockHub;
     _pMockHub = nullptr;
 }
@@ -195,6 +200,64 @@ void TestSignalsDialog::editDraft()
     draftModel()->setExpression(GraphIdx(1), "${40200}");
 }
 
+/*!
+ * \brief Answer the next question with \a button.
+ *
+ * The question runs its own event loop, which delivers the timer while it is open.
+ */
+void TestSignalsDialog::answerNextQuestion(QMessageBox::StandardButton button)
+{
+    QTimer::singleShot(0, this, [this, button]() { clickInActiveMessageBox(button); });
+}
+
+//! Click \a button in the message box that is open, if any, and count the answer.
+void TestSignalsDialog::clickInActiveMessageBox(QMessageBox::StandardButton button)
+{
+    auto* pBox = qobject_cast<QMessageBox*>(QApplication::activeModalWidget());
+    if (pBox == nullptr)
+    {
+        return;
+    }
+
+    _answeredQuestions++;
+    pBox->button(button)->click();
+}
+
+//! Click Cancel in the button box.
+void TestSignalsDialog::clickCancel()
+{
+    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Cancel)->click();
+}
+
+void TestSignalsDialog::cancelWithoutChangesClosesWithoutQuestion()
+{
+    seedSignals(2);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    QSignalSpy spyFinished(_pDialog, &QDialog::finished);
+    answerNextQuestion(QMessageBox::Cancel);
+
+    clickCancel();
+    QTest::qWait(0); /* deliver the answer timer, which finds no question */
+
+    QCOMPARE(spyFinished.count(), 1);
+    QCOMPARE(_answeredQuestions, 0);
+}
+
+void TestSignalsDialog::cancelQuestionKeepsDialogOpen()
+{
+    seedSignals(2);
+    _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
+    QSignalSpy spyFinished(_pDialog, &QDialog::finished);
+    draftModel()->setLabel(GraphIdx(0), QStringLiteral("renamed"));
+    answerNextQuestion(QMessageBox::Cancel);
+
+    clickCancel();
+
+    QCOMPARE(_answeredQuestions, 1);
+    QCOMPARE(spyFinished.count(), 0);
+    QCOMPARE(draftModel()->label(GraphIdx(0)), QStringLiteral("renamed"));
+}
+
 void TestSignalsDialog::buttonBoxHasOkAndCancel()
 {
     _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
@@ -223,9 +286,13 @@ void TestSignalsDialog::cancelDiscardsChanges()
     seedSamples();
     _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
     editDraft();
+    QSignalSpy spyFinished(_pDialog, &QDialog::finished);
+    answerNextQuestion(QMessageBox::Discard);
 
-    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Cancel)->click();
+    clickCancel();
 
+    QCOMPARE(_answeredQuestions, 1);
+    QCOMPARE(spyFinished.count(), 1);
     QCOMPARE(_pDialog->result(), int(QDialog::Rejected));
     QCOMPARE(_pGraphDataModel->size(), 3);
     for (qint32 idx = 0; idx < 3; idx++)
@@ -242,12 +309,41 @@ void TestSignalsDialog::escapeDiscardsChanges()
     seedSamples();
     _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
     draftModel()->setActive(GraphIdx(0), false);
+    QSignalSpy spyFinished(_pDialog, &QDialog::finished);
+    answerNextQuestion(QMessageBox::Discard);
 
     QTest::keyClick(_pDialog, Qt::Key_Escape);
 
+    QCOMPARE(_answeredQuestions, 1);
+    QCOMPARE(spyFinished.count(), 1);
     QCOMPARE(_pDialog->result(), int(QDialog::Rejected));
     QVERIFY(_pGraphDataModel->isActive(GraphIdx(0)));
     QCOMPARE(_pGraphDataModel->dataSeries(GraphIdx(0))->size(), 3);
+}
+
+//! An edit still open in a table cell counts as a change when the window is closed.
+void TestSignalsDialog::closeWithOpenCellEditAsksQuestion()
+{
+    openWithReadyAdapter(1);
+    _pDialog->activateWindow();
+    QVERIFY(QTest::qWaitForWindowActive(_pDialog));
+    if (QApplication::activeWindow() != _pDialog)
+    {
+        /* Committing the edit relies on a focus change, which only reaches an active window */
+        QSKIP("The platform does not activate windows");
+    }
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    pView->edit(pView->model()->index(0, GraphDataModel::column::TEXT));
+    auto* pEditor = qobject_cast<QLineEdit*>(QApplication::focusWidget());
+    QVERIFY(pEditor != nullptr);
+    pEditor->setText(QStringLiteral("renamed"));
+    answerNextQuestion(QMessageBox::Cancel);
+
+    _pDialog->close();
+
+    QCOMPARE(_answeredQuestions, 1);
+    QVERIFY(_pDialog->isVisible());
+    QCOMPARE(draftModel()->label(GraphIdx(0)), QStringLiteral("renamed"));
 }
 
 void TestSignalsDialog::okAppliesChanges()
@@ -300,7 +396,7 @@ SignalEditorPanel* TestSignalsDialog::panel() const
 void TestSignalsDialog::openWithReadyAdapter(int signalCount)
 {
     DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
-    _pMockAdapterManager->mockReady = true;
+    _pMockDataPointManager->mockReady = true;
     seedSignals(signalCount);
 
     _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
@@ -311,7 +407,7 @@ void TestSignalsDialog::openWithReadyAdapter(int signalCount)
 //! Answer the panel's pending build request with \a expression and click Add signal.
 void TestSignalsDialog::addSignalThroughPanel(const QString& expression)
 {
-    _pMockAdapterManager->injectBuildExpressionResult(expression);
+    _pMockDataPointManager->injectBuildResult(expression);
     QTest::mouseClick(panel()->findChild<QPushButton*>("btnAdd"), Qt::LeftButton);
 }
 
@@ -345,7 +441,7 @@ void TestSignalsDialog::addedSignalScrolledIntoViewNotSelected()
 void TestSignalsDialog::enterInPanelDoesNotCloseDialog()
 {
     openWithReadyAdapter(0);
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
     auto* pName = panel()->findChild<QLineEdit*>("lineName");
     pName->setFocus();
 
@@ -377,9 +473,11 @@ void TestSignalsDialog::cancelDiscardsPanelAdds()
     openWithReadyAdapter(1);
     addSignalThroughPanel(QStringLiteral("${h0}"));
     QCOMPARE(draftModel()->size(), 2);
+    answerNextQuestion(QMessageBox::Discard);
 
-    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Cancel)->click();
+    clickCancel();
 
+    QCOMPARE(_answeredQuestions, 1);
     QCOMPARE(_pGraphDataModel->size(), 1);
 }
 
@@ -449,9 +547,9 @@ void TestSignalsDialog::dataPointColumnShowsDescription()
     QCOMPARE(pView->model()->headerData(GraphDataModel::column::COUNT, Qt::Horizontal).toString(),
              QStringLiteral("Data point"));
     QCOMPARE(dataPointIndex.data().toString(), QStringLiteral("${40001}"));
-    QCOMPARE(_pMockAdapterManager->describeCalls, QStringList({ QStringLiteral("${40001}") }));
+    QCOMPARE(_pMockDataPointManager->describeCalls, QStringList({ QStringLiteral("${40001}") }));
 
-    _pMockAdapterManager->injectDescribeResult(0, QStringLiteral("Holding register 40001"));
+    _pMockDataPointManager->injectDescribeResult(0, QStringLiteral("Holding register 40001"));
 
     QCOMPARE(dataPointIndex.data().toString(), QStringLiteral("Holding register 40001"));
 }
@@ -493,6 +591,55 @@ void TestSignalsDialog::clickOnDataPointColumnSelectsRowForRemove()
     QCOMPARE(draftExpressions(), QStringList({ QStringLiteral("${40001}"), QStringLiteral("${40003}") }));
 }
 
+//! Remove the row \a row through Remove selected.
+void TestSignalsDialog::removeRowThroughButton(int row)
+{
+    _pDialog->findChild<QTableView*>("signalView")->selectRow(row);
+    QTest::mouseClick(_pDialog->findChild<QPushButton*>("btnRemove"), Qt::LeftButton);
+}
+
+//! The selected rows of the signal table.
+QList<int> TestSignalsDialog::selectedRows() const
+{
+    QList<int> rows;
+    const QModelIndexList indexes = _pDialog->findChild<QTableView*>("signalView")->selectionModel()->selectedRows();
+    for (const QModelIndex& index : indexes)
+    {
+        rows.append(index.row());
+    }
+    return rows;
+}
+
+void TestSignalsDialog::removeMiddleRowSelectsNextRow()
+{
+    openWithReadyAdapter(3);
+
+    removeRowThroughButton(1);
+
+    QCOMPARE(draftExpressions(), QStringList({ QStringLiteral("${40001}"), QStringLiteral("${40003}") }));
+    QCOMPARE(selectedRows(), QList<int>({ 1 }));
+}
+
+void TestSignalsDialog::removeLastRowSelectsNewLastRow()
+{
+    openWithReadyAdapter(3);
+
+    removeRowThroughButton(2);
+
+    QCOMPARE(draftExpressions(), QStringList({ QStringLiteral("${40001}"), QStringLiteral("${40002}") }));
+    QCOMPARE(selectedRows(), QList<int>({ 1 }));
+}
+
+void TestSignalsDialog::removeOnlyRowLeavesNoSelection()
+{
+    openWithReadyAdapter(1);
+
+    removeRowThroughButton(0);
+
+    QCOMPARE(draftModel()->size(), 0);
+    QVERIFY(selectedRows().isEmpty());
+}
+
 /*!
  * \brief Select the first signal, change its address in the panel and answer the build request.
  * \param address        The address to enter.
@@ -502,15 +649,15 @@ void TestSignalsDialog::editFirstSignalAddressThroughPanel(int address, const QS
 {
     _pDialog->findChild<QTableView*>("signalView")->selectRow(0);
 
-    const qsizetype describeIdx = _pMockAdapterManager->describeCalls.indexOf(draftModel()->expression(GraphIdx(0)));
+    const qsizetype describeIdx = _pMockDataPointManager->describeCalls.indexOf(draftModel()->expression(GraphIdx(0)));
     QVERIFY(describeIdx >= 0);
-    _pMockAdapterManager->injectDescribeResult(static_cast<int>(describeIdx), QStringLiteral("described"));
+    _pMockDataPointManager->injectDescribeResult(static_cast<int>(describeIdx), QStringLiteral("described"));
 
     auto* pAddressSpin = panel()->findChild<QSpinBox*>();
     QVERIFY(pAddressSpin != nullptr);
     QVERIFY(pAddressSpin->isEnabled());
     pAddressSpin->setValue(address);
-    _pMockAdapterManager->injectBuildExpressionResult(builtReference);
+    _pMockDataPointManager->injectBuildResult(builtReference);
 
     QCOMPARE(draftModel()->expression(GraphIdx(0)), builtReference);
 }
@@ -543,9 +690,11 @@ void TestSignalsDialog::cancelDiscardsPanelEdits()
 {
     openWithReadyAdapter(1);
     editFirstSignalAddressThroughPanel(5, QStringLiteral("${h5}"));
+    answerNextQuestion(QMessageBox::Discard);
 
-    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Cancel)->click();
+    clickCancel();
 
+    QCOMPARE(_answeredQuestions, 1);
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001}"));
 }
 

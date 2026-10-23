@@ -643,28 +643,6 @@ void GraphDataModel::moveSignal(GraphIdx from, GraphIdx to)
     moveRow(from.v, dropRow);
 }
 
-/*!
- * \brief Returns the row to select after removing signals.
- * \param firstRemovedRow Lowest row that was removed.
- * \param rowCount        Number of rows left after the removal.
- * \return The row that took the place of the first removed row, the last row when the removed
- *         rows were at the end, or -1 when no rows are left.
- */
-int GraphDataModel::rowAfterRemoval(int firstRemovedRow, int rowCount)
-{
-    if (rowCount <= 0)
-    {
-        return -1;
-    }
-
-    if (firstRemovedRow < rowCount)
-    {
-        return firstRemovedRow;
-    }
-
-    return rowCount - 1;
-}
-
 void GraphDataModel::clear()
 {
     if (_pStore->size() > 0)

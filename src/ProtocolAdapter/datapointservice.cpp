@@ -141,6 +141,31 @@ quint64 DataPointService::describeDataPoint(deviceId_t deviceId, const QString& 
     return track(pManager, pManager->describeDataPoint(reference));
 }
 
+/*!
+ * \brief Ask the adapter of \a deviceId for its expression help text.
+ *
+ * expressionHelpReceived() carries the adapter id, so a caller can ignore help of an adapter it no
+ * longer shows. Nothing is reported when the adapter does not answer.
+ * \param deviceId Device whose adapter is asked.
+ */
+void DataPointService::requestExpressionHelp(deviceId_t deviceId)
+{
+    const QString adapterId = adapterIdForDevice(deviceId);
+    if (adapterId.isEmpty())
+    {
+        return;
+    }
+
+    AdapterManager* pManager = _pAdapterHub->adapterManager(adapterId);
+    if (pManager == nullptr)
+    {
+        return;
+    }
+
+    connectManager(pManager);
+    pManager->requestExpressionHelp();
+}
+
 void DataPointService::emitQueuedFailures()
 {
     const QList<QueuedFailure> failures = _queuedFailures;
@@ -164,7 +189,7 @@ void DataPointService::onManagerDestroyed(QObject* pObject)
     {
         if (static_cast<QObject*>(it->pManager) == pObject)
         {
-            failLater(it.key(), tr("The adapter stopped"));
+            failLater(it.key(), QStringLiteral("The adapter stopped"));
             it = _pendingRequests.erase(it);
         }
         else
@@ -216,7 +241,7 @@ quint64 DataPointService::track(AdapterManager* pManager, int requestId)
     const quint64 ticket = ++_lastTicket;
     if (requestId < 0)
     {
-        failLater(ticket, tr("The adapter did not accept the request"));
+        failLater(ticket, QStringLiteral("The adapter did not accept the request"));
         return ticket;
     }
 
@@ -273,6 +298,9 @@ void DataPointService::connectManager(AdapterManager* pManager)
             });
     connect(pManager, &AdapterManager::dataPointRequestFailed, this,
             [this, pManager](int requestId, const QString& error) { onRequestFailed(pManager, requestId, error); });
+    connect(pManager, &AdapterManager::expressionHelpResult, this, [this, pManager](const QString& helpText) {
+        emit expressionHelpReceived(pManager->adapterId(), helpText);
+    });
 }
 
 void DataPointService::onExpressionBuilt(AdapterManager* pManager, int requestId, const QString& expression)
@@ -316,15 +344,15 @@ void DataPointService::onRequestTimeout(quint64 ticket)
     }
 
     qCWarning(scopeComm) << "DataPointService: request" << ticket << "timed out";
-    failLater(ticket, tr("The adapter did not respond"));
+    failLater(ticket, QStringLiteral("The adapter did not respond"));
 }
 
 QString DataPointService::unusableReason(deviceId_t deviceId) const
 {
     if (!_pSettingsModel->hasDevice(deviceId))
     {
-        return tr("Device %1 does not exist").arg(deviceId);
+        return QStringLiteral("Device %1 does not exist").arg(deviceId);
     }
 
-    return tr("The adapter is not running");
+    return QStringLiteral("The adapter is not running");
 }

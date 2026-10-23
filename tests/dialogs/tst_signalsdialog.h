@@ -2,81 +2,17 @@
 #ifndef TST_SIGNALSDIALOG_H
 #define TST_SIGNALSDIALOG_H
 
-#include "ProtocolAdapter/adaptermanager.h"
-#include "mockadapterhub.h"
+#include "../mocks/mockadapterhub.h"
+#include "../mocks/mockdatapointmanager.h"
 #include "models/settingsmodel.h"
 
 #include <QJsonObject>
+#include <QMessageBox>
 #include <QObject>
 
 class GraphDataModel;
 class SignalEditorPanel;
 class SignalsDialog;
-
-/*!
- * \brief Test double for AdapterManager.
- *
- * Captures buildExpression() and describeDataPoint() calls and provides inject
- * helpers to answer them, without a real adapter process.
- */
-class MockAdapterManager : public AdapterManager
-{
-    Q_OBJECT
-
-public:
-    struct BuildCall
-    {
-        QJsonObject fields;
-        QString dataType;
-        deviceId_t deviceId;
-    };
-
-    explicit MockAdapterManager(SettingsModel* pSettingsModel,
-                                const QString& adapterId = QStringLiteral("modbus"),
-                                QObject* parent = nullptr)
-        : AdapterManager(adapterId, QString(), pSettingsModel, parent)
-    {
-    }
-
-    int buildExpression(const QJsonObject& fields, const QString& dataType, deviceId_t deviceId) override
-    {
-        buildCalls.append({ fields, dataType, deviceId });
-        return buildCalls.size();
-    }
-
-    int describeDataPoint(const QString& address) override
-    {
-        describeCalls.append(address);
-        return cFirstDescribeRequestId + static_cast<int>(describeCalls.size()) - 1;
-    }
-
-    bool isAdapterReady() const override
-    {
-        return mockReady;
-    }
-
-    //! Simulate the adapter returning an expression string for the last buildExpression() request.
-    void injectBuildExpressionResult(const QString& expression)
-    {
-        emit buildExpressionResult(static_cast<int>(buildCalls.size()), expression);
-    }
-
-    //! Simulate the adapter describing the data point of the given describeDataPoint() call (0 for the first).
-    void injectDescribeResult(int callIndex, const QString& description)
-    {
-        QJsonObject result;
-        result["valid"] = true;
-        result["description"] = description;
-        emit describeDataPointResult(cFirstDescribeRequestId + callIndex, result);
-    }
-
-    //! Describe request ids, kept apart from the build request ids.
-    static constexpr int cFirstDescribeRequestId = 1000;
-
-    QList<BuildCall> buildCalls;
-    QStringList describeCalls;
-    bool mockReady{ false };
-};
 
 class TestSignalsDialog : public QObject
 {
@@ -95,6 +31,9 @@ private slots:
     void tableEditsDraftNotSource();
     void cancelDiscardsChanges();
     void escapeDiscardsChanges();
+    void cancelWithoutChangesClosesWithoutQuestion();
+    void cancelQuestionKeepsDialogOpen();
+    void closeWithOpenCellEditAsksQuestion();
     void okAppliesChanges();
     void okWithoutChangesLeavesSourceUntouched();
 
@@ -111,6 +50,10 @@ private slots:
     void dragFromDataPointColumnReordersSignals();
     void clickOnDataPointColumnSelectsRowForRemove();
 
+    void removeMiddleRowSelectsNextRow();
+    void removeLastRowSelectsNewLastRow();
+    void removeOnlyRowLeavesNoSelection();
+
     void selectingRowEditsSignalInPanel();
     void cancelDiscardsPanelEdits();
     void okAppliesPanelEdits();
@@ -120,6 +63,9 @@ private:
     static QJsonObject buildTestRegisterSchema();
     static QJsonObject buildDescribeWithMaxRegisters(int maxRegisters);
     void seedSignals(int count);
+    void answerNextQuestion(QMessageBox::StandardButton button);
+    void clickInActiveMessageBox(QMessageBox::StandardButton button);
+    void clickCancel();
     void seedSamples();
     void editDraft();
     GraphDataModel* draftModel() const;
@@ -127,13 +73,18 @@ private:
     void openWithReadyAdapter(int signalCount);
     void addSignalThroughPanel(const QString& expression);
     QStringList draftExpressions() const;
+    void removeRowThroughButton(int row);
+    QList<int> selectedRows() const;
     void editFirstSignalAddressThroughPanel(int address, const QString& builtReference);
 
     SettingsModel _settingsModel;
     GraphDataModel* _pGraphDataModel{ nullptr };
     MockAdapterHub* _pMockHub{ nullptr };
-    MockAdapterManager* _pMockAdapterManager{ nullptr };
+    MockDataPointManager* _pMockDataPointManager{ nullptr };
     SignalsDialog* _pDialog{ nullptr };
+
+    //! Number of message boxes answered by clickInActiveMessageBox() in the current test.
+    int _answeredQuestions{ 0 };
 };
 
 #endif // TST_SIGNALSDIALOG_H

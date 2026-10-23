@@ -35,6 +35,7 @@ public:
 
 public slots:
     void accept() override;
+    void reject() override;
 
 private slots:
     void startAddSignal();
@@ -55,7 +56,6 @@ private:
 
     SignalListDraft* _pDraft;
     SettingsModel* _pSettingsModel;
-    AdapterHub* _pAdapterHub;
     DataPointService* _pDataPointService;
     DataPointDescriptionCache* _pDescriptionCache;
     SignalTableProxyModel* _pTableModel;
@@ -63,8 +63,8 @@ private:
 
     CenteredBoxProxyStyle _centeredBoxStyle;
 
-    std::unique_ptr<ValueAxisDelegate> _valueAxisDelegate;
-    std::unique_ptr<ActionButtonDelegate> _expressionDelegate;
+    ValueAxisDelegate* _pValueAxisDelegate;
+    ActionButtonDelegate* _pExpressionDelegate;
 
     static constexpr int cMinimumWidth = 680;
     static constexpr int cMinimumHeight = 400;

@@ -28,14 +28,14 @@ void TestExpressionsDialog::init()
     _pSettingsModel = new SettingsModel(this);
     _pSettingsModel->deviceSettings(Device::cFirstDeviceId)->setAdapterId("modbus");
 
-    _pMockAdapterManager = new MockAdapterManager(QStringLiteral("modbus"), this);
+    _pMockDataPointManager = new MockDataPointManager(QStringLiteral("modbus"), this);
     _pMockHub = new MockAdapterHub(this);
-    _pMockHub->addManager(QStringLiteral("modbus"), _pMockAdapterManager);
+    _pMockHub->addManager(QStringLiteral("modbus"), _pMockDataPointManager);
     _pDataPointService = new DataPointService(_pSettingsModel, _pMockHub, this);
     _pDescriptionCache = new DataPointDescriptionCache(_pDataPointService, this);
 
-    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDataPointService,
-                                     _pDescriptionCache);
+    _pDialog =
+      new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pSettingsModel, _pDataPointService, _pDescriptionCache);
 }
 
 void TestExpressionsDialog::cleanup()
@@ -52,9 +52,9 @@ void TestExpressionsDialog::cleanup()
  * \brief Register a second ("sim") adapter manager in the hub.
  * \return Pointer to the created sim mock manager (owned by the test object).
  */
-MockAdapterManager* TestExpressionsDialog::addSimAdapter()
+MockDataPointManager* TestExpressionsDialog::addSimAdapter()
 {
-    auto* pSimManager = new MockAdapterManager(QStringLiteral("sim"), this);
+    auto* pSimManager = new MockDataPointManager(QStringLiteral("sim"), this);
     _pMockHub->addManager(QStringLiteral("sim"), pSimManager);
     return pSimManager;
 }
@@ -68,9 +68,9 @@ MockAdapterManager* TestExpressionsDialog::addSimAdapter()
 void TestExpressionsDialog::recreateDialog()
 {
     delete _pDialog;
-    _pMockAdapterManager->helpRequestCount = 0;
-    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDataPointService,
-                                     _pDescriptionCache);
+    _pMockDataPointManager->helpRequestCount = 0;
+    _pDialog =
+      new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pSettingsModel, _pDataPointService, _pDescriptionCache);
 }
 
 void TestExpressionsDialog::describeDispatch_singleAddress()
@@ -79,17 +79,17 @@ void TestExpressionsDialog::describeDispatch_singleAddress()
     QVERIFY(pEdit != nullptr);
 
     pEdit->setPlainText(QStringLiteral("${40001}"));
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
-    QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40001}"));
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->describeCalls[0], QStringLiteral("${40001}"));
 
-    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Holding register 40001"));
+    _pMockDataPointManager->injectDescribeResult(0, QStringLiteral("Holding register 40001"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
     QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("Holding register 40001"));
 
     /* No further describe calls after last address */
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 1);
 }
 
 void TestExpressionsDialog::describeDispatch_multipleAddresses()
@@ -99,13 +99,13 @@ void TestExpressionsDialog::describeDispatch_multipleAddresses()
 
     /* Every data point is described at once */
     pEdit->setPlainText(QStringLiteral("${40001} + ${40002}"));
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 2);
-    QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40001}"));
-    QCOMPARE(_pMockAdapterManager->describeCalls[1], QStringLiteral("${40002}"));
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 2);
+    QCOMPARE(_pMockDataPointManager->describeCalls[0], QStringLiteral("${40001}"));
+    QCOMPARE(_pMockDataPointManager->describeCalls[1], QStringLiteral("${40002}"));
 
     /* Replies in reverse order still land in their own row */
-    _pMockAdapterManager->injectDescribeResult(2, QStringLiteral("Reg 2"));
-    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Reg 1"));
+    _pMockDataPointManager->injectDescribeResult(1, QStringLiteral("Reg 2"));
+    _pMockDataPointManager->injectDescribeResult(0, QStringLiteral("Reg 1"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
@@ -120,21 +120,21 @@ void TestExpressionsDialog::describeDispatch_replyForRemovedReferenceIgnored()
     QVERIFY(pEdit != nullptr);
 
     pEdit->setPlainText(QStringLiteral("${40001}"));
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 1);
 
     /* Expression changes before the reply arrives */
     pEdit->setPlainText(QStringLiteral("${40002}"));
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 2);
-    QCOMPARE(_pMockAdapterManager->describeCalls[1], QStringLiteral("${40002}"));
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 2);
+    QCOMPARE(_pMockDataPointManager->describeCalls[1], QStringLiteral("${40002}"));
 
     /* The late reply for the old expression is ignored */
-    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Reg 1"));
+    _pMockDataPointManager->injectDescribeResult(0, QStringLiteral("Reg 1"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
     QVERIFY(pTable->item(0, 0)->text() != QStringLiteral("Reg 1"));
 
-    _pMockAdapterManager->injectDescribeResult(2, QStringLiteral("Reg 2"));
+    _pMockDataPointManager->injectDescribeResult(1, QStringLiteral("Reg 2"));
     QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("Reg 2"));
 }
 
@@ -145,11 +145,11 @@ void TestExpressionsDialog::describeDispatch_cachedAcrossExpressionChanges()
     QVERIFY(pEdit != nullptr);
 
     pEdit->setPlainText(QStringLiteral("${40001}"));
-    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Reg 1"));
+    _pMockDataPointManager->injectDescribeResult(0, QStringLiteral("Reg 1"));
 
     pEdit->setPlainText(QStringLiteral("${40001} * 2"));
 
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 1);
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
     QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("Reg 1"));
@@ -166,7 +166,7 @@ void TestExpressionsDialog::describeDispatch_failureKeepsParserDescription()
     QVERIFY(pTable != nullptr);
     const QString parserDescription = pTable->item(0, 0)->text();
 
-    _pMockAdapterManager->injectDescribeFailure(1, QStringLiteral("The adapter did not respond"));
+    _pMockDataPointManager->injectDescribeFailure(0, QStringLiteral("The adapter did not respond"));
     QTest::qWait(0);
 
     QCOMPARE(pTable->item(0, 0)->text(), parserDescription);
@@ -179,9 +179,9 @@ void TestExpressionsDialog::describeDispatch_duplicateReferences()
     QVERIFY(pEdit != nullptr);
 
     pEdit->setPlainText(QStringLiteral("${40001} - ${40001}"));
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 1);
 
-    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Reg 1"));
+    _pMockDataPointManager->injectDescribeResult(0, QStringLiteral("Reg 1"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
@@ -245,7 +245,7 @@ void TestExpressionsDialog::exampleValuesFollowDistinctDataPoints()
 void TestExpressionsDialog::describeRoutedPerDeviceAdapter()
 {
     _pSettingsModel->deviceSettings(2)->setAdapterId("sim");
-    MockAdapterManager* pSimManager = addSimAdapter();
+    MockDataPointManager* pSimManager = addSimAdapter();
 
     auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
     QVERIFY(pEdit != nullptr);
@@ -253,14 +253,14 @@ void TestExpressionsDialog::describeRoutedPerDeviceAdapter()
     pEdit->setPlainText(QStringLiteral("${40001} + ${40002@2}"));
 
     /* Device 1 belongs to the modbus adapter, device 2 to the sim adapter */
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
-    QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40001}"));
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->describeCalls[0], QStringLiteral("${40001}"));
     QCOMPARE(pSimManager->describeCalls.size(), 1);
     QCOMPARE(pSimManager->describeCalls[0], QStringLiteral("${40002@2}"));
 
     /* Both managers number their requests from 1: each reply must only reach its own row */
-    pSimManager->injectDescribeResult(1, QStringLiteral("Sim reg"));
-    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Modbus reg"));
+    pSimManager->injectDescribeResult(0, QStringLiteral("Sim reg"));
+    _pMockDataPointManager->injectDescribeResult(0, QStringLiteral("Modbus reg"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
@@ -279,10 +279,10 @@ void TestExpressionsDialog::describeSkipsUnavailableAdapter()
     pEdit->setPlainText(QStringLiteral("${40001@2} + ${40002}"));
 
     /* Row 0 is skipped; row 1 is described by the modbus adapter */
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
-    QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40002}"));
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->describeCalls[0], QStringLiteral("${40002}"));
 
-    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Modbus reg"));
+    _pMockDataPointManager->injectDescribeResult(0, QStringLiteral("Modbus reg"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
@@ -291,14 +291,15 @@ void TestExpressionsDialog::describeSkipsUnavailableAdapter()
     QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("${40001@2}, device id 2"));
     QCOMPARE(pTable->item(1, 0)->text(), QStringLiteral("Modbus reg"));
 
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 1);
 }
 
 void TestExpressionsDialog::describeSkipsIdleAdapter()
 {
     _pSettingsModel->deviceSettings(2)->setAdapterId("sim");
-    MockAdapterManager* pSimManager = addSimAdapter();
+    MockDataPointManager* pSimManager = addSimAdapter();
     pSimManager->mockIdle = true;
+    pSimManager->mockReady = false;
 
     auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
     QVERIFY(pEdit != nullptr);
@@ -307,8 +308,8 @@ void TestExpressionsDialog::describeSkipsIdleAdapter()
 
     /* The idle sim adapter is skipped; only the modbus data point is described */
     QCOMPARE(pSimManager->describeCalls.size(), 0);
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
-    QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40002}"));
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->describeCalls[0], QStringLiteral("${40002}"));
 }
 
 void TestExpressionsDialog::describeShowsInvalidDeviceMessage()
@@ -320,17 +321,17 @@ void TestExpressionsDialog::describeShowsInvalidDeviceMessage()
     pEdit->setPlainText(QStringLiteral("${40001@99} + ${40002}"));
 
     /* Row 0 is skipped without a describe call; row 1 is described */
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
-    QCOMPARE(_pMockAdapterManager->describeCalls[0], QStringLiteral("${40002}"));
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->describeCalls[0], QStringLiteral("${40002}"));
 
-    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Modbus reg"));
+    _pMockDataPointManager->injectDescribeResult(0, QStringLiteral("Modbus reg"));
 
     auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
     QVERIFY(pTable != nullptr);
     QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("Invalid device"));
     QCOMPARE(pTable->item(1, 0)->text(), QStringLiteral("Modbus reg"));
 
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 1);
 }
 
 void TestExpressionsDialog::helpComboHiddenWithSingleDevice()
@@ -377,17 +378,17 @@ void TestExpressionsDialog::helpComboShowsNameProtocolAndId()
 void TestExpressionsDialog::helpRoutedToSelectedDevice()
 {
     _pSettingsModel->deviceSettings(2)->setAdapterId("sim");
-    MockAdapterManager* pSimManager = addSimAdapter();
+    MockDataPointManager* pSimManager = addSimAdapter();
     recreateDialog();
 
     auto* pInfoLabel = _pDialog->findChild<QLabel*>("lblInfo");
     QVERIFY(pInfoLabel != nullptr);
 
     /* The dialog requested help from the initially selected device's (modbus) adapter */
-    QCOMPARE(_pMockAdapterManager->helpRequestCount, 1);
+    QCOMPARE(_pMockDataPointManager->helpRequestCount, 1);
     QCOMPARE(pSimManager->helpRequestCount, 0);
 
-    _pMockAdapterManager->injectExpressionHelp(QStringLiteral("Modbus help"));
+    _pMockDataPointManager->injectExpressionHelp(QStringLiteral("Modbus help"));
     /* Label combines the core's generic expression info with the adapter's fragment,
      * wrapped in a single well-formed document */
     QVERIFY(pInfoLabel->text().startsWith(QStringLiteral("<html><head/><body>")));
@@ -410,7 +411,7 @@ void TestExpressionsDialog::helpRoutedToSelectedDevice()
     QVERIFY(!pInfoLabel->text().contains(QStringLiteral("Modbus help")));
 
     /* A late response from the deselected modbus adapter is ignored */
-    _pMockAdapterManager->injectExpressionHelp(QStringLiteral("Stale modbus help"));
+    _pMockDataPointManager->injectExpressionHelp(QStringLiteral("Stale modbus help"));
     QVERIFY(pInfoLabel->text().contains(QStringLiteral("Sim help")));
     QVERIFY(!pInfoLabel->text().contains(QStringLiteral("Stale modbus help")));
 }
@@ -423,9 +424,9 @@ void TestExpressionsDialog::helpSwitchingBetweenDevicesOnSameAdapterSkipsRedunda
 
     auto* pInfoLabel = _pDialog->findChild<QLabel*>("lblInfo");
     QVERIFY(pInfoLabel != nullptr);
-    QCOMPARE(_pMockAdapterManager->helpRequestCount, 1);
+    QCOMPARE(_pMockDataPointManager->helpRequestCount, 1);
 
-    _pMockAdapterManager->injectExpressionHelp(QStringLiteral("Modbus help"));
+    _pMockDataPointManager->injectExpressionHelp(QStringLiteral("Modbus help"));
     QVERIFY(pInfoLabel->text().contains(QStringLiteral("Modbus help")));
 
     auto* pCombo = _pDialog->findChild<QComboBox*>("cmbHelpDevice");
@@ -435,7 +436,7 @@ void TestExpressionsDialog::helpSwitchingBetweenDevicesOnSameAdapterSkipsRedunda
 
     /* Switching to the other device on the same adapter is a no-op: no new
      * request is issued and the already-shown help text is not cleared */
-    QCOMPARE(_pMockAdapterManager->helpRequestCount, 1);
+    QCOMPARE(_pMockDataPointManager->helpRequestCount, 1);
     QVERIFY(pInfoLabel->text().contains(QStringLiteral("Modbus help")));
 }
 
@@ -473,6 +474,16 @@ void TestExpressionsDialog::exampleInputAcceptsHex()
     auto* pOutput = _pDialog->findChild<QLabel*>("lblOut");
     QVERIFY(pOutput != nullptr);
     QCOMPARE(pOutput->text(), QStringLiteral("16"));
+}
+
+//! An example value with a decimal comma is evaluated like one with a decimal point.
+void TestExpressionsDialog::exampleInputAcceptsDecimalComma()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} * 2"));
+
+    _pDialog->_pUi->tblExpressionInput->item(0, 1)->setText(QStringLiteral("1,5"));
+
+    QCOMPARE(_pDialog->_pUi->lblOut->text(), QStringLiteral("3"));
 }
 
 //! A syntax error disables Accept, and accepting anyway leaves the signal unchanged.
@@ -668,7 +679,7 @@ void TestExpressionsDialog::acceptDisabledOnInvalidDataPoint()
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} * 2"));
     QVERIFY(_pDialog->_pAcceptButton->isEnabled());
 
-    _pMockAdapterManager->injectDescribeInvalid(1, QStringLiteral("Address out of range"));
+    _pMockDataPointManager->injectDescribeInvalid(0, QStringLiteral("Address out of range"));
 
     const QTableWidgetItem* pItem = _pDialog->_pUi->tblExpressionInput->item(0, 0);
     QCOMPARE(pItem->text(), QStringLiteral("${40001}"));
@@ -685,7 +696,7 @@ void TestExpressionsDialog::acceptDisabledOnInvalidDataPoint()
 void TestExpressionsDialog::invalidDataPointShownOverExampleError()
 {
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} / 0"));
-    _pMockAdapterManager->injectDescribeInvalid(1, QStringLiteral("Address out of range"));
+    _pMockDataPointManager->injectDescribeInvalid(0, QStringLiteral("Address out of range"));
 
     QCOMPARE(_pDialog->_pUi->lblError->text(), QStringLiteral("Invalid data point: Address out of range"));
     QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
@@ -698,7 +709,7 @@ void TestExpressionsDialog::adapterErrorShownAsPlainText()
     QCOMPARE(_pDialog->_pUi->lblInsertError->textFormat(), Qt::PlainText);
 
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
-    _pMockAdapterManager->injectDescribeInvalid(1, QStringLiteral("<b>Address</b> out of range"));
+    _pMockDataPointManager->injectDescribeInvalid(0, QStringLiteral("<b>Address</b> out of range"));
 
     const QTableWidgetItem* pItem = _pDialog->_pUi->tblExpressionInput->item(0, 0);
     QCOMPARE(pItem->toolTip(), QStringLiteral("<qt>&lt;b&gt;Address&lt;/b&gt; out of range</qt>"));
@@ -708,7 +719,7 @@ void TestExpressionsDialog::adapterErrorShownAsPlainText()
 void TestExpressionsDialog::acceptEnabledAfterInvalidDataPointRemoved()
 {
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
-    _pMockAdapterManager->injectDescribeInvalid(1, QStringLiteral("Address out of range"));
+    _pMockDataPointManager->injectDescribeInvalid(0, QStringLiteral("Address out of range"));
     QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
 
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40002}"));
@@ -723,7 +734,7 @@ void TestExpressionsDialog::acceptEnabledAfterInvalidDataPointRemoved()
 void TestExpressionsDialog::acceptEnabledOnFailedDescribe()
 {
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
-    _pMockAdapterManager->injectDescribeFailure(1, QStringLiteral("The adapter did not respond"));
+    _pMockDataPointManager->injectDescribeFailure(0, QStringLiteral("The adapter did not respond"));
     QTest::qWait(0);
 
     QVERIFY(_pDialog->_pAcceptButton->isEnabled());
@@ -734,12 +745,12 @@ void TestExpressionsDialog::acceptEnabledOnFailedDescribe()
 void TestExpressionsDialog::insertFormCreatedWhenShown()
 {
     QVERIFY(_pDialog->_pUi->widgetInsertDataPoint->isHidden());
-    QVERIFY(_pMockAdapterManager->buildCalls.isEmpty());
+    QVERIFY(_pMockDataPointManager->buildCalls.isEmpty());
 
     _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
 
     QVERIFY(!_pDialog->_pUi->widgetInsertDataPoint->isHidden());
-    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->buildCalls.size(), 1);
 
     _pDialog->_pUi->btnInsertDataPoint->setChecked(false);
     QVERIFY(_pDialog->_pUi->widgetInsertDataPoint->isHidden());
@@ -748,7 +759,7 @@ void TestExpressionsDialog::insertFormCreatedWhenShown()
 //! The insert form starts on the device of the first data point in the expression.
 void TestExpressionsDialog::insertFormStartsOnFirstDataPointDevice()
 {
-    MockAdapterManager* pSimManager = addSimAdapter();
+    MockDataPointManager* pSimManager = addSimAdapter();
     _pSettingsModel->deviceSettings(2)->setAdapterId("sim");
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001@2} + ${40001}"));
 
@@ -756,7 +767,7 @@ void TestExpressionsDialog::insertFormStartsOnFirstDataPointDevice()
 
     QCOMPARE(_pDialog->_pInsertEditor->deviceId(), deviceId_t(2));
     QCOMPARE(pSimManager->buildCalls.size(), 1);
-    QCOMPARE(pSimManager->buildCalls[0], deviceId_t(2));
+    QCOMPARE(pSimManager->buildCalls[0].deviceId, deviceId_t(2));
 }
 
 //! Insert at cursor puts the built reference at the cursor and lists it in the table.
@@ -769,7 +780,7 @@ void TestExpressionsDialog::insertAtCursor()
     pEdit->setTextCursor(cursor);
 
     _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
-    _pMockAdapterManager->injectBuildResult(QStringLiteral("${h1}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h1}"));
 
     QVERIFY(_pDialog->_pUi->btnInsertAtCursor->isEnabled());
     _pDialog->_pUi->btnInsertAtCursor->click();
@@ -791,7 +802,7 @@ void TestExpressionsDialog::insertReplacesSelection()
     pEdit->setTextCursor(cursor);
 
     _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
-    _pMockAdapterManager->injectBuildResult(QStringLiteral("${h2}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h2}"));
     _pDialog->_pUi->btnInsertAtCursor->click();
 
     QCOMPARE(pEdit->toPlainText(), QStringLiteral("${40001} + ${h2}"));
@@ -807,7 +818,7 @@ void TestExpressionsDialog::insertDisabledUntilBuilt()
     _pDialog->insertDataPoint();
     QCOMPARE(_pDialog->_pUi->lineExpression->toPlainText(), QStringLiteral("1"));
 
-    _pMockAdapterManager->injectBuildResult(QStringLiteral("${h1}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h1}"));
     QVERIFY(_pDialog->_pUi->btnInsertAtCursor->isEnabled());
 }
 
@@ -815,7 +826,7 @@ void TestExpressionsDialog::insertDisabledUntilBuilt()
 void TestExpressionsDialog::insertFailureShowsError()
 {
     _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
-    _pMockAdapterManager->injectBuildFailure(QStringLiteral("Address out of range"));
+    _pMockDataPointManager->injectBuildFailure(QStringLiteral("Address out of range"));
     QTest::qWait(0);
 
     QVERIFY(_pDialog->_pUi->lblInsertError->text().contains(QStringLiteral("Address out of range")));
@@ -847,7 +858,7 @@ void TestExpressionsDialog::enterInInsertFormInserts()
     _pDialog->_pUi->lineExpression->setTextCursor(cursor);
 
     _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
-    _pMockAdapterManager->injectBuildResult(QStringLiteral("${h1}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h1}"));
 
     auto* pAddressSpin = _pDialog->_pInsertEditor->findChild<QSpinBox*>();
     QVERIFY(pAddressSpin != nullptr);

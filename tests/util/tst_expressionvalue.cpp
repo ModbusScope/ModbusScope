@@ -13,6 +13,8 @@ void TestExpressionValue::parseValid_data()
 
     QTest::newRow("integer") << QStringLiteral("42") << 42.0;
     QTest::newRow("decimal") << QStringLiteral("1.5") << 1.5;
+    QTest::newRow("decimal comma") << QStringLiteral("1,5") << 1.5;
+    QTest::newRow("negative decimal comma") << QStringLiteral("-1,5") << -1.5;
     QTest::newRow("negative") << QStringLiteral("-3") << -3.0;
     QTest::newRow("whitespace") << QStringLiteral("  7  ") << 7.0;
     QTest::newRow("exponent") << QStringLiteral("1e3") << 1000.0;
@@ -60,7 +62,8 @@ void TestExpressionValue::parseInvalid_data()
     QTest::newRow("empty") << QString();
     QTest::newRow("whitespace only") << QStringLiteral("   ");
     QTest::newRow("text") << QStringLiteral("abc");
-    QTest::newRow("comma") << QStringLiteral("1,5");
+    QTest::newRow("both separators") << QStringLiteral("1.000,5");
+    QTest::newRow("two commas") << QStringLiteral("1,2,3");
     QTest::newRow("hex prefix only") << QStringLiteral("0x");
     QTest::newRow("hex invalid digit") << QStringLiteral("0xZZ");
     QTest::newRow("binary invalid digit") << QStringLiteral("0b2");

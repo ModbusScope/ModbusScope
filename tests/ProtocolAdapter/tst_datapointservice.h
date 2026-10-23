@@ -19,6 +19,9 @@ private slots:
     void cleanup();
 
     void requestsRoutedToDeviceAdapter();
+    void expressionHelpRoutedToDeviceAdapter();
+    void expressionHelpCarriesAdapterId();
+    void expressionHelpForUnknownDeviceSendsNothing();
     void describeResultCarriesTicket();
     void interleavedRepliesMatchTheirTickets();
     void sameRequestIdOnTwoAdaptersKeptApart();

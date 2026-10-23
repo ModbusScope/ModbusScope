@@ -39,7 +39,7 @@ QString shortText(const ExpressionReferences::Reference& reference, const DataPo
 SignalTableProxyModel::SignalTableProxyModel(GraphDataModel* pGraphDataModel,
                                              DataPointDescriptionCache* pDescriptionCache,
                                              QObject* parent)
-    : QIdentityProxyModel(parent), _pGraphDataModel(pGraphDataModel), _pDescriptionCache(pDescriptionCache)
+    : ExtraColumnsProxyModel(1, parent), _pGraphDataModel(pGraphDataModel), _pDescriptionCache(pDescriptionCache)
 {
     setSourceModel(_pGraphDataModel);
 
@@ -53,143 +53,50 @@ SignalTableProxyModel::SignalTableProxyModel(GraphDataModel* pGraphDataModel,
  */
 int SignalTableProxyModel::dataPointColumn() const
 {
-    return _pGraphDataModel->columnCount();
-}
-
-int SignalTableProxyModel::columnCount(const QModelIndex& parent) const
-{
-    if (parent.isValid())
-    {
-        return 0;
-    }
-
-    return dataPointColumn() + 1;
-}
-
-QModelIndex SignalTableProxyModel::index(int row, int column, const QModelIndex& parent) const
-{
-    if (column != dataPointColumn())
-    {
-        return QIdentityProxyModel::index(row, column, parent);
-    }
-
-    if (parent.isValid() || row < 0 || row >= rowCount())
-    {
-        return QModelIndex();
-    }
-
-    return createIndex(row, column);
-}
-
-QModelIndex SignalTableProxyModel::parent(const QModelIndex& child) const
-{
-    if (child.column() == dataPointColumn())
-    {
-        return QModelIndex();
-    }
-
-    return QIdentityProxyModel::parent(child);
-}
-
-QModelIndex SignalTableProxyModel::sibling(int row, int column, const QModelIndex& idx) const
-{
-    return index(row, column, parent(idx));
-}
-
-QModelIndex SignalTableProxyModel::mapToSource(const QModelIndex& proxyIndex) const
-{
-    if (proxyIndex.column() == dataPointColumn())
-    {
-        return QModelIndex();
-    }
-
-    return QIdentityProxyModel::mapToSource(proxyIndex);
+    return firstExtraColumn();
 }
 
 /*!
- * \brief Map a selection to the source, leaving out the Data point column it does not have.
+ * \brief The Expression tooltip names the data point the adapter rejects; other data comes from the signal list.
  */
-QItemSelection SignalTableProxyModel::mapSelectionToSource(const QItemSelection& selection) const
-{
-    const int lastSourceColumn = dataPointColumn() - 1;
-
-    QItemSelection sourceColumns;
-    for (const QItemSelectionRange& range : selection)
-    {
-        if (range.left() > lastSourceColumn)
-        {
-            continue;
-        }
-
-        const int right = qMin(range.right(), lastSourceColumn);
-        sourceColumns.append(QItemSelectionRange(index(range.top(), range.left(), range.parent()),
-                                                 index(range.bottom(), right, range.parent())));
-    }
-
-    return QIdentityProxyModel::mapSelectionToSource(sourceColumns);
-}
-
 QVariant SignalTableProxyModel::data(const QModelIndex& index, int role) const
 {
-    if (!index.isValid())
-    {
-        return QVariant();
-    }
-
-    if (index.column() == dataPointColumn())
-    {
-        return dataPointData(index.row(), role);
-    }
-
-    if (index.column() == GraphDataModel::column::EXPRESSION && role == Qt::ToolTipRole)
+    if (index.isValid() && index.column() == GraphDataModel::column::EXPRESSION && role == Qt::ToolTipRole)
     {
         return expressionToolTip(index.row());
     }
 
-    return QIdentityProxyModel::data(index, role);
+    return ExtraColumnsProxyModel::data(index, role);
 }
 
-QVariant SignalTableProxyModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant SignalTableProxyModel::extraColumnData(int row, int extraColumn, int role) const
 {
-    if (orientation == Qt::Horizontal && section == dataPointColumn())
+    Q_UNUSED(extraColumn);
+
+    if (role != Qt::DisplayRole && role != Qt::ToolTipRole && role != Qt::ForegroundRole)
     {
-        return role == Qt::DisplayRole ? QVariant(tr("Data point")) : QVariant();
+        return QVariant();
     }
 
-    return QIdentityProxyModel::headerData(section, orientation, role);
+    const RowText rowText = dataPointText(row);
+    if (role == Qt::DisplayRole)
+    {
+        return rowText.text;
+    }
+
+    if (role == Qt::ToolTipRole)
+    {
+        return rowText.toolTip.isEmpty() ? QVariant() : QVariant(Util::plainTextToolTip(rowText.toolTip));
+    }
+
+    return rowText.bError ? QVariant(QColor(Qt::red)) : QVariant();
 }
 
-Qt::ItemFlags SignalTableProxyModel::flags(const QModelIndex& index) const
+QVariant SignalTableProxyModel::extraHeaderData(int extraColumn, int role) const
 {
-    if (index.isValid() && index.column() == dataPointColumn())
-    {
-        return Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled;
-    }
+    Q_UNUSED(extraColumn);
 
-    return QIdentityProxyModel::flags(index);
-}
-
-/*!
- * \brief Encode a drag of signal rows; the Data point column is left out, it has no source index.
- */
-QMimeData* SignalTableProxyModel::mimeData(const QModelIndexList& indexes) const
-{
-    QModelIndexList sourceColumnIndexes;
-    for (const QModelIndex& idx : indexes)
-    {
-        if (idx.column() != dataPointColumn())
-        {
-            sourceColumnIndexes.append(idx);
-        }
-    }
-
-    /* GraphDataModel takes the dragged row from the first index */
-    if (sourceColumnIndexes.isEmpty() && !indexes.isEmpty())
-    {
-        sourceColumnIndexes.append(index(indexes.first().row(), GraphDataModel::column::TEXT));
-    }
-
-    return QIdentityProxyModel::mimeData(sourceColumnIndexes);
+    return role == Qt::DisplayRole ? QVariant(QStringLiteral("Data point")) : QVariant();
 }
 
 /*!
@@ -202,7 +109,7 @@ void SignalTableProxyModel::onSourceDataChanged(const QModelIndex& topLeft, cons
         return;
     }
 
-    emit dataChanged(index(topLeft.row(), dataPointColumn()), index(bottomRight.row(), dataPointColumn()));
+    extraColumnsChanged(topLeft.row(), bottomRight.row());
 }
 
 /*!
@@ -240,7 +147,7 @@ SignalTableProxyModel::RowText SignalTableProxyModel::dataPointText(int row) con
     {
         const QModelIndex expressionIndex = _pGraphDataModel->index(row, GraphDataModel::column::EXPRESSION);
         rowText.toolTip = _pGraphDataModel->data(expressionIndex, Qt::ToolTipRole).toString();
-        rowText.text = state == ExpressionState::SYNTAX_ERROR ? rowText.toolTip : tr("Unknown device");
+        rowText.text = state == ExpressionState::SYNTAX_ERROR ? rowText.toolTip : QStringLiteral("Unknown device");
         rowText.bError = true;
         return rowText;
     }
@@ -266,7 +173,7 @@ SignalTableProxyModel::RowText SignalTableProxyModel::dataPointText(int row) con
         }
     }
 
-    rowText.text = references.size() == 1 ? lines.first() : tr("%1 data points").arg(references.size());
+    rowText.text = references.size() == 1 ? lines.first() : QStringLiteral("%1 data points").arg(references.size());
     rowText.toolTip = lines.join('\n');
 
     /* A single data point shows its reference, its reason is in the tooltip */
@@ -276,27 +183,6 @@ SignalTableProxyModel::RowText SignalTableProxyModel::dataPointText(int row) con
     }
 
     return rowText;
-}
-
-QVariant SignalTableProxyModel::dataPointData(int row, int role) const
-{
-    if (role != Qt::DisplayRole && role != Qt::ToolTipRole && role != Qt::ForegroundRole)
-    {
-        return QVariant();
-    }
-
-    const RowText rowText = dataPointText(row);
-    if (role == Qt::DisplayRole)
-    {
-        return rowText.text;
-    }
-
-    if (role == Qt::ToolTipRole)
-    {
-        return rowText.toolTip.isEmpty() ? QVariant() : QVariant(Util::plainTextToolTip(rowText.toolTip));
-    }
-
-    return rowText.bError ? QVariant(QColor(Qt::red)) : QVariant();
 }
 
 /*!
@@ -311,7 +197,7 @@ QVariant SignalTableProxyModel::expressionToolTip(int row) const
         const QString error = invalidReferenceError(row);
         if (!error.isEmpty())
         {
-            toolTip = tr("Invalid data point: %1").arg(error);
+            toolTip = QStringLiteral("Invalid data point: %1").arg(error);
         }
     }
 

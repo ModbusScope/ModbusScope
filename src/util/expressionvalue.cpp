@@ -35,13 +35,33 @@ double parsePrefixedDigits(const QString& digits, int base, bool* ok)
     return *ok ? static_cast<double>(value) : 0;
 }
 
+/*!
+ * \brief Parse a decimal number with a point or a comma as decimal separator.
+ * \param text The trimmed text.
+ * \param ok   Set to true when \a text is a valid number.
+ * \return The parsed value, 0 when invalid.
+ */
+double parseDecimal(const QString& text, bool* ok)
+{
+    if (text.contains(QLatin1Char('.')) && text.contains(QLatin1Char(',')))
+    {
+        *ok = false;
+        return 0;
+    }
+
+    QString pointText = text;
+    pointText.replace(QLatin1Char(','), QLatin1Char('.'));
+    return pointText.toDouble(ok);
+}
+
 } // namespace
 
 /*!
  * \brief Parse an example value as typed by the user.
  *
  * Accepts decimal numbers and integers with a \c 0x (hexadecimal) or \c 0b (binary) prefix,
- * optionally preceded by a minus sign.
+ * optionally preceded by a minus sign. A decimal number can use a point or a comma as decimal
+ * separator, but not both, as in an expression.
  * \param text The text to parse.
  * \param ok   Set to true when \a text is a valid number, false otherwise; may be nullptr.
  * \return The parsed value, 0 when \a text is not a valid number.
@@ -71,7 +91,7 @@ double parse(const QString& text, bool* ok)
 
     if (base == 0)
     {
-        return trimmed.toDouble(ok);
+        return parseDecimal(trimmed, ok);
     }
 
     const double value = parsePrefixedDigits(unsignedText.mid(2), base, ok);

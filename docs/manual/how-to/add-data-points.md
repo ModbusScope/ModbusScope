@@ -25,7 +25,7 @@ You must have at least one connection and one device configured. See [Configure 
 9. In the table, adjust the **Color** and the **Active** checkbox, or rename a signal in the **Name** column.
 
    The **Data point** column shows what each signal reads, as the device's adapter describes it, for example *Holding register 40001, unsigned 16-bit*. A signal that reads several data points shows their number; hover over it to see each one. Until the adapter has answered, or while it is not running, the column shows the data point reference. A reference the adapter rejects is shown in red, with the reason in its tooltip. For an expression with a syntax error, the column shows the error.
-10. Click **OK** to apply the changes. **Cancel** discards every change made since the dialog opened.
+10. Click **OK** to apply the changes. **Cancel** (or Esc) discards every change made since the dialog opened; when there are changes, ModbusScope asks you to confirm first.
 
     On **OK**, signals whose expression changed, and signals that you deactivated, lose the data of the previous log. Other signals keep their data.
 
