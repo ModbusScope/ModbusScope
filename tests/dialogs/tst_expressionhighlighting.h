@@ -15,6 +15,7 @@ private slots:
     void errorSpan();
     void parserErrorSpan_data();
     void parserErrorSpan();
+    void errorMarkedOnlyInItsLine();
 };
 
 #endif // TST_EXPRESSIONHIGHLIGHTING_H

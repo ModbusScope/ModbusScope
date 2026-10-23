@@ -4,6 +4,7 @@
 #include "util/expressionregex.h"
 
 #include <QDebug>
+#include <QTextBlock>
 
 ExpressionHighlighting::ExpressionHighlighting(QTextDocument* parent) : QSyntaxHighlighter(parent), _errorPosition(-1)
 {
@@ -98,9 +99,28 @@ void ExpressionHighlighting::handleRegisterRules(const QString& text)
     }
 }
 
+/*!
+ * \brief Mark the parser error in the current block, when the error is in that block.
+ *
+ * The error position counts from the start of the document; a block is one line of it. A position
+ * past the end of the text is marked in the last block only.
+ * \param text The text of the current block.
+ */
 void ExpressionHighlighting::handleErrorPosition(const QString& text)
 {
-    const ExpressionErrorMark::Span mark = ExpressionErrorMark::span(_errorPosition, text);
+    if (_errorPosition < 0)
+    {
+        return;
+    }
+
+    const qint32 blockPosition = _errorPosition - currentBlock().position();
+    const bool bLastBlock = !currentBlock().next().isValid();
+    if (blockPosition < 0 || (blockPosition >= text.size() && !bLastBlock))
+    {
+        return;
+    }
+
+    const ExpressionErrorMark::Span mark = ExpressionErrorMark::span(blockPosition, text);
     if (mark.start >= 0)
     {
         setFormat(static_cast<int>(mark.start), static_cast<int>(mark.length), _errorFormat);

@@ -155,6 +155,7 @@ private slots:
     void acceptEnabledOnInvalidExampleValue();
     void acceptAppliesValidExpression();
     void acceptDisabledOnInvalidDataPoint();
+    void invalidDataPointShownOverExampleError();
     void acceptEnabledAfterInvalidDataPointRemoved();
     void acceptEnabledOnFailedDescribe();
 

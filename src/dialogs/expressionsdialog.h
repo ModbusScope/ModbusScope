@@ -59,6 +59,7 @@ private slots:
 private:
     void showDescription(qint32 row);
     QString rowReferenceText(qint32 row) const;
+    void copyValueToDuplicateRows(qint32 row);
     QString firstInvalidReferenceError() const;
     void updateAcceptState();
     void populateHelpDevices();

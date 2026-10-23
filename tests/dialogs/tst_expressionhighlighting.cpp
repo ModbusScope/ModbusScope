@@ -4,6 +4,9 @@
 #include "util/expressionchecker.h"
 
 #include <QTest>
+#include <QTextBlock>
+#include <QTextDocument>
+#include <QTextLayout>
 
 void TestExpressionHighlighting::errorSpan_data()
 {
@@ -81,6 +84,41 @@ void TestExpressionHighlighting::parserErrorSpan()
     const ExpressionErrorMark::Span span = ExpressionErrorMark::span(checker.errorPos(), expression);
     QCOMPARE(span.start, start);
     QCOMPARE(span.length, length);
+}
+
+namespace {
+
+//! Returns the ranges of \a block that have the error colour.
+QList<QTextLayout::FormatRange> errorRanges(const QTextBlock& block)
+{
+    QList<QTextLayout::FormatRange> ranges;
+    const QList<QTextLayout::FormatRange> formats = block.layout()->formats();
+    for (const QTextLayout::FormatRange& range : formats)
+    {
+        if (range.format.foreground().color() == QColor(Qt::darkRed))
+        {
+            ranges.append(range);
+        }
+    }
+    return ranges;
+}
+
+} // namespace
+
+//! An expression with a line break marks the error in its own line only.
+void TestExpressionHighlighting::errorMarkedOnlyInItsLine()
+{
+    QTextDocument document(QStringLiteral("1 + 2\n3 4"));
+    ExpressionHighlighting highlighter(&document);
+
+    highlighter.setExpressionErrorPosition(8);
+    highlighter.rehighlight();
+
+    QVERIFY(errorRanges(document.firstBlock()).isEmpty());
+    const QList<QTextLayout::FormatRange> ranges = errorRanges(document.lastBlock());
+    QCOMPARE(ranges.size(), 1);
+    QCOMPARE(ranges[0].start, 2);
+    QCOMPARE(ranges[0].length, 1);
 }
 
 QTEST_MAIN(TestExpressionHighlighting)

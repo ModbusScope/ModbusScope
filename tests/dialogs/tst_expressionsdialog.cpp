@@ -681,6 +681,16 @@ void TestExpressionsDialog::acceptDisabledOnInvalidDataPoint()
     QCOMPARE(_pDialog->result(), static_cast<int>(QDialog::Rejected));
 }
 
+//! The rejected data point that blocks Accept is named instead of an error of the example values.
+void TestExpressionsDialog::invalidDataPointShownOverExampleError()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} / 0"));
+    _pMockAdapterManager->injectDescribeInvalid(1, QStringLiteral("Address out of range"));
+
+    QCOMPARE(_pDialog->_pUi->lblError->text(), QStringLiteral("Invalid data point: Address out of range"));
+    QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
+}
+
 //! Removing the rejected data point from the expression allows Accept again.
 void TestExpressionsDialog::acceptEnabledAfterInvalidDataPointRemoved()
 {
