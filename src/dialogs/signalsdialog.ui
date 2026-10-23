@@ -32,7 +32,7 @@
      <item>
       <widget class="QPushButton" name="btnAdd">
        <property name="text">
-        <string>Add</string>
+        <string>New signal</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>
