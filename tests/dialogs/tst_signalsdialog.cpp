@@ -23,26 +23,6 @@
 #include <QTest>
 #include <QTimer>
 
-namespace {
-
-//! Number of message boxes answered by clickInActiveMessageBox() in the current test.
-int answeredQuestions = 0;
-
-//! Click \a button in the message box that is open, if any.
-void clickInActiveMessageBox(QMessageBox::StandardButton button)
-{
-    auto* pBox = qobject_cast<QMessageBox*>(QApplication::activeModalWidget());
-    if (pBox == nullptr)
-    {
-        return;
-    }
-
-    answeredQuestions++;
-    pBox->button(button)->click();
-}
-
-} // namespace
-
 /*!
  * \brief Builds a minimal "modbus" data-point schema with non-empty defaults, so the panel
  * builds a reference when the dialog opens.
@@ -72,7 +52,7 @@ QJsonObject TestSignalsDialog::buildTestRegisterSchema()
 
 void TestSignalsDialog::init()
 {
-    answeredQuestions = 0;
+    _answeredQuestions = 0;
     DeviceListHelpers::clearDevices(&_settingsModel);
     _settingsModel.setAdapterDataPointSchema("modbus", buildTestRegisterSchema());
 
@@ -227,7 +207,20 @@ void TestSignalsDialog::editDraft()
  */
 void TestSignalsDialog::answerNextQuestion(QMessageBox::StandardButton button)
 {
-    QTimer::singleShot(0, this, [button]() { clickInActiveMessageBox(button); });
+    QTimer::singleShot(0, this, [this, button]() { clickInActiveMessageBox(button); });
+}
+
+//! Click \a button in the message box that is open, if any, and count the answer.
+void TestSignalsDialog::clickInActiveMessageBox(QMessageBox::StandardButton button)
+{
+    auto* pBox = qobject_cast<QMessageBox*>(QApplication::activeModalWidget());
+    if (pBox == nullptr)
+    {
+        return;
+    }
+
+    _answeredQuestions++;
+    pBox->button(button)->click();
 }
 
 //! Click Cancel in the button box.
@@ -247,7 +240,7 @@ void TestSignalsDialog::cancelWithoutChangesClosesWithoutQuestion()
     QTest::qWait(0); /* deliver the answer timer, which finds no question */
 
     QCOMPARE(spyFinished.count(), 1);
-    QCOMPARE(answeredQuestions, 0);
+    QCOMPARE(_answeredQuestions, 0);
 }
 
 void TestSignalsDialog::cancelQuestionKeepsDialogOpen()
@@ -260,7 +253,7 @@ void TestSignalsDialog::cancelQuestionKeepsDialogOpen()
 
     clickCancel();
 
-    QCOMPARE(answeredQuestions, 1);
+    QCOMPARE(_answeredQuestions, 1);
     QCOMPARE(spyFinished.count(), 0);
     QCOMPARE(draftModel()->label(GraphIdx(0)), QStringLiteral("renamed"));
 }
@@ -298,7 +291,7 @@ void TestSignalsDialog::cancelDiscardsChanges()
 
     clickCancel();
 
-    QCOMPARE(answeredQuestions, 1);
+    QCOMPARE(_answeredQuestions, 1);
     QCOMPARE(spyFinished.count(), 1);
     QCOMPARE(_pDialog->result(), int(QDialog::Rejected));
     QCOMPARE(_pGraphDataModel->size(), 3);
@@ -321,7 +314,7 @@ void TestSignalsDialog::escapeDiscardsChanges()
 
     QTest::keyClick(_pDialog, Qt::Key_Escape);
 
-    QCOMPARE(answeredQuestions, 1);
+    QCOMPARE(_answeredQuestions, 1);
     QCOMPARE(spyFinished.count(), 1);
     QCOMPARE(_pDialog->result(), int(QDialog::Rejected));
     QVERIFY(_pGraphDataModel->isActive(GraphIdx(0)));
@@ -459,7 +452,7 @@ void TestSignalsDialog::cancelDiscardsPanelAdds()
 
     clickCancel();
 
-    QCOMPARE(answeredQuestions, 1);
+    QCOMPARE(_answeredQuestions, 1);
     QCOMPARE(_pGraphDataModel->size(), 1);
 }
 
@@ -676,7 +669,7 @@ void TestSignalsDialog::cancelDiscardsPanelEdits()
 
     clickCancel();
 
-    QCOMPARE(answeredQuestions, 1);
+    QCOMPARE(_answeredQuestions, 1);
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001}"));
 }
 

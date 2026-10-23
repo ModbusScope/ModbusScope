@@ -63,6 +63,7 @@ private:
     static QJsonObject buildDescribeWithMaxRegisters(int maxRegisters);
     void seedSignals(int count);
     void answerNextQuestion(QMessageBox::StandardButton button);
+    void clickInActiveMessageBox(QMessageBox::StandardButton button);
     void clickCancel();
     void seedSamples();
     void editDraft();
@@ -80,6 +81,9 @@ private:
     MockAdapterHub* _pMockHub{ nullptr };
     MockDataPointManager* _pMockDataPointManager{ nullptr };
     SignalsDialog* _pDialog{ nullptr };
+
+    //! Number of message boxes answered by clickInActiveMessageBox() in the current test.
+    int _answeredQuestions{ 0 };
 };
 
 #endif // TST_SIGNALSDIALOG_H
