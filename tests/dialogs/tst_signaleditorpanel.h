@@ -31,6 +31,7 @@ private slots:
     void registerValueAxis();
     void addDisabledUntilFirstBuildReply();
     void addDisabledWhileBuildPending();
+    void addModeShowsBuiltExpression();
     void buildExpressionFailureKeepsFormUsable();
     void emptyNameAddsSignalWithDefaultLabel();
     void nameClearedAfterAdd();

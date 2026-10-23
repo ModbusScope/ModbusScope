@@ -19,7 +19,8 @@ private slots:
     void reconcileKeepsNameWhenAdapterClaimsDevice();
     void reconcileIsSilentWhenNothingChanges();
 
-    void adapterDisplayNameUsesAdapterName();
+    void adapterDisplayNameUsesProtocolName();
+    void adapterDisplayNameIgnoresAdapterName();
     void adapterDisplayNameFallsBackToIdWithoutName();
     void adapterDisplayNameDoesNotInsertUnknownAdapter();
 };

@@ -147,6 +147,22 @@ void TestDeviceConfigTab::comboContainsAllAdapterIds()
     QVERIFY(items.contains("adapterB"));
 }
 
+void TestDeviceConfigTab::comboShowsProtocolNames()
+{
+    SettingsModel model;
+    QJsonObject describe = makeAdapterDescribe("modbusAdapter");
+    describe["protocolName"] = "modbus";
+    model.updateAdapterFromDescribe("adapterA", describe);
+
+    DeviceConfigTab tab(&model, "adapterA", QString(), QJsonObject());
+
+    auto* combo = tab.findChild<QComboBox*>(QString(), Qt::FindDirectChildrenOnly);
+    QVERIFY(combo != nullptr);
+    QCOMPARE(combo->count(), 1);
+    QCOMPARE(combo->itemText(0), QStringLiteral("modbus"));
+    QCOMPARE(combo->itemData(0).toString(), QStringLiteral("adapterA"));
+}
+
 void TestDeviceConfigTab::constructorSelectsCorrectAdapter()
 {
     SettingsModel model;

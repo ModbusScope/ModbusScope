@@ -36,7 +36,7 @@ private slots:
     void limitWarningsUsesIdForAdapterWithoutName();
 
 private:
-    static QJsonObject describeWithLimit(const QString& name, int maxRegisters);
+    static QJsonObject describeWithLimit(const QString& protocolName, int maxRegisters);
     QList<DataPoint> seedDataPoints(int count);
 
     SettingsModel* _pSettingsModel;

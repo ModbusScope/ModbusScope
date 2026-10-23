@@ -49,7 +49,6 @@ private:
     void requestBuild();
     void setExpression(const QString& expression, bool bValid);
     void setError(const QString& error);
-    void updatePreview();
 
     SettingsModel* _pSettingsModel;
     DataPointService* _pDataPointService;
@@ -57,7 +56,6 @@ private:
     DeviceComboBox* _pDeviceCombo;
     QLabel* _pProtocolLabel;
     SchemaFormWidget* _pAddressForm;
-    QLabel* _pPreviewLabel;
 
     QString _expression;
     bool _bValid{ false };

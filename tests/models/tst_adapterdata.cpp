@@ -23,6 +23,7 @@ void TestAdapterData::defaultConstruction()
     AdapterData data;
 
     QVERIFY(data.name().isEmpty());
+    QVERIFY(data.protocolName().isEmpty());
     QVERIFY(data.version().isEmpty());
     QCOMPARE(data.configVersion(), 0);
     QVERIFY(data.schema().isEmpty());
@@ -49,6 +50,7 @@ void TestAdapterData::updateFromDescribe()
 
     QJsonObject describeResult;
     describeResult["name"] = "modbusAdapter";
+    describeResult["protocolName"] = "modbus";
     describeResult["version"] = "1.0.0";
     describeResult["configVersion"] = 2;
     describeResult["schema"] = schema;
@@ -58,6 +60,7 @@ void TestAdapterData::updateFromDescribe()
     data.updateFromDescribe(describeResult);
 
     QCOMPARE(data.name(), QStringLiteral("modbusAdapter"));
+    QCOMPARE(data.protocolName(), QStringLiteral("modbus"));
     QCOMPARE(data.version(), QStringLiteral("1.0.0"));
     QCOMPARE(data.configVersion(), 2);
     QCOMPARE(data.schema().value("type").toString(), QStringLiteral("object"));
@@ -77,6 +80,7 @@ void TestAdapterData::updateFromDescribeMissingFields()
     data.updateFromDescribe(describeResult);
 
     QCOMPARE(data.name(), QStringLiteral("minimalAdapter"));
+    QVERIFY(data.protocolName().isEmpty());
     QVERIFY(data.version().isEmpty());
     QCOMPARE(data.configVersion(), 0);
     QVERIFY(data.schema().isEmpty());

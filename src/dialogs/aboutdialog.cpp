@@ -98,24 +98,21 @@ QString AboutDialog::selectLicenseAdapter()
     QString adapterId = adapterIds.first();
     if (adapterIds.size() > 1)
     {
-        /* Adapter names come from the adapter itself (or fall back to its id) and are not
+        /* Protocol names come from the adapter itself (or fall back to its id) and are not
          * guaranteed unique, so count occurrences first and only disambiguate names that
          * actually collide - otherwise two same-named adapters would map to the same list
          * entry and one would be unreachable. */
         QMap<QString, int> nameCounts;
         for (const QString& id : adapterIds)
         {
-            const AdapterData* pAdapter = _pSettingsModel->adapterData(id);
-            const QString baseName = pAdapter->name().isEmpty() ? id : pAdapter->name();
-            nameCounts[baseName]++;
+            nameCounts[_pSettingsModel->adapterDisplayName(id)]++;
         }
 
         QStringList displayNames;
         QMap<QString, QString> nameToId;
         for (const QString& id : adapterIds)
         {
-            const AdapterData* pAdapter = _pSettingsModel->adapterData(id);
-            const QString baseName = pAdapter->name().isEmpty() ? id : pAdapter->name();
+            const QString baseName = _pSettingsModel->adapterDisplayName(id);
             const QString displayName =
               nameCounts.value(baseName) > 1 ? QString("%1 (%2)").arg(baseName, id) : baseName;
             displayNames << displayName;
@@ -362,8 +359,7 @@ void AboutDialog::setAdapterInfo(SettingsModel* pSettingsModel)
     {
         const AdapterData* pAdapter = pSettingsModel->adapterData(id);
 
-        QString headerTxt =
-          QString("<b>%1</b>").arg((pAdapter->name().isEmpty() ? id : pAdapter->name()).toHtmlEscaped());
+        QString headerTxt = QString("<b>%1</b>").arg(pSettingsModel->adapterDisplayName(id).toHtmlEscaped());
         if (!pAdapter->version().isEmpty())
         {
             headerTxt += QString("<br/>v%1").arg(pAdapter->version().toHtmlEscaped());
