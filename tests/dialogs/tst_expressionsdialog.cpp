@@ -691,6 +691,19 @@ void TestExpressionsDialog::invalidDataPointShownOverExampleError()
     QVERIFY(!_pDialog->_pAcceptButton->isEnabled());
 }
 
+//! Error text from the adapter is shown as typed, never interpreted as rich text.
+void TestExpressionsDialog::adapterErrorShownAsPlainText()
+{
+    QCOMPARE(_pDialog->_pUi->lblError->textFormat(), Qt::PlainText);
+    QCOMPARE(_pDialog->_pUi->lblInsertError->textFormat(), Qt::PlainText);
+
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
+    _pMockAdapterManager->injectDescribeInvalid(1, QStringLiteral("<b>Address</b> out of range"));
+
+    const QTableWidgetItem* pItem = _pDialog->_pUi->tblExpressionInput->item(0, 0);
+    QCOMPARE(pItem->toolTip(), QStringLiteral("<qt>&lt;b&gt;Address&lt;/b&gt; out of range</qt>"));
+}
+
 //! Removing the rejected data point from the expression allows Accept again.
 void TestExpressionsDialog::acceptEnabledAfterInvalidDataPointRemoved()
 {
