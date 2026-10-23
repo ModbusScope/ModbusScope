@@ -476,6 +476,16 @@ void TestExpressionsDialog::exampleInputAcceptsHex()
     QCOMPARE(pOutput->text(), QStringLiteral("16"));
 }
 
+//! An example value with a decimal comma is evaluated like one with a decimal point.
+void TestExpressionsDialog::exampleInputAcceptsDecimalComma()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} * 2"));
+
+    _pDialog->_pUi->tblExpressionInput->item(0, 1)->setText(QStringLiteral("1,5"));
+
+    QCOMPARE(_pDialog->_pUi->lblOut->text(), QStringLiteral("3"));
+}
+
 //! A syntax error disables Accept, and accepting anyway leaves the signal unchanged.
 void TestExpressionsDialog::acceptDisabledOnSyntaxError()
 {

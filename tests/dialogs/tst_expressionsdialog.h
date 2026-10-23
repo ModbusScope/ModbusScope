@@ -45,6 +45,7 @@ private slots:
 
     void exampleInputDefaultsToOne();
     void exampleInputAcceptsHex();
+    void exampleInputAcceptsDecimalComma();
 
     void acceptDisabledOnSyntaxError();
     void acceptDisabledOnEmptyExpression();
