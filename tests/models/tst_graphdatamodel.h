@@ -44,6 +44,11 @@ private slots:
     void moveSignalToFirstRow();
     void moveSignalToSamePositionDoesNothing();
 
+    void modelTester();
+
+    void syntaxErrorToolTipShowsParserError();
+    void syntaxErrorToolTipFallsBackToGenericText();
+
 private:
     static QStringList labels(const GraphDataModel& model);
     static void addLabels(GraphDataModel& model, const QStringList& labelList);

@@ -428,6 +428,19 @@ void TestGraphDataStore::setExpressionStateEmitsSignal()
     QVERIFY(store.isExpressionValid(GraphIdx(0)));
 }
 
+void TestGraphDataStore::setExpressionErrorEmitsSignal()
+{
+    GraphDataStore store;
+    store.insertGraphData(makeGraph("A", "${h0}", true));
+    store.setExpressionState(GraphIdx(0), GraphData::ExpressionState::SYNTAX_ERROR, QStringLiteral("first"));
+
+    QSignalSpy spy(&store, &GraphDataStore::expressionStateChanged);
+    store.setExpressionState(GraphIdx(0), GraphData::ExpressionState::SYNTAX_ERROR, QStringLiteral("second"));
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(store.expressionError(GraphIdx(0)), QStringLiteral("second"));
+}
+
 void TestGraphDataStore::setLabelEmitsSignal()
 {
     GraphDataStore store;

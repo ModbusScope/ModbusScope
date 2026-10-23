@@ -12,6 +12,7 @@
 #include "models/settingsmodel.h"
 #include "util/expressionreferences.h"
 #include "util/expressionvalue.h"
+#include "util/util.h"
 
 #include <QKeyEvent>
 #include <QPushButton>
@@ -38,23 +39,6 @@ QString genericExpressionInfoHtml()
                           "Floating point numbers are also supported. "
                           "Both a decimal point and a comma can be used as the decimal separator, "
                           "but an expression must use only one of them.</p>");
-}
-
-/*!
- * \brief Returns a tooltip that shows \a text as typed.
- *
- * Qt shows a tooltip that looks like rich text as rich text; such text is escaped and marked as
- * rich text, so it is shown literally. Other text is returned unchanged.
- * \param text Text from outside the application, such as an adapter error.
- */
-QString plainTextToolTip(const QString& text)
-{
-    if (!Qt::mightBeRichText(text))
-    {
-        return text;
-    }
-
-    return QStringLiteral("<qt>%1</qt>").arg(text.toHtmlEscaped());
 }
 
 } // namespace
@@ -613,7 +597,7 @@ void ExpressionsDialog::showDescription(qint32 row)
           description.error.isEmpty() ? QStringLiteral("Not a valid data point") : description.error;
         pItem->setText(referenceText);
         pItem->setForeground(QColorConstants::Red);
-        pItem->setToolTip(plainTextToolTip(error));
+        pItem->setToolTip(Util::plainTextToolTip(error));
         pItem->setData(cInvalidErrorRole, error);
     }
 }

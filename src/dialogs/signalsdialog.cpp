@@ -7,6 +7,7 @@
 #include "datahandling/datapointusage.h"
 #include "dialogs/expressionsdialog.h"
 #include "dialogs/signaleditorpanel.h"
+#include "dialogs/signaltableproxymodel.h"
 #include "dialogs/ui_signalsdialog.h"
 #include "models/datapointdescriptioncache.h"
 #include "models/graphdatamodel.h"
@@ -33,9 +34,10 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     _pAdapterHub = pAdapterHub;
     _pDataPointService = new DataPointService(_pSettingsModel, _pAdapterHub, this);
     _pDescriptionCache = new DataPointDescriptionCache(_pDataPointService, this);
+    _pTableModel = new SignalTableProxyModel(_pDraft->model(), _pDescriptionCache, this);
 
     // Setup signalView
-    _pUi->signalView->setModel(_pDraft->model());
+    _pUi->signalView->setModel(_pTableModel);
     _pUi->signalView->verticalHeader()->hide();
 
     _valueAxisDelegate = std::make_unique<ValueAxisDelegate>(_pUi->signalView);
@@ -53,6 +55,7 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
     _pUi->signalView->horizontalHeader()->setSectionResizeMode(GraphDataModel::column::TEXT, QHeaderView::Stretch);
     _pUi->signalView->horizontalHeader()->setSectionResizeMode(GraphDataModel::column::EXPRESSION,
                                                                QHeaderView::Stretch);
+    _pUi->signalView->horizontalHeader()->setSectionResizeMode(_pTableModel->dataPointColumn(), QHeaderView::Stretch);
 
     auto triggers = QAbstractItemView::DoubleClicked | QAbstractItemView::EditKeyPressed;
     _pUi->signalView->setEditTriggers(triggers);
@@ -118,7 +121,7 @@ void SignalsDialog::activatedCell(QModelIndex modelIndex)
 
         if (color.isValid())
         {
-            _pDraft->model()->setData(modelIndex, color, Qt::EditRole);
+            _pTableModel->setData(modelIndex, color, Qt::EditRole);
         }
     }
 }
@@ -129,7 +132,7 @@ void SignalsDialog::onSignalInserted(const QModelIndex& parent, int first, int l
     Q_UNUSED(last);
 
     /* Only scroll: selecting a row is reserved for editing that signal */
-    _pUi->signalView->scrollTo(_pDraft->model()->index(first, 0));
+    _pUi->signalView->scrollTo(_pTableModel->index(first, 0));
 }
 
 void SignalsDialog::removeSelectedSignals()

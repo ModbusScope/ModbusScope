@@ -46,6 +46,19 @@ void TestExpressionStatus::syntaxErrorExpression_setsSyntaxErrorState()
     QCOMPARE(_pGraphDataModel->expressionState(GraphIdx(0)), ExpressionState::SYNTAX_ERROR);
 }
 
+void TestExpressionStatus::syntaxErrorExpression_storesParserError()
+{
+    ExpressionStatus status(_pGraphDataModel, _pSettingsModel);
+
+    _pGraphDataModel->add();
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("1++"));
+    QVERIFY(!_pGraphDataModel->expressionError(GraphIdx(0)).isEmpty());
+
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("1+1"));
+    QCOMPARE(_pGraphDataModel->expressionState(GraphIdx(0)), ExpressionState::VALID);
+    QVERIFY(_pGraphDataModel->expressionError(GraphIdx(0)).isEmpty());
+}
+
 void TestExpressionStatus::mixedDecimalSeparators_setsSyntaxErrorState()
 {
     ExpressionStatus status(_pGraphDataModel, _pSettingsModel);

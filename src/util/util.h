@@ -1,17 +1,16 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include <QMessageBox>
-#include <QLocale>
-#include <QColor>
 #include "version.h"
+#include <QColor>
+#include <QLocale>
+#include <QMessageBox>
 
 class Util : public QObject
 {
     Q_OBJECT
 
 public:
-
     static QChar separatorCharacter()
     {
         if (QLocale().decimalPoint() == ',')
@@ -34,7 +33,7 @@ public:
         msgBox.exec();
     }
 
-    static const QString & currentVersion()
+    static const QString& currentVersion()
     {
         static const QString version(APP_VERSION);
         return version;
@@ -91,12 +90,11 @@ public:
     }
 
     static QString findDemoFile(const QString& appDir);
+    static QString plainTextToolTip(const QString& text);
 
     static const QList<QColor> cColorlist;
 
 private:
-
 };
-
 
 #endif // UTIL_H

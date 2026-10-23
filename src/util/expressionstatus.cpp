@@ -35,7 +35,7 @@ void ExpressionStatus::handleResultReady(bool valid)
     {
         if (_checker.syntaxError())
         {
-            _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::SYNTAX_ERROR);
+            _pGraphDataModel->setExpressionState(graphIdx, ExpressionState::SYNTAX_ERROR, _checker.strError());
         }
         else if (!_deviceCheckPassed)
         {

@@ -23,6 +23,7 @@ public:
     bool isActive(GraphIdx index) const;
     QString expression(GraphIdx index) const;
     GraphData::ExpressionState expressionState(GraphIdx index) const;
+    QString expressionError(GraphIdx index) const;
     bool isExpressionValid(GraphIdx index) const;
     GraphIdx selectedGraph() const;
     QString simplifiedExpression(GraphIdx index) const;
@@ -35,7 +36,7 @@ public:
     void setColor(GraphIdx index, const QColor& color);
     void setActive(GraphIdx index, bool bActive);
     void setExpression(GraphIdx index, QString expression);
-    void setExpressionState(GraphIdx index, GraphData::ExpressionState status);
+    void setExpressionState(GraphIdx index, GraphData::ExpressionState status, const QString& error = QString());
     void setSelectedGraph(GraphIdx index);
 
     void activeGraphIndexList(QList<GraphIdx>& list) const;

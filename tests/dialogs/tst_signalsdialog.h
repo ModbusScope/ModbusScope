@@ -16,8 +16,8 @@ class SignalsDialog;
 /*!
  * \brief Test double for AdapterManager.
  *
- * Captures buildExpression() calls and provides an inject helper to answer
- * them, without a real adapter process.
+ * Captures buildExpression() and describeDataPoint() calls and provides inject
+ * helpers to answer them, without a real adapter process.
  */
 class MockAdapterManager : public AdapterManager
 {
@@ -44,6 +44,12 @@ public:
         return buildCalls.size();
     }
 
+    int describeDataPoint(const QString& address) override
+    {
+        describeCalls.append(address);
+        return cFirstDescribeRequestId + static_cast<int>(describeCalls.size()) - 1;
+    }
+
     bool isAdapterReady() const override
     {
         return mockReady;
@@ -55,7 +61,20 @@ public:
         emit buildExpressionResult(static_cast<int>(buildCalls.size()), expression);
     }
 
+    //! Simulate the adapter describing the data point of the given describeDataPoint() call (0 for the first).
+    void injectDescribeResult(int callIndex, const QString& description)
+    {
+        QJsonObject result;
+        result["valid"] = true;
+        result["description"] = description;
+        emit describeDataPointResult(cFirstDescribeRequestId + callIndex, result);
+    }
+
+    //! Describe request ids, kept apart from the build request ids.
+    static constexpr int cFirstDescribeRequestId = 1000;
+
     QList<BuildCall> buildCalls;
+    QStringList describeCalls;
     bool mockReady{ false };
 };
 
@@ -86,6 +105,10 @@ private slots:
     void cancelDiscardsPanelAdds();
     void minimumSizeKeepsTableAndPanelUsable();
 
+    void dataPointColumnShowsDescription();
+    void dragFromDataPointColumnReordersSignals();
+    void clickOnDataPointColumnSelectsRowForRemove();
+
 private:
     static QJsonObject buildTestRegisterSchema();
     static QJsonObject buildDescribeWithMaxRegisters(int maxRegisters);
@@ -96,6 +119,7 @@ private:
     SignalEditorPanel* panel() const;
     void openWithReadyAdapter(int signalCount);
     void addSignalThroughPanel(const QString& expression);
+    QStringList draftExpressions() const;
 
     SettingsModel _settingsModel;
     GraphDataModel* _pGraphDataModel{ nullptr };

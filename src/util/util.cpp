@@ -3,6 +3,7 @@
 
 #include <QDir>
 #include <QFileInfo>
+#include <QTextDocument>
 
 /* For Markdown rendering
 <span style="display:inline-block; width:20px; height:20px; background: rgb(0, 0, 0);"></span>
@@ -50,4 +51,23 @@ QString Util::findDemoFile(const QString& appDir)
     }
 
     return QString();
+}
+
+/*!
+ * \brief Returns \a text as a tooltip that Qt shows as plain text.
+ *
+ * Qt shows a tooltip that looks like rich text as rich text; such text is escaped and marked as
+ * rich text, so it is shown literally. Line breaks are kept. Other text is returned unchanged.
+ * \param text Text from outside the application, such as an adapter error.
+ */
+QString Util::plainTextToolTip(const QString& text)
+{
+    if (!Qt::mightBeRichText(text))
+    {
+        return text;
+    }
+
+    QString escaped = text.toHtmlEscaped();
+    escaped.replace('\n', QStringLiteral("<br>"));
+    return QStringLiteral("<qt>%1</qt>").arg(escaped);
 }

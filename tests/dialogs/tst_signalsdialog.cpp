@@ -6,11 +6,13 @@
 #include "dialogs/signalsdialog.h"
 #include "models/graphdatamodel.h"
 
+#include <QAbstractProxyModel>
 #include <QDialogButtonBox>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMimeData>
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSignalSpy>
@@ -166,7 +168,9 @@ GraphDataModel* TestSignalsDialog::draftModel() const
 {
     auto* pView = _pDialog->findChild<QTableView*>("signalView");
     Q_ASSERT(pView != nullptr);
-    return qobject_cast<GraphDataModel*>(pView->model());
+    auto* pProxy = qobject_cast<QAbstractProxyModel*>(pView->model());
+    Q_ASSERT(pProxy != nullptr);
+    return qobject_cast<GraphDataModel*>(pProxy->sourceModel());
 }
 
 //! Give every signal in the source model three samples, as after a stopped log.
@@ -333,7 +337,7 @@ void TestSignalsDialog::addedSignalScrolledIntoViewNotSelected()
 
     QCOMPARE(draftModel()->size(), 41);
     QVERIFY(!pView->selectionModel()->hasSelection());
-    const QRect lastRowRect = pView->visualRect(draftModel()->index(40, 0));
+    const QRect lastRowRect = pView->visualRect(pView->model()->index(40, 0));
     QVERIFY(pView->viewport()->rect().intersects(lastRowRect));
 }
 
@@ -396,6 +400,70 @@ void TestSignalsDialog::minimumSizeKeepsTableAndPanelUsable()
     pScrollArea->ensureWidgetVisible(pAddSignal);
     const QRect addRect(pAddSignal->mapTo(pScrollArea->viewport(), QPoint(0, 0)), pAddSignal->size());
     QVERIFY(pScrollArea->viewport()->rect().contains(addRect));
+}
+
+//! Expressions of the draft signals, in table order.
+QStringList TestSignalsDialog::draftExpressions() const
+{
+    QStringList expressions;
+    for (qint32 idx = 0; idx < draftModel()->size(); idx++)
+    {
+        expressions.append(draftModel()->expression(GraphIdx(idx)));
+    }
+    return expressions;
+}
+
+void TestSignalsDialog::dataPointColumnShowsDescription()
+{
+    openWithReadyAdapter(1);
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    const QModelIndex dataPointIndex = pView->model()->index(0, GraphDataModel::column::COUNT);
+
+    QCOMPARE(pView->model()->headerData(GraphDataModel::column::COUNT, Qt::Horizontal).toString(),
+             QStringLiteral("Data point"));
+    QCOMPARE(dataPointIndex.data().toString(), QStringLiteral("${40001}"));
+    QCOMPARE(_pMockAdapterManager->describeCalls, QStringList({ QStringLiteral("${40001}") }));
+
+    _pMockAdapterManager->injectDescribeResult(0, QStringLiteral("Holding register 40001"));
+
+    QCOMPARE(dataPointIndex.data().toString(), QStringLiteral("Holding register 40001"));
+}
+
+//! Dragging a row by its Data point cell moves the signal, and OK applies the new order.
+void TestSignalsDialog::dragFromDataPointColumnReordersSignals()
+{
+    openWithReadyAdapter(3);
+    QAbstractItemModel* pModel = _pDialog->findChild<QTableView*>("signalView")->model();
+
+    QScopedPointer<QMimeData> pData(pModel->mimeData({ pModel->index(0, GraphDataModel::column::COUNT) }));
+    QVERIFY(pData);
+    QVERIFY(pModel->canDropMimeData(pData.data(), Qt::MoveAction, 3, -1, QModelIndex()));
+    pModel->dropMimeData(pData.data(), Qt::MoveAction, 3, -1, QModelIndex());
+
+    const QStringList expected = { QStringLiteral("${40002}"), QStringLiteral("${40003}"), QStringLiteral("${40001}") };
+    QCOMPARE(draftExpressions(), expected);
+
+    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Ok)->click();
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), expected.at(0));
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(2)), expected.at(2));
+}
+
+void TestSignalsDialog::clickOnDataPointColumnSelectsRowForRemove()
+{
+    openWithReadyAdapter(3);
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+
+    const QRect cellRect = pView->visualRect(pView->model()->index(1, GraphDataModel::column::COUNT));
+    QTest::mouseClick(pView->viewport(), Qt::LeftButton, Qt::NoModifier, cellRect.center());
+
+    const QModelIndexList selectedRows = pView->selectionModel()->selectedRows();
+    QCOMPARE(selectedRows.size(), 1);
+    QCOMPARE(selectedRows.first().row(), 1);
+
+    QTest::mouseClick(_pDialog->findChild<QPushButton*>("btnRemove"), Qt::LeftButton);
+
+    QCOMPARE(draftExpressions(), QStringList({ QStringLiteral("${40001}"), QStringLiteral("${40003}") }));
 }
 
 QTEST_MAIN(TestSignalsDialog)

@@ -8,12 +8,10 @@
 
 void TestGraphData::init()
 {
-
 }
 
 void TestGraphData::cleanup()
 {
-
 }
 
 /* TODO: Mock Util.h */
@@ -50,10 +48,12 @@ void TestGraphData::setExpressionResetsStatus()
     GraphData graphData;
 
     graphData.setExpression("${40001}}");
-    graphData.setExpressionState(GraphData::ExpressionState::SYNTAX_ERROR);
+    graphData.setExpressionState(GraphData::ExpressionState::SYNTAX_ERROR, "Unexpected token");
+    QCOMPARE(graphData.expressionError(), QStringLiteral("Unexpected token"));
 
     graphData.setExpression("${40001}");
     QCOMPARE(GraphData::ExpressionState::UNKNOWN, graphData.expressionState());
+    QVERIFY(graphData.expressionError().isEmpty());
 }
 
 void TestGraphData::copiesShareDataSeries()

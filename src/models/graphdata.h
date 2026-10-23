@@ -54,7 +54,8 @@ public:
     void setExpression(QString expression);
 
     ExpressionState expressionState() const;
-    void setExpressionState(ExpressionState status);
+    QString expressionError() const;
+    void setExpressionState(ExpressionState status, const QString& error = QString());
     bool isExpressionValid() const;
 
     QSharedPointer<const GraphDataSeries> dataSeries() const;
@@ -69,6 +70,7 @@ private:
     bool _bActive;
     QString _expression;
     ExpressionState _expressionState;
+    QString _expressionError;
 
     QSharedPointer<GraphDataSeries> _pDataSeries;
 };

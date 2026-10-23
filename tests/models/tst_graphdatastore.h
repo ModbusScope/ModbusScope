@@ -42,6 +42,7 @@ private slots:
     void setValueAxisEmitsSignal();
     void setExpressionEmitsSignal();
     void setExpressionStateEmitsSignal();
+    void setExpressionErrorEmitsSignal();
     void setLabelEmitsSignal();
     void setColorEmitsSignal();
 

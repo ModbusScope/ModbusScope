@@ -13,6 +13,7 @@ class DataPointService;
 class SettingsModel;
 class SignalEditorPanel;
 class SignalListDraft;
+class SignalTableProxyModel;
 class ValueAxisDelegate;
 class ActionButtonDelegate;
 
@@ -54,6 +55,7 @@ private:
     AdapterHub* _pAdapterHub;
     DataPointService* _pDataPointService;
     DataPointDescriptionCache* _pDescriptionCache;
+    SignalTableProxyModel* _pTableModel;
     SignalEditorPanel* _pPanel{ nullptr };
 
     CenteredBoxProxyStyle _centeredBoxStyle;

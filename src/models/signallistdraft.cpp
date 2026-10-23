@@ -155,7 +155,7 @@ void SignalListDraft::appendCopy(GraphDataModel* pTarget, const GraphDataModel* 
     graphData.setVisible(pFrom->isVisible(fromIdx));
     graphData.setActive(pFrom->isActive(fromIdx));
     graphData.setExpression(pFrom->expression(fromIdx));
-    graphData.setExpressionState(pFrom->expressionState(fromIdx));
+    graphData.setExpressionState(pFrom->expressionState(fromIdx), pFrom->expressionError(fromIdx));
     pTarget->add(graphData);
 
     /* add() names a signal without a label; keep an empty label as it is */

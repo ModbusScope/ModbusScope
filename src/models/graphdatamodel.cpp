@@ -33,13 +33,24 @@ GraphDataModel::GraphDataModel(QObject* parent) : QAbstractTableModel(parent), _
     connect(this, &GraphDataModel::expressionStateChanged, this, &GraphDataModel::modelDataChanged);
 }
 
-int GraphDataModel::rowCount(const QModelIndex& /*parent*/) const
+int GraphDataModel::rowCount(const QModelIndex& parent) const
 {
+    /* A table: rows have no children */
+    if (parent.isValid())
+    {
+        return 0;
+    }
+
     return size();
 }
 
-int GraphDataModel::columnCount(const QModelIndex& /*parent*/) const
+int GraphDataModel::columnCount(const QModelIndex& parent) const
 {
+    if (parent.isValid())
+    {
+        return 0;
+    }
+
     return column::COUNT;
 }
 
@@ -100,7 +111,8 @@ QVariant GraphDataModel::data(const QModelIndex& index, int role) const
         {
             if (expressionState(graphIdx) == GraphData::ExpressionState::SYNTAX_ERROR)
             {
-                return tr("The expression has a syntax error");
+                const QString error = expressionError(graphIdx);
+                return error.isEmpty() ? tr("The expression has a syntax error") : error;
             }
             else if (expressionState(graphIdx) == GraphData::ExpressionState::UNKNOWN_DEVICE)
             {
@@ -239,15 +251,13 @@ bool GraphDataModel::setData(const QModelIndex& index, const QVariant& value, in
 
 Qt::ItemFlags GraphDataModel::flags(const QModelIndex& index) const
 {
-    Qt::ItemFlags itemFlags = Qt::NoItemFlags;
-
-    itemFlags |= Qt::ItemIsDragEnabled;
-
     /* Only allow drop on not existing items (eg between items) */
     if (!index.isValid())
     {
-        itemFlags |= Qt::ItemIsDropEnabled;
+        return Qt::ItemIsDropEnabled;
     }
+
+    Qt::ItemFlags itemFlags = Qt::ItemIsDragEnabled;
 
     /* default is enabled */
     itemFlags |= Qt::ItemIsEnabled;
@@ -395,6 +405,11 @@ GraphData::ExpressionState GraphDataModel::expressionState(GraphIdx index) const
     return _pStore->expressionState(index);
 }
 
+QString GraphDataModel::expressionError(GraphIdx index) const
+{
+    return _pStore->expressionError(index);
+}
+
 bool GraphDataModel::isExpressionValid(GraphIdx index) const
 {
     return _pStore->isExpressionValid(index);
@@ -460,9 +475,9 @@ void GraphDataModel::setExpression(GraphIdx index, QString expression)
     _pStore->setExpression(index, expression);
 }
 
-void GraphDataModel::setExpressionState(GraphIdx index, GraphData::ExpressionState status)
+void GraphDataModel::setExpressionState(GraphIdx index, GraphData::ExpressionState status, const QString& error)
 {
-    _pStore->setExpressionState(index, status);
+    _pStore->setExpressionState(index, status, error);
 }
 
 void GraphDataModel::setSelectedGraph(GraphIdx index)
@@ -698,6 +713,11 @@ void GraphDataModel::modelDataChanged(GraphIdx idx)
 
 void GraphDataModel::modelCompleteDataChanged()
 {
+    if (rowCount() == 0)
+    {
+        return;
+    }
+
     emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
