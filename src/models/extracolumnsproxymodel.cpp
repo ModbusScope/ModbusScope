@@ -1,5 +1,7 @@
 #include "extracolumnsproxymodel.h"
 
+#include <utility>
+
 /*!
  * \brief Construct a proxy that adds \a extraColumnCount columns after the source columns.
  * \param extraColumnCount Number of extra columns.
@@ -53,6 +55,11 @@ void ExtraColumnsProxyModel::setSourceModel(QAbstractItemModel* pSourceModel)
         disconnect(sourceModel(), &QAbstractItemModel::layoutChanged, this,
                    &ExtraColumnsProxyModel::onSourceLayoutChanged);
     }
+
+    /* A layout change of the previous source can no longer finish */
+    _layoutChangeProxyIndexes.clear();
+    _layoutChangeSourceIndexes.clear();
+    _layoutChangeColumns.clear();
 
     QIdentityProxyModel::setSourceModel(pSourceModel);
 
@@ -218,6 +225,26 @@ QMimeData* ExtraColumnsProxyModel::mimeData(const QModelIndexList& indexes) cons
     }
 
     return QIdentityProxyModel::mimeData(sourceColumnIndexes);
+}
+
+/*!
+ * \brief A drop on an extra column is passed to the source as a drop on its row, without a column.
+ */
+bool ExtraColumnsProxyModel::canDropMimeData(
+  const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const
+{
+    const int sourceColumn = extraColumnIndex(column) >= 0 ? -1 : column;
+    return QIdentityProxyModel::canDropMimeData(data, action, row, sourceColumn, parent);
+}
+
+/*!
+ * \brief A drop on an extra column is passed to the source as a drop on its row, without a column.
+ */
+bool ExtraColumnsProxyModel::dropMimeData(
+  const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent)
+{
+    const int sourceColumn = extraColumnIndex(column) >= 0 ? -1 : column;
+    return QIdentityProxyModel::dropMimeData(data, action, row, sourceColumn, parent);
 }
 
 /*!

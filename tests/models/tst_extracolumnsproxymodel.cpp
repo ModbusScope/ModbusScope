@@ -3,9 +3,12 @@
 #include "models/extracolumnsproxymodel.h"
 
 #include <QAbstractItemModelTester>
+#include <QMimeData>
 #include <QSignalSpy>
 #include <QStandardItemModel>
 #include <QTest>
+
+#include <memory>
 
 namespace {
 
@@ -153,6 +156,20 @@ void TestExtraColumnsProxyModel::extraColumnsChangedEmitsForExtraColumnsOnly()
     QCOMPARE(spyDataChanged.count(), 1);
     QCOMPARE(spyDataChanged.at(0).at(0).toModelIndex(), proxy.index(0, 2));
     QCOMPARE(spyDataChanged.at(0).at(1).toModelIndex(), proxy.index(1, 3));
+}
+
+//! A drop on an extra column inserts the row in the source without adding source columns.
+void TestExtraColumnsProxyModel::dropOnExtraColumnKeepsSourceColumns()
+{
+    std::unique_ptr<QMimeData> pMimeData(_pProxy->mimeData({ _pProxy->index(1, 0) }));
+    QVERIFY(pMimeData != nullptr);
+
+    QVERIFY(_pProxy->canDropMimeData(pMimeData.get(), Qt::CopyAction, 0, 2, QModelIndex()));
+    QVERIFY(_pProxy->dropMimeData(pMimeData.get(), Qt::CopyAction, 0, 2, QModelIndex()));
+
+    QCOMPARE(_pSource->rowCount(), 4);
+    QCOMPARE(_pSource->columnCount(), 2);
+    QCOMPARE(_pSource->item(0, 0)->text(), QStringLiteral("a"));
 }
 
 QTEST_GUILESS_MAIN(TestExtraColumnsProxyModel)

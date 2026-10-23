@@ -42,6 +42,10 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     QMimeData* mimeData(const QModelIndexList& indexes) const override;
+    bool canDropMimeData(
+      const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) const override;
+    bool dropMimeData(
+      const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
 
 protected:
     virtual QVariant extraColumnData(int row, int extraColumn, int role) const = 0;

@@ -22,6 +22,7 @@ private slots:
     void extraColumnsFollowSourceColumnInsert();
     void layoutChangeKeepsExtraColumnIndexOnItsRow();
     void extraColumnsChangedEmitsForExtraColumnsOnly();
+    void dropOnExtraColumnKeepsSourceColumns();
 
 private:
     QStandardItemModel* _pSource{ nullptr };
