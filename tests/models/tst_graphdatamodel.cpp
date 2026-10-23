@@ -236,21 +236,6 @@ void TestGraphDataModel::removeSignalsIgnoresDuplicateAndInvalidIndices()
     QCOMPARE(spyRemoved.count(), 1);
 }
 
-void TestGraphDataModel::rowAfterRemovalKeepsPositionInMiddle()
-{
-    QCOMPARE(GraphDataModel::rowAfterRemoval(1, 3), 1);
-}
-
-void TestGraphDataModel::rowAfterRemovalSelectsLastRowAtEnd()
-{
-    QCOMPARE(GraphDataModel::rowAfterRemoval(3, 3), 2);
-}
-
-void TestGraphDataModel::rowAfterRemovalReturnsNoneWhenEmpty()
-{
-    QCOMPARE(GraphDataModel::rowAfterRemoval(0, 0), -1);
-}
-
 void TestGraphDataModel::moveSignalDown()
 {
     GraphDataModel model;

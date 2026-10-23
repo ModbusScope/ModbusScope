@@ -46,6 +46,10 @@ private slots:
     void dragFromDataPointColumnReordersSignals();
     void clickOnDataPointColumnSelectsRowForRemove();
 
+    void removeMiddleRowSelectsNextRow();
+    void removeLastRowSelectsNewLastRow();
+    void removeOnlyRowLeavesNoSelection();
+
     void selectingRowEditsSignalInPanel();
     void cancelDiscardsPanelEdits();
     void okAppliesPanelEdits();
@@ -62,6 +66,8 @@ private:
     void openWithReadyAdapter(int signalCount);
     void addSignalThroughPanel(const QString& expression);
     QStringList draftExpressions() const;
+    void removeRowThroughButton(int row);
+    QList<int> selectedRows() const;
     void editFirstSignalAddressThroughPanel(int address, const QString& builtReference);
 
     SettingsModel _settingsModel;

@@ -494,6 +494,55 @@ void TestSignalsDialog::clickOnDataPointColumnSelectsRowForRemove()
     QCOMPARE(draftExpressions(), QStringList({ QStringLiteral("${40001}"), QStringLiteral("${40003}") }));
 }
 
+//! Remove the row \a row through Remove selected.
+void TestSignalsDialog::removeRowThroughButton(int row)
+{
+    _pDialog->findChild<QTableView*>("signalView")->selectRow(row);
+    QTest::mouseClick(_pDialog->findChild<QPushButton*>("btnRemove"), Qt::LeftButton);
+}
+
+//! The selected rows of the signal table.
+QList<int> TestSignalsDialog::selectedRows() const
+{
+    QList<int> rows;
+    const QModelIndexList indexes = _pDialog->findChild<QTableView*>("signalView")->selectionModel()->selectedRows();
+    for (const QModelIndex& index : indexes)
+    {
+        rows.append(index.row());
+    }
+    return rows;
+}
+
+void TestSignalsDialog::removeMiddleRowSelectsNextRow()
+{
+    openWithReadyAdapter(3);
+
+    removeRowThroughButton(1);
+
+    QCOMPARE(draftExpressions(), QStringList({ QStringLiteral("${40001}"), QStringLiteral("${40003}") }));
+    QCOMPARE(selectedRows(), QList<int>({ 1 }));
+}
+
+void TestSignalsDialog::removeLastRowSelectsNewLastRow()
+{
+    openWithReadyAdapter(3);
+
+    removeRowThroughButton(2);
+
+    QCOMPARE(draftExpressions(), QStringList({ QStringLiteral("${40001}"), QStringLiteral("${40002}") }));
+    QCOMPARE(selectedRows(), QList<int>({ 1 }));
+}
+
+void TestSignalsDialog::removeOnlyRowLeavesNoSelection()
+{
+    openWithReadyAdapter(1);
+
+    removeRowThroughButton(0);
+
+    QCOMPARE(draftModel()->size(), 0);
+    QVERIFY(selectedRows().isEmpty());
+}
+
 /*!
  * \brief Select the first signal, change its address in the panel and answer the build request.
  * \param address        The address to enter.

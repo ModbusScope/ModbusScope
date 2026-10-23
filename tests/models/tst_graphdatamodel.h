@@ -34,10 +34,6 @@ private slots:
     void removeSignalsRemovesUnsortedIndices();
     void removeSignalsIgnoresDuplicateAndInvalidIndices();
 
-    void rowAfterRemovalKeepsPositionInMiddle();
-    void rowAfterRemovalSelectsLastRowAtEnd();
-    void rowAfterRemovalReturnsNoneWhenEmpty();
-
     void moveSignalDown();
     void moveSignalUp();
     void moveSignalToLastRow();

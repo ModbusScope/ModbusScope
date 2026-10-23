@@ -84,8 +84,6 @@ public:
     void moveSignal(GraphIdx from, GraphIdx to);
     void clear();
 
-    static int rowAfterRemoval(int firstRemovedRow, int rowCount);
-
     void activeGraphIndexList(QList<GraphIdx>& list) const;
 
     ActiveIdx convertToActiveGraphIndex(GraphIdx graphIdx) const;

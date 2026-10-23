@@ -18,6 +18,32 @@
 #include <QColorDialog>
 #include <QShortcut>
 
+namespace {
+
+/*!
+ * \brief Returns the row to select after removing signals.
+ * \param firstRemovedRow Lowest row that was removed.
+ * \param rowCount        Number of rows left after the removal.
+ * \return The row that took the place of the first removed row, the last row when the removed
+ *         rows were at the end, or -1 when no rows are left.
+ */
+int rowAfterRemoval(int firstRemovedRow, int rowCount)
+{
+    if (rowCount <= 0)
+    {
+        return -1;
+    }
+
+    if (firstRemovedRow < rowCount)
+    {
+        return firstRemovedRow;
+    }
+
+    return rowCount - 1;
+}
+
+} // namespace
+
 SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
                              SettingsModel* pSettingsModel,
                              AdapterHub* pAdapterHub,
@@ -157,7 +183,7 @@ void SignalsDialog::removeSelectedSignals()
 
     _pDraft->model()->removeSignals(indices);
 
-    _pUi->signalView->selectRow(GraphDataModel::rowAfterRemoval(firstRow, _pDraft->model()->size()));
+    _pUi->signalView->selectRow(rowAfterRemoval(firstRow, _pDraft->model()->size()));
 }
 
 void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
