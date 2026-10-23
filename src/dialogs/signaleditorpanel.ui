@@ -127,6 +127,13 @@
    </item>
    <item>
     <widget class="QPushButton" name="btnAdd">
+     <property name="styleSheet">
+      <string notr="true">QPushButton { background-color: palette(highlight); color: palette(highlighted-text); border: 1px solid palette(highlight); border-radius: 4px; padding: 6px 12px; font-weight: bold; }
+QPushButton:hover { border-color: palette(dark); }
+QPushButton:focus { border: 2px solid palette(dark); }
+QPushButton:pressed { background-color: palette(dark); border-color: palette(dark); }
+QPushButton:disabled { background-color: palette(button); color: palette(mid); border-color: palette(mid); }</string>
+     </property>
      <property name="text">
       <string>Add signal</string>
      </property>
