@@ -35,6 +35,7 @@ public:
 
 public slots:
     void accept() override;
+    void reject() override;
 
 private slots:
     void startAddSignal();

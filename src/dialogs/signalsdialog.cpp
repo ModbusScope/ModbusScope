@@ -16,6 +16,7 @@
 #include "valueaxisdelegate.h"
 
 #include <QColorDialog>
+#include <QMessageBox>
 #include <QShortcut>
 
 namespace {
@@ -129,6 +130,29 @@ void SignalsDialog::accept()
 
     _pDraft->apply();
     QDialog::accept();
+}
+
+/*!
+ * \brief Closes the dialog without applying the changes.
+ *
+ * Cancel, Esc and closing the window all end here. When the signal list was changed, the user
+ * confirms first that the changes are discarded.
+ */
+void SignalsDialog::reject()
+{
+    bool bDiscard = true;
+    if (_pDraft->hasChanges())
+    {
+        const auto reply = QMessageBox::question(this, QStringLiteral("Discard changes"),
+                                                 QStringLiteral("Discard the changes to the signals?"),
+                                                 QMessageBox::Discard | QMessageBox::Cancel, QMessageBox::Cancel);
+        bDiscard = reply == QMessageBox::Discard;
+    }
+
+    if (bDiscard)
+    {
+        QDialog::reject();
+    }
 }
 
 /*!

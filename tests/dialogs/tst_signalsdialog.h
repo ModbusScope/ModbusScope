@@ -7,6 +7,7 @@
 #include "models/settingsmodel.h"
 
 #include <QJsonObject>
+#include <QMessageBox>
 #include <QObject>
 
 class GraphDataModel;
@@ -30,6 +31,8 @@ private slots:
     void tableEditsDraftNotSource();
     void cancelDiscardsChanges();
     void escapeDiscardsChanges();
+    void cancelWithoutChangesClosesWithoutQuestion();
+    void cancelQuestionKeepsDialogOpen();
     void okAppliesChanges();
     void okWithoutChangesLeavesSourceUntouched();
 
@@ -59,6 +62,8 @@ private:
     static QJsonObject buildTestRegisterSchema();
     static QJsonObject buildDescribeWithMaxRegisters(int maxRegisters);
     void seedSignals(int count);
+    void answerNextQuestion(QMessageBox::StandardButton button);
+    void clickCancel();
     void seedSamples();
     void editDraft();
     GraphDataModel* draftModel() const;
