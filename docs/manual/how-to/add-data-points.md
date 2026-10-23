@@ -33,6 +33,22 @@ To calculate with a data point, add the signal first and then click **…** in i
 
 **Result:** The signals appear in the main window. They will be polled when you click **Start logging**.
 
+## Edit a signal
+
+1. In the **Signals** dialog, select the signal in the table. The panel shows it under **Edit signal**.
+2. Change the **name** or the axis. The table is updated while you type.
+3. Change the device or the address fields of its data point. Each change replaces the data point reference in the expression, for example `${40001}` becomes `${h5}`. The rest of the expression is kept: `${40001}/2` becomes `${h5}/2`, and the data point being edited is shown in bold.
+
+   Selecting a device on another protocol resets the address fields to that protocol's defaults.
+
+4. A signal that reads several data points lists them, one entry for each time a data point occurs in the expression. Select an entry to edit that data point; the others stay as they are.
+5. Click **Edit expression…** to change the expression itself. For an expression with a syntax error, the panel only shows the error and this button.
+6. Click **OK** to apply the changes, or **Cancel** to discard them.
+
+Until the adapter has described the data point, its fields cannot be edited. If the adapter is not running or rejects the data point, the reason is shown above **Edit expression…**; changing a field replaces the data point.
+
+To add a new signal again, click **Add** or clear the selection.
+
 ## Tips
 
 - To reference a specific device, add `@DEVICE` to the expression (e.g. `${40001@2}` reads from device 2). Device 1 is used by default.
