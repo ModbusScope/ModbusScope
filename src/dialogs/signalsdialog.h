@@ -56,7 +56,6 @@ private:
 
     SignalListDraft* _pDraft;
     SettingsModel* _pSettingsModel;
-    AdapterHub* _pAdapterHub;
     DataPointService* _pDataPointService;
     DataPointDescriptionCache* _pDescriptionCache;
     SignalTableProxyModel* _pTableModel;

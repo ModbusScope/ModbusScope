@@ -34,8 +34,8 @@ void TestExpressionsDialog::init()
     _pDataPointService = new DataPointService(_pSettingsModel, _pMockHub, this);
     _pDescriptionCache = new DataPointDescriptionCache(_pDataPointService, this);
 
-    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDataPointService,
-                                     _pDescriptionCache);
+    _pDialog =
+      new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pSettingsModel, _pDataPointService, _pDescriptionCache);
 }
 
 void TestExpressionsDialog::cleanup()
@@ -69,8 +69,8 @@ void TestExpressionsDialog::recreateDialog()
 {
     delete _pDialog;
     _pMockDataPointManager->helpRequestCount = 0;
-    _pDialog = new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pMockHub, _pSettingsModel, _pDataPointService,
-                                     _pDescriptionCache);
+    _pDialog =
+      new ExpressionsDialog(_pGraphDataModel, GraphIdx(0), _pSettingsModel, _pDataPointService, _pDescriptionCache);
 }
 
 void TestExpressionsDialog::describeDispatch_singleAddress()

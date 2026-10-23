@@ -1,7 +1,6 @@
 
 #include "signalsdialog.h"
 
-#include "ProtocolAdapter/adapterhub.h"
 #include "ProtocolAdapter/datapointservice.h"
 #include "customwidgets/actionbuttondelegate.h"
 #include "datahandling/datapointusage.h"
@@ -58,8 +57,7 @@ SignalsDialog::SignalsDialog(GraphDataModel* pGraphDataModel,
 
     _pDraft = new SignalListDraft(pGraphDataModel, pSettingsModel, this);
     _pSettingsModel = pSettingsModel;
-    _pAdapterHub = pAdapterHub;
-    _pDataPointService = new DataPointService(_pSettingsModel, _pAdapterHub, this);
+    _pDataPointService = new DataPointService(_pSettingsModel, pAdapterHub, this);
     _pDescriptionCache = new DataPointDescriptionCache(_pDataPointService, this);
     _pTableModel = new SignalTableProxyModel(_pDraft->model(), _pDescriptionCache, this);
 
@@ -223,8 +221,8 @@ void SignalsDialog::handleExpressionEdit(const QModelIndex& index)
  */
 void SignalsDialog::openExpressionDialog(GraphIdx graphIdx)
 {
-    ExpressionsDialog exprDialog(_pDraft->model(), graphIdx, _pAdapterHub, _pSettingsModel, _pDataPointService,
-                                 _pDescriptionCache, this);
+    ExpressionsDialog exprDialog(_pDraft->model(), graphIdx, _pSettingsModel, _pDataPointService, _pDescriptionCache,
+                                 this);
 
     exprDialog.exec();
 }

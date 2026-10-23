@@ -1,8 +1,7 @@
 #include "expressionsdialog.h"
 #include "ui_expressionsdialog.h"
 
-#include "ProtocolAdapter/adapterhub.h"
-#include "ProtocolAdapter/adaptermanager.h"
+#include "ProtocolAdapter/datapointservice.h"
 #include "communication/datapoint.h"
 #include "customwidgets/datapointeditorwidget.h"
 #include "customwidgets/devicecombobox.h"
@@ -45,7 +44,6 @@ QString genericExpressionInfoHtml()
 
 ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
                                      GraphIdx idx,
-                                     AdapterHub* pAdapterHub,
                                      SettingsModel* pSettingsModel,
                                      DataPointService* pDataPointService,
                                      DataPointDescriptionCache* pDescriptionCache,
@@ -53,7 +51,6 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
     : QDialog(parent),
       _pUi(new Ui::ExpressionsDialog),
       _pGraphDataModel(pGraphDataModel),
-      _pAdapterHub(pAdapterHub),
       _pSettingsModel(pSettingsModel),
       _pDataPointService(pDataPointService),
       _pDescriptionCache(pDescriptionCache),
@@ -63,6 +60,8 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
 
     connect(_pDescriptionCache, &DataPointDescriptionCache::descriptionChanged, this,
             &ExpressionsDialog::handleDescriptionChanged);
+    connect(_pDataPointService, &DataPointService::expressionHelpReceived, this,
+            &ExpressionsDialog::handleExpressionHelpResult);
 
     _graphIdx = idx;
 
@@ -470,8 +469,18 @@ void ExpressionsDialog::handleAccept()
     done(QDialog::Accepted);
 }
 
-void ExpressionsDialog::handleExpressionHelpResult(const QString& helpText)
+/*!
+ * \brief Show the expression help of the adapter of the selected help device.
+ * \param adapterId The adapter that sent the help; help of another adapter is ignored.
+ * \param helpText  The adapter-specific help, as HTML.
+ */
+void ExpressionsDialog::handleExpressionHelpResult(const QString& adapterId, const QString& helpText)
 {
+    if (adapterId != _helpAdapterId)
+    {
+        return;
+    }
+
     const QString fullHelpHtml =
       QStringLiteral("<html><head/><body>") + genericExpressionInfoHtml() + helpText + QStringLiteral("</body></html>");
     _pUi->lblInfo->setText(fullHelpHtml);
@@ -485,73 +494,37 @@ void ExpressionsDialog::handleExpressionHelpResult(const QString& helpText)
  */
 void ExpressionsDialog::populateHelpDevices()
 {
-    if (_pAdapterHub == nullptr || _pSettingsModel == nullptr)
-    {
-        _pUi->widgetHelpDevice->setVisible(false);
-        return;
-    }
-
     _pUi->cmbHelpDevice->setLabelStyle(DeviceComboBox::LabelStyle::NameProtocolId);
     _pUi->cmbHelpDevice->setSettingsModel(_pSettingsModel);
     _pUi->widgetHelpDevice->setVisible(_pUi->cmbHelpDevice->count() > 1);
 
-    connect(_pUi->cmbHelpDevice, &DeviceComboBox::deviceChanged, this, &ExpressionsDialog::onHelpDeviceChanged);
+    connect(_pUi->cmbHelpDevice, &DeviceComboBox::deviceChanged, this, &ExpressionsDialog::requestHelpForDevice);
 
     if (_pUi->cmbHelpDevice->count() > 0)
     {
-        onHelpDeviceChanged(_pUi->cmbHelpDevice->selectedDeviceId());
+        requestHelpForDevice(_pUi->cmbHelpDevice->selectedDeviceId());
     }
 }
 
 /*!
- * \brief Request expression help text from the given adapter.
+ * \brief Request the expression help of the adapter that serves \a deviceId.
  *
- * Any pending help connection to a previously selected adapter is dropped so a
- * late response cannot overwrite the newly selected adapter's help text.
- * A no-op if the given adapter is already the one being shown, since multiple
- * devices can share the same adapter and switching between them should not
- * flicker the help text or trigger a redundant request.
- * \param adapterId Identifier of the adapter to request help from.
+ * A no-op when that adapter's help is already shown or requested, since several devices can share
+ * one adapter and switching between them should not flicker the help text. Otherwise the help
+ * text is cleared until the adapter answers; a late answer of the previous adapter is ignored.
+ * \param deviceId The selected help device.
  */
-void ExpressionsDialog::requestHelpForAdapter(const QString& adapterId)
+void ExpressionsDialog::requestHelpForDevice(deviceId_t deviceId)
 {
-    if (_pHelpManager != nullptr && _pHelpManager->adapterId() == adapterId)
+    const QString adapterId = _pDataPointService->adapterIdForDevice(deviceId);
+    if (!_helpAdapterId.isEmpty() && adapterId == _helpAdapterId)
     {
         return;
-    }
-
-    if (_pHelpManager != nullptr)
-    {
-        QObject::disconnect(_pHelpManager, &AdapterManager::expressionHelpResult, this,
-                            &ExpressionsDialog::handleExpressionHelpResult);
     }
 
     _pUi->lblInfo->clear();
-
-    _pHelpManager = _pAdapterHub->adapterManager(adapterId);
-    if (_pHelpManager == nullptr)
-    {
-        return;
-    }
-
-    connect(_pHelpManager, &AdapterManager::expressionHelpResult, this, &ExpressionsDialog::handleExpressionHelpResult,
-            Qt::SingleShotConnection);
-    _pHelpManager->requestExpressionHelp();
-}
-
-/*!
- * \brief Show the expression help of the newly selected device's adapter.
- * \param deviceId The selected device.
- */
-void ExpressionsDialog::onHelpDeviceChanged(deviceId_t deviceId)
-{
-    if (!_pSettingsModel->hasDevice(deviceId))
-    {
-        requestHelpForAdapter(QString());
-        return;
-    }
-
-    requestHelpForAdapter(_pSettingsModel->adapterIdForDevice(deviceId));
+    _helpAdapterId = adapterId;
+    _pDataPointService->requestExpressionHelp(deviceId);
 }
 
 /*!

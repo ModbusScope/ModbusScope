@@ -141,6 +141,31 @@ quint64 DataPointService::describeDataPoint(deviceId_t deviceId, const QString& 
     return track(pManager, pManager->describeDataPoint(reference));
 }
 
+/*!
+ * \brief Ask the adapter of \a deviceId for its expression help text.
+ *
+ * expressionHelpReceived() carries the adapter id, so a caller can ignore help of an adapter it no
+ * longer shows. Nothing is reported when the adapter does not answer.
+ * \param deviceId Device whose adapter is asked.
+ */
+void DataPointService::requestExpressionHelp(deviceId_t deviceId)
+{
+    const QString adapterId = adapterIdForDevice(deviceId);
+    if (adapterId.isEmpty())
+    {
+        return;
+    }
+
+    AdapterManager* pManager = _pAdapterHub->adapterManager(adapterId);
+    if (pManager == nullptr)
+    {
+        return;
+    }
+
+    connectManager(pManager);
+    pManager->requestExpressionHelp();
+}
+
 void DataPointService::emitQueuedFailures()
 {
     const QList<QueuedFailure> failures = _queuedFailures;
@@ -273,6 +298,9 @@ void DataPointService::connectManager(AdapterManager* pManager)
             });
     connect(pManager, &AdapterManager::dataPointRequestFailed, this,
             [this, pManager](int requestId, const QString& error) { onRequestFailed(pManager, requestId, error); });
+    connect(pManager, &AdapterManager::expressionHelpResult, this, [this, pManager](const QString& helpText) {
+        emit expressionHelpReceived(pManager->adapterId(), helpText);
+    });
 }
 
 void DataPointService::onExpressionBuilt(AdapterManager* pManager, int requestId, const QString& expression)
