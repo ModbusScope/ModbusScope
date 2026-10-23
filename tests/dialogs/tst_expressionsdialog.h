@@ -90,6 +90,11 @@ private slots:
     void describeDispatch_replyForRemovedReferenceIgnored();
     void describeDispatch_cachedAcrossExpressionChanges();
     void describeDispatch_failureKeepsParserDescription();
+    void describeDispatch_duplicateReferences();
+
+    void rowsFollowExpressionOrder();
+    void duplicateReferencesShareExampleValue();
+    void exampleValuesFollowDistinctDataPoints();
 
     void describeRoutedPerDeviceAdapter();
     void describeSkipsUnavailableAdapter();

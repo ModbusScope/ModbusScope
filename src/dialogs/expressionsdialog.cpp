@@ -3,11 +3,13 @@
 
 #include "ProtocolAdapter/adapterhub.h"
 #include "ProtocolAdapter/adaptermanager.h"
+#include "communication/datapoint.h"
 #include "customwidgets/devicecombobox.h"
 #include "dialogs/expressionhighlighting.h"
 #include "models/datapointdescriptioncache.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
+#include "util/expressionreferences.h"
 #include "util/expressionvalue.h"
 
 #include <QKeyEvent>
@@ -70,7 +72,7 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
     _pUi->tblExpressionInput->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     _pUi->tblExpressionInput->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
-    connect(_pUi->tblExpressionInput, &QTableWidget::cellChanged, this, &ExpressionsDialog::handleInputChange);
+    connect(_pUi->tblExpressionInput, &QTableWidget::cellChanged, this, &ExpressionsDialog::handleCellChanged);
 
     _pUi->widgetInfo->setVisible(false);
     connect(_pUi->btnInfo, &QAbstractButton::toggled, _pUi->widgetInfo, &QWidget::setVisible);
@@ -180,6 +182,12 @@ void ExpressionsDialog::setupExpressionEditor()
     pEditor->installEventFilter(this);
 }
 
+/*!
+ * \brief Fill the data point table with one row per reference in the expression, in expression order.
+ *
+ * Example values are kept per reference text, so a reference that stays in the expression keeps its
+ * value and duplicate references share one.
+ */
 void ExpressionsDialog::handleExpressionChange()
 {
     /* Avoid endless signal loop, because formatting also emit textChanged */
@@ -188,7 +196,7 @@ void ExpressionsDialog::handleExpressionChange()
     {
         _expressionChecker.setExpression(expression);
 
-        /* Save current test values keyed by address (Qt::UserRole), not displayed text */
+        /* Save current test values keyed by reference text, not displayed text */
         QMap<QString, QString> testValueMap;
         for (qint32 idx = 0; idx < _pUi->tblExpressionInput->rowCount(); idx++)
         {
@@ -196,40 +204,79 @@ void ExpressionsDialog::handleExpressionChange()
             QTableWidgetItem* pValueItem = _pUi->tblExpressionInput->item(idx, 1);
             if (pAddrItem != nullptr && pValueItem != nullptr)
             {
-                testValueMap.insert(pAddrItem->data(Qt::UserRole).toString(), pValueItem->text());
+                testValueMap.insert(pAddrItem->data(cReferenceTextRole).toString(), pValueItem->text());
             }
         }
 
-        QStringList descriptions = _expressionChecker.descriptions();
-        QStringList addresses = _expressionChecker.addresses();
+        const QList<ExpressionReferences::Reference> references = ExpressionReferences::find(expression);
 
         _bUpdating = true;
-        _pUi->tblExpressionInput->setRowCount(descriptions.size());
+        _pUi->tblExpressionInput->setRowCount(static_cast<int>(references.size()));
         _pHighlighter->setExpressionErrorPosition(-1);
 
-        for (qint32 idx = 0; idx < descriptions.size(); idx++)
+        for (qint32 idx = 0; idx < references.size(); idx++)
         {
-            QTableWidgetItem* pRegItem = new QTableWidgetItem(descriptions[idx]);
+            const ExpressionReferences::Reference& reference = references[idx];
+
+            auto* pRegItem = new QTableWidgetItem(DataPoint(reference.text, reference.deviceId).description());
             pRegItem->setFlags(pRegItem->flags() & ~Qt::ItemIsEditable);
-            pRegItem->setData(Qt::UserRole, addresses[idx]);
+            pRegItem->setData(cReferenceTextRole, reference.text);
+            pRegItem->setData(cDeviceIdRole, reference.deviceId);
             _pUi->tblExpressionInput->setItem(idx, 0, pRegItem);
 
-            QString testVal = testValueMap.value(addresses[idx], QStringLiteral("1"));
+            QString testVal = testValueMap.value(reference.text, QStringLiteral("1"));
             _pUi->tblExpressionInput->setItem(idx, 1, new QTableWidgetItem(testVal));
         }
 
         _bUpdating = false;
 
-        const QList<deviceId_t> deviceIds = _expressionChecker.deviceIds();
-        for (qint32 row = 0; row < addresses.size() && row < deviceIds.size(); row++)
+        for (qint32 row = 0; row < references.size(); row++)
         {
-            showDescription(row, deviceIds[row]);
+            showDescription(row);
         }
 
         handleInputChange();
     }
 }
 
+/*!
+ * \brief Copy an edited example value to the rows with the same reference, then evaluate.
+ * \param row    Row of the changed cell.
+ * \param column Column of the changed cell.
+ */
+void ExpressionsDialog::handleCellChanged(int row, int column)
+{
+    if (_bUpdating)
+    {
+        return;
+    }
+
+    QTableWidget* pTable = _pUi->tblExpressionInput;
+    const QTableWidgetItem* pChangedItem = pTable->item(row, column);
+    const QTableWidgetItem* pReferenceItem = pTable->item(row, 0);
+    if (column == 1 && pChangedItem != nullptr && pReferenceItem != nullptr)
+    {
+        const QString referenceText = pReferenceItem->data(cReferenceTextRole).toString();
+        const QSignalBlocker blocker(pTable);
+        for (qint32 idx = 0; idx < pTable->rowCount(); idx++)
+        {
+            QTableWidgetItem* pValueItem = pTable->item(idx, 1);
+            if (idx != row && pValueItem != nullptr && rowReferenceText(idx) == referenceText)
+            {
+                pValueItem->setText(pChangedItem->text());
+            }
+        }
+    }
+
+    handleInputChange();
+}
+
+/*!
+ * \brief Evaluate the expression with the example values in the table.
+ *
+ * The evaluation takes one value per distinct data point, in the order the parser lists them; each
+ * value comes from the first row with that reference.
+ */
 void ExpressionsDialog::handleInputChange()
 {
     if (!_bUpdating)
@@ -237,26 +284,52 @@ void ExpressionsDialog::handleInputChange()
         const auto lightRed = QColor(255, 0, 0, 127);
         const auto white = QColorConstants::White;
 
-        ResultDoubleList results;
-        for (qint32 idx = 0; idx < _pUi->tblExpressionInput->rowCount(); idx++)
-        {
-            QTableWidgetItem* pValueItem = _pUi->tblExpressionInput->item(idx, 1);
-            QString valueStr = pValueItem->text();
-            bool bOk = false;
-            double value = ExpressionValue::parse(valueStr, &bOk);
-            results.append(ResultDouble(value, bOk ? State::Good : State::Invalid));
+        QTableWidget* pTable = _pUi->tblExpressionInput;
 
-            /* Avoid recursive signal/slots calling */
-            _pUi->tblExpressionInput->blockSignals(true);
+        /* Avoid recursive signal/slots calling */
+        const QSignalBlocker blocker(pTable);
+
+        QMap<QString, ResultDouble> valueMap;
+        for (qint32 idx = 0; idx < pTable->rowCount(); idx++)
+        {
+            QTableWidgetItem* pValueItem = pTable->item(idx, 1);
+            bool bOk = false;
+            double value = ExpressionValue::parse(pValueItem->text(), &bOk);
 
             pValueItem->setBackground(bOk ? white : lightRed);
             pValueItem->setToolTip(bOk ? QString() : QStringLiteral("Not a valid number"));
 
-            _pUi->tblExpressionInput->blockSignals(false);
+            const QString referenceText = rowReferenceText(idx);
+            if (!valueMap.contains(referenceText))
+            {
+                valueMap.insert(referenceText, ResultDouble(value, bOk ? State::Good : State::Invalid));
+            }
+        }
+
+        ResultDoubleList results;
+        const QStringList addresses = _expressionChecker.addresses();
+        for (const QString& address : addresses)
+        {
+            results.append(valueMap.value(address, ResultDouble(0, State::Invalid)));
         }
 
         _expressionChecker.checkWithValues(results);
     }
+}
+
+/*!
+ * \brief Return the data point reference of a table row.
+ * \param row Row index into the data point table.
+ */
+QString ExpressionsDialog::rowReferenceText(qint32 row) const
+{
+    const QTableWidgetItem* pItem = _pUi->tblExpressionInput->item(row, 0);
+    if (pItem == nullptr)
+    {
+        return QString();
+    }
+
+    return pItem->data(cReferenceTextRole).toString();
 }
 
 void ExpressionsDialog::handleCancel()
@@ -370,10 +443,9 @@ void ExpressionsDialog::onHelpDeviceChanged(deviceId_t deviceId)
  *
  * A row with an unknown device shows "Invalid device". A row whose description is not available
  * (pending, invalid, failed or adapter not running) keeps the parser description.
- * \param row      Row index into the data point table.
- * \param deviceId Device of the data point in that row.
+ * \param row Row index into the data point table.
  */
-void ExpressionsDialog::showDescription(qint32 row, deviceId_t deviceId)
+void ExpressionsDialog::showDescription(qint32 row)
 {
     QTableWidgetItem* pItem = _pUi->tblExpressionInput->item(row, 0);
     if (pItem == nullptr)
@@ -384,13 +456,14 @@ void ExpressionsDialog::showDescription(qint32 row, deviceId_t deviceId)
     /* The description column does not change the evaluation, so don't evaluate again */
     const QSignalBlocker blocker(_pUi->tblExpressionInput);
 
+    const auto deviceId = pItem->data(cDeviceIdRole).value<deviceId_t>();
     if (!_pSettingsModel->hasDevice(deviceId))
     {
         pItem->setText(QStringLiteral("Invalid device"));
         return;
     }
 
-    const QString referenceText = pItem->data(Qt::UserRole).toString();
+    const QString referenceText = pItem->data(cReferenceTextRole).toString();
     const DataPointDescription description =
       _pDescriptionCache->lookup({ 0, referenceText.size(), referenceText, deviceId });
     if (description.state == DataPointDescription::State::Valid && !description.description.isEmpty())
@@ -405,13 +478,11 @@ void ExpressionsDialog::showDescription(qint32 row, deviceId_t deviceId)
  */
 void ExpressionsDialog::handleDescriptionChanged(const QString& referenceText)
 {
-    const QList<deviceId_t> deviceIds = _expressionChecker.deviceIds();
-    for (qint32 row = 0; row < _pUi->tblExpressionInput->rowCount() && row < deviceIds.size(); row++)
+    for (qint32 row = 0; row < _pUi->tblExpressionInput->rowCount(); row++)
     {
-        const QTableWidgetItem* pItem = _pUi->tblExpressionInput->item(row, 0);
-        if (pItem != nullptr && pItem->data(Qt::UserRole).toString() == referenceText)
+        if (rowReferenceText(row) == referenceText)
         {
-            showDescription(row, deviceIds[row]);
+            showDescription(row);
         }
     }
 }

@@ -167,6 +167,76 @@ void TestExpressionsDialog::describeDispatch_failureKeepsParserDescription()
     QCOMPARE(pTable->item(0, 0)->text(), parserDescription);
 }
 
+//! Each occurrence of a reference gets its own row, described with one request.
+void TestExpressionsDialog::describeDispatch_duplicateReferences()
+{
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+
+    pEdit->setPlainText(QStringLiteral("${40001} - ${40001}"));
+    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 1);
+
+    _pMockAdapterManager->injectDescribeResult(1, QStringLiteral("Reg 1"));
+
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    QCOMPARE(pTable->rowCount(), 2);
+    QCOMPARE(pTable->item(0, 0)->text(), QStringLiteral("Reg 1"));
+    QCOMPARE(pTable->item(1, 0)->text(), QStringLiteral("Reg 1"));
+}
+
+//! Rows are listed in the order the references appear in the expression.
+void TestExpressionsDialog::rowsFollowExpressionOrder()
+{
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+    pEdit->setPlainText(QStringLiteral("${40002} + ${40001} + ${40002}"));
+
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    QCOMPARE(pTable->rowCount(), 3);
+    QCOMPARE(pTable->item(0, 0)->data(Qt::UserRole).toString(), QStringLiteral("${40002}"));
+    QCOMPARE(pTable->item(1, 0)->data(Qt::UserRole).toString(), QStringLiteral("${40001}"));
+    QCOMPARE(pTable->item(2, 0)->data(Qt::UserRole).toString(), QStringLiteral("${40002}"));
+}
+
+//! Editing the value of one occurrence updates the other occurrences of the same reference.
+void TestExpressionsDialog::duplicateReferencesShareExampleValue()
+{
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+    pEdit->setPlainText(QStringLiteral("${40001} * ${40001}"));
+
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    pTable->item(1, 1)->setText(QStringLiteral("3"));
+
+    QCOMPARE(pTable->item(0, 1)->text(), QStringLiteral("3"));
+
+    auto* pOutput = _pDialog->findChild<QLabel*>("lblOut");
+    QVERIFY(pOutput != nullptr);
+    QCOMPARE(pOutput->text(), QStringLiteral("9"));
+}
+
+//! Each distinct data point is evaluated with the value of its own rows.
+void TestExpressionsDialog::exampleValuesFollowDistinctDataPoints()
+{
+    auto* pEdit = _pDialog->findChild<QPlainTextEdit*>("lineExpression");
+    QVERIFY(pEdit != nullptr);
+    pEdit->setPlainText(QStringLiteral("${40001} + 10 * ${40002} + 100 * ${40001}"));
+
+    auto* pTable = _pDialog->findChild<QTableWidget*>("tblExpressionInput");
+    QVERIFY(pTable != nullptr);
+    pTable->item(0, 1)->setText(QStringLiteral("2"));
+    pTable->item(1, 1)->setText(QStringLiteral("5"));
+
+    QCOMPARE(pTable->item(2, 1)->text(), QStringLiteral("2"));
+
+    auto* pOutput = _pDialog->findChild<QLabel*>("lblOut");
+    QVERIFY(pOutput != nullptr);
+    QCOMPARE(pOutput->text(), QStringLiteral("252"));
+}
+
 void TestExpressionsDialog::describeRoutedPerDeviceAdapter()
 {
     _pSettingsModel->deviceSettings(2)->setAdapterId("sim");

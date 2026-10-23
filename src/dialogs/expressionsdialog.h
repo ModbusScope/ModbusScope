@@ -41,6 +41,7 @@ protected:
 
 private slots:
     void handleExpressionChange();
+    void handleCellChanged(int row, int column);
     void handleInputChange();
     void handleCancel();
     void handleAccept();
@@ -50,7 +51,8 @@ private slots:
     void onHelpDeviceChanged(deviceId_t deviceId);
 
 private:
-    void showDescription(qint32 row, deviceId_t deviceId);
+    void showDescription(qint32 row);
+    QString rowReferenceText(qint32 row) const;
     void populateHelpDevices();
     void requestHelpForAdapter(const QString& adapterId);
     void setupButtons();
@@ -58,6 +60,10 @@ private:
     void setupExpressionEditor();
 
     static constexpr int cExpressionEditorLines = 3;
+
+    //! Data roles of the data point column.
+    static constexpr int cReferenceTextRole = Qt::UserRole;
+    static constexpr int cDeviceIdRole = Qt::UserRole + 1;
 
     Ui::ExpressionsDialog* _pUi;
 
