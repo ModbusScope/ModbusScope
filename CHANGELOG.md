@@ -20,6 +20,8 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * The add signal form shows the data point reference it will add, and checks the address while you type
 * The Signals dialog has a Cancel button: Cancel and Esc discard every change made in the dialog. On OK, signals whose expression changed lose their data; the others keep it, also when they were deactivated and activated again in the dialog
 * Signals are added in a panel next to the table that stays open: Add signal (or Enter) keeps the device, address fields and axis for the next signal. Add no longer inserts a row with a default expression
+* Compose expression: Insert data point adds a data point at the cursor from an address form, without typing its syntax
+* Compose expression: the data point table has a row for each occurrence of a data point, a data point the adapter rejects is shown in red and blocks Accept, and a syntax error marks only the part of the expression where it was found
 
 ## [v5.0.1](https://github.com/jgeudens/ModbusScope/releases/tag/5.0.1) (09/10/2026)
 
