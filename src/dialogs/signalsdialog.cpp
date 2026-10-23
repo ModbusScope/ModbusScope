@@ -199,7 +199,8 @@ void SignalsDialog::onSelectionChanged()
 }
 
 /*!
- * \brief Place the signal editor panel next to the table; extra width goes to the table.
+ * \brief Place the signal editor panel next to the table; the panel opens at a comfortable width
+ *  and extra width goes to the table.
  *
  * Selecting a row edits that signal in the panel.
  */
@@ -216,6 +217,7 @@ void SignalsDialog::setupEditorPanel()
     _pUi->splitter->setStretchFactor(1, 0);
     _pUi->splitter->setCollapsible(0, false);
     _pUi->splitter->setCollapsible(1, false);
+    _pUi->splitter->setSizes({ width() - cPanelWidth, cPanelWidth });
 
     setMinimumSize(cMinimumWidth, cMinimumHeight);
 }

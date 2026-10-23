@@ -68,6 +68,7 @@ private:
 
     static constexpr int cMinimumWidth = 680;
     static constexpr int cMinimumHeight = 400;
+    static constexpr int cPanelWidth = 400;
 };
 
 #endif // SIGNALSDIALOG_H

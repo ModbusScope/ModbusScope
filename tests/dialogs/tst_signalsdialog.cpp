@@ -404,6 +404,31 @@ void TestSignalsDialog::minimumSizeKeepsTableAndPanelUsable()
     QVERIFY(pScrollArea->viewport()->rect().contains(addRect));
 }
 
+//! The panel opens wider than its minimum, so the address fields are not cramped.
+void TestSignalsDialog::panelOpensWiderThanItsMinimum()
+{
+    openWithReadyAdapter(3);
+
+    auto* pScrollArea = _pDialog->findChild<QScrollArea*>("panelScrollArea");
+    QVERIFY(pScrollArea->width() > pScrollArea->minimumWidth());
+}
+
+//! Extra dialog width goes to the table; the panel keeps its width.
+void TestSignalsDialog::widerDialogWidensOnlyTheTable()
+{
+    openWithReadyAdapter(3);
+
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    auto* pScrollArea = _pDialog->findChild<QScrollArea*>("panelScrollArea");
+    const int viewWidth = pView->width();
+    const int panelWidth = pScrollArea->width();
+
+    _pDialog->resize(_pDialog->width() + 200, _pDialog->height());
+
+    QTRY_VERIFY(pView->width() > viewWidth);
+    QCOMPARE(pScrollArea->width(), panelWidth);
+}
+
 //! Expressions of the draft signals, in table order.
 QStringList TestSignalsDialog::draftExpressions() const
 {

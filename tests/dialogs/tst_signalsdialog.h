@@ -104,6 +104,8 @@ private slots:
     void deleteInNameFieldKeepsRows();
     void cancelDiscardsPanelAdds();
     void minimumSizeKeepsTableAndPanelUsable();
+    void panelOpensWiderThanItsMinimum();
+    void widerDialogWidensOnlyTheTable();
 
     void dataPointColumnShowsDescription();
     void dragFromDataPointColumnReordersSignals();
