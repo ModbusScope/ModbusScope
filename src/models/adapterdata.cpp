@@ -9,41 +9,6 @@
 
 AdapterData::AdapterData() = default;
 
-void AdapterData::setName(const QString& name)
-{
-    _name = name;
-}
-
-void AdapterData::setVersion(const QString& version)
-{
-    _version = version;
-}
-
-void AdapterData::setConfigVersion(int configVersion)
-{
-    _configVersion = configVersion;
-}
-
-void AdapterData::setSchema(const QJsonObject& schema)
-{
-    _schema = schema;
-}
-
-void AdapterData::setDefaults(const QJsonObject& defaults)
-{
-    _defaults = defaults;
-}
-
-void AdapterData::setCapabilities(const QJsonObject& capabilities)
-{
-    _capabilities = capabilities;
-}
-
-void AdapterData::setLicense(const QJsonObject& license)
-{
-    _license = license;
-}
-
 void AdapterData::setCurrentConfig(const QJsonObject& config)
 {
     _currentConfig = config;

@@ -53,13 +53,6 @@ public:
     explicit AdapterData();
     ~AdapterData() = default;
 
-    void setName(const QString& name);
-    void setVersion(const QString& version);
-    void setConfigVersion(int configVersion);
-    void setSchema(const QJsonObject& schema);
-    void setDefaults(const QJsonObject& defaults);
-    void setCapabilities(const QJsonObject& capabilities);
-    void setLicense(const QJsonObject& license);
     void setCurrentConfig(const QJsonObject& config);
     void setHasStoredConfig(bool hasStoredConfig);
     void setDataPointSchema(const QJsonObject& schema);
