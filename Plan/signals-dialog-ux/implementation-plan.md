@@ -101,7 +101,7 @@ Phase R goes first. It only renames the Signals dialog classes, which phases 0, 
 | 3 | Cancel discards every change made in the Signals dialog; OK clears the data of signals whose expression changed | M | Done |
 | 4 | Adding signals happens in a side panel that stays open | M | Done |
 | 5 | Data points can be inserted in Compose expression without typing syntax | M | Done |
-| 6 | The Signals table shows what each data point is | S | |
+| 6 | The Signals table shows what each data point is | S | Done |
 | 7 | Existing data points are edited through the same form | L | |
 
 ---
@@ -486,6 +486,14 @@ public:
 - Drag-and-drop reordering goes through the proxy; check that `InternalMove` still works and cover it in `tst_signalsdialog`.
 
 **Done when:** opening the dialog shows a readable description for every valid row within a moment, without blocking the dialog.
+
+**Done.** Differences from the plan above:
+
+- The parser error is stored with the expression state (`GraphData::expressionError()`, filled by `ExpressionStatus`), so the column and the Expression tooltip show muParser's message instead of "The expression has a syntax error". `UNKNOWN_DEVICE` rows show "Unknown device".
+- `SignalTableProxyModel` takes the `GraphDataModel` in its constructor. It also overrides `mimeData()`: `GraphDataModel` reads the dragged row from the first index, and an index in the Data point column has no source index.
+- A row with one data point also shows the description as tooltip, so a description cut off by the column width can be read. A rejected data point shows its reference in red, with "reference: reason" as tooltip.
+- `QAbstractItemModelTester` found two old defects in `GraphDataModel`: `rowCount()` and `columnCount()` ignored the parent, so every cell seemed to have children, and `flags()` of the root also returned drag and enabled. Both fixed. Removing the last signal no longer emits `dataChanged` with invalid indexes.
+- `plainTextToolTip()` moved from `ExpressionsDialog` to `Util` and keeps line breaks. Every tooltip of the Expression and Data point columns goes through it: adapter texts and parser errors (which quote the expression) are untrusted.
 
 ---
 
