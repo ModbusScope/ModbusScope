@@ -102,7 +102,7 @@ Phase R goes first. It only renames the Signals dialog classes, which phases 0, 
 | 4 | Adding signals happens in a side panel that stays open | M | Done |
 | 5 | Data points can be inserted in Compose expression without typing syntax | M | Done |
 | 6 | The Signals table shows what each data point is | S | Done |
-| 7 | Existing data points are edited through the same form | L | |
+| 7 | Existing data points are edited through the same form | L | Done |
 
 ---
 
@@ -514,6 +514,17 @@ public:
 - Tests in `tst_signaleditorpanel`: edit the address of a single reference, edit the second of two identical references, arithmetic around the reference is kept, invalid expression shows only the error, cancel of the dialog discards panel edits.
 
 **Done when:** a signal's address, type and device can be changed without touching the syntax, and arithmetic in the expression survives.
+
+**Done.** Differences from the plan above:
+
+- The panel keeps the edited row as a `QPersistentModelIndex` on the draft, so it follows drag-and-drop moves; when the row is removed it returns to add mode. Clearing the selection also returns to add mode; the editor then keeps the device and fields of the edited data point, as after an add.
+- The panel's own write to the expression does not reload the editor, also not when the description of the new reference arrives, so the field being edited keeps its value and focus. An expression changed elsewhere (Compose expression, the table) is loaded again, keeping the selected occurrence where it still exists.
+- A data point the adapter rejects, cannot describe or whose adapter is not running is loaded with the adapter defaults and the reason in the status line; changing a field replaces it. An unknown device shows the editor's "Device N does not exist" error.
+- An expression without data points shows "This signal reads no data point." with Edit expression only.
+- Empty names are not applied in edit mode; leaving the field empty restores the name. Enter in edit mode does nothing.
+- The expression line marks the edited reference in bold; it is HTML-escaped and only shown when the expression is more than that reference.
+- `~SignalsDialog` detaches the table delegates first: the table could ask a deleted delegate for a column size while it was hidden during destruction.
+- Not done: a build still pending when OK is pressed is dropped, and the editor's automatic rebuild after an adapter becomes usable (only after a failed build) can replace the edited reference with the adapter default.
 
 ---
 
