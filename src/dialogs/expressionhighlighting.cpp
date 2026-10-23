@@ -1,5 +1,6 @@
 #include "expressionhighlighting.h"
 
+#include "util/expressionreferences.h"
 #include "util/expressionregex.h"
 
 #include <QDebug>
@@ -111,33 +112,50 @@ namespace ExpressionErrorMark {
 /*!
  * \brief Returns the part of \a text to mark for a parser error at \a errorPos.
  *
- * The mark runs from the error to the end of the text.
+ * The parser reports the position of the first character of the token it did not expect. The mark
+ * covers that token: a data point reference, a number or a name, else one character. A position at
+ * or past the end of the text (an unexpected end of the expression) marks the last character that
+ * is not a space.
  * \param errorPos The error position reported by the parser, negative when there is no error.
  * \param text     The expression text.
  * \return The span to mark; \c start is -1 when there is nothing to mark.
  */
 Span span(qint32 errorPos, const QString& text)
 {
-    qsizetype correctedErrorPos;
-    if (errorPos < 0)
-    {
-        correctedErrorPos = errorPos;
-    }
-    else if (errorPos < 2)
-    {
-        correctedErrorPos = 0;
-    }
-    else
-    {
-        correctedErrorPos = errorPos - 2; /* Counting from zero + error pos is position of unexpected character */
-    }
+    static const QRegularExpression tokenRegex(R"(0[xX][0-9a-fA-F]+|0[bB][01]+|\d+(?:[.,]\d+)?|[A-Za-z_]\w*)");
 
-    if (correctedErrorPos < 0 || correctedErrorPos >= text.size())
+    if (errorPos < 0)
     {
         return { -1, 0 };
     }
 
-    return { correctedErrorPos, text.size() - correctedErrorPos };
+    if (errorPos >= text.size())
+    {
+        qsizetype last = text.size() - 1;
+        while (last >= 0 && text.at(last).isSpace())
+        {
+            last--;
+        }
+        return { last, last >= 0 ? 1 : 0 };
+    }
+
+    const QList<ExpressionReferences::Reference> references = ExpressionReferences::find(text);
+    for (const ExpressionReferences::Reference& reference : references)
+    {
+        if (errorPos >= reference.start && errorPos < reference.start + reference.length)
+        {
+            return { reference.start, reference.length };
+        }
+    }
+
+    const QRegularExpressionMatch token =
+      tokenRegex.match(text, errorPos, QRegularExpression::NormalMatch, QRegularExpression::AnchorAtOffsetMatchOption);
+    if (token.hasMatch())
+    {
+        return { errorPos, token.capturedLength() };
+    }
+
+    return { errorPos, 1 };
 }
 
 } // namespace ExpressionErrorMark

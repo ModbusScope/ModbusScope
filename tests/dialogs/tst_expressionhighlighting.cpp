@@ -13,12 +13,17 @@ void TestExpressionHighlighting::errorSpan_data()
     QTest::addColumn<qsizetype>("length");
 
     QTest::newRow("no error") << QStringLiteral("1 + 2") << -1 << qsizetype(-1) << qsizetype(0);
-    QTest::newRow("position 0") << QStringLiteral("1 + 2") << 0 << qsizetype(0) << qsizetype(5);
-    QTest::newRow("position 1") << QStringLiteral("1 + 2") << 1 << qsizetype(0) << qsizetype(5);
-    QTest::newRow("position 2") << QStringLiteral("1 + 2") << 2 << qsizetype(0) << qsizetype(5);
-    QTest::newRow("mid text") << QStringLiteral("1 + 2") << 4 << qsizetype(2) << qsizetype(3);
-    QTest::newRow("last character") << QStringLiteral("1 + 2") << 6 << qsizetype(4) << qsizetype(1);
-    QTest::newRow("past the end") << QStringLiteral("1 + 2") << 7 << qsizetype(-1) << qsizetype(0);
+    QTest::newRow("first character") << QStringLiteral("1 + 2") << 0 << qsizetype(0) << qsizetype(1);
+    QTest::newRow("operator") << QStringLiteral("1 + 2") << 2 << qsizetype(2) << qsizetype(1);
+    QTest::newRow("number") << QStringLiteral("1 + 123") << 4 << qsizetype(4) << qsizetype(3);
+    QTest::newRow("decimal number") << QStringLiteral("1 + 1.5") << 4 << qsizetype(4) << qsizetype(3);
+    QTest::newRow("binary number") << QStringLiteral("1 + 0b101") << 4 << qsizetype(4) << qsizetype(5);
+    QTest::newRow("name") << QStringLiteral("1 + abc") << 4 << qsizetype(4) << qsizetype(3);
+    QTest::newRow("whole reference") << QStringLiteral("1 ${40001:s16b}") << 2 << qsizetype(2) << qsizetype(13);
+    QTest::newRow("inside reference") << QStringLiteral("1 ${40001:s16b}") << 5 << qsizetype(2) << qsizetype(13);
+    QTest::newRow("at the end") << QStringLiteral("1 + 2") << 5 << qsizetype(4) << qsizetype(1);
+    QTest::newRow("past the end") << QStringLiteral("1 + ") << 7 << qsizetype(2) << qsizetype(1);
+    QTest::newRow("only spaces") << QStringLiteral("  ") << 3 << qsizetype(-1) << qsizetype(0);
     QTest::newRow("empty text") << QString() << 0 << qsizetype(-1) << qsizetype(0);
 }
 
@@ -45,11 +50,11 @@ void TestExpressionHighlighting::parserErrorSpan_data()
     QTest::newRow("valid") << QStringLiteral("1 + + 2") << -1 << qsizetype(-1) << qsizetype(0);
     QTest::newRow("unexpected end") << QStringLiteral("1 +") << 4 << qsizetype(2) << qsizetype(1);
     QTest::newRow("missing parenthesis") << QStringLiteral("2 * (3") << 7 << qsizetype(5) << qsizetype(1);
-    QTest::newRow("second reference") << QStringLiteral("${40001} ${40002}") << 9 << qsizetype(7) << qsizetype(10);
-    QTest::newRow("unknown token") << QStringLiteral("${40001} + abc") << 11 << qsizetype(9) << qsizetype(5);
-    QTest::newRow("unexpected value") << QStringLiteral("1 2") << 2 << qsizetype(0) << qsizetype(3);
-    QTest::newRow("unexpected operator") << QStringLiteral("1 + * 3 + 4") << 4 << qsizetype(2) << qsizetype(9);
-    QTest::newRow("unexpected hex value") << QStringLiteral("0x10 0x20") << 5 << qsizetype(3) << qsizetype(6);
+    QTest::newRow("second reference") << QStringLiteral("${40001} ${40002}") << 9 << qsizetype(9) << qsizetype(8);
+    QTest::newRow("unknown token") << QStringLiteral("${40001} + abc") << 11 << qsizetype(11) << qsizetype(3);
+    QTest::newRow("unexpected value") << QStringLiteral("1 2") << 2 << qsizetype(2) << qsizetype(1);
+    QTest::newRow("unexpected operator") << QStringLiteral("1 + * 3 + 4") << 4 << qsizetype(4) << qsizetype(1);
+    QTest::newRow("unexpected hex value") << QStringLiteral("0x10 0x20") << 5 << qsizetype(5) << qsizetype(4);
 }
 
 /*!
