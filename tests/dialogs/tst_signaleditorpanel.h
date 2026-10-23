@@ -10,6 +10,7 @@
 #include <QJsonObject>
 #include <QObject>
 
+class DataPointDescriptionCache;
 class DeviceComboBox;
 class GraphDataModel;
 class SignalEditorPanel;
@@ -46,6 +47,12 @@ public:
         return buildCalls.size();
     }
 
+    int describeDataPoint(const QString& address) override
+    {
+        describeCalls.append(address);
+        return cFirstDescribeRequestId + static_cast<int>(describeCalls.size()) - 1;
+    }
+
     void requestExpressionHelp() override
     {
     }
@@ -67,7 +74,21 @@ public:
         emit dataPointRequestFailed(static_cast<int>(buildCalls.size()), error);
     }
 
+    //! Simulate the adapter describing the data point of the given describeDataPoint() call (0 for the first).
+    void injectDescribeResult(int callIndex, const QJsonObject& fields)
+    {
+        QJsonObject result;
+        result["valid"] = true;
+        result["description"] = QStringLiteral("described %1").arg(describeCalls.at(callIndex));
+        result["fields"] = fields;
+        emit describeDataPointResult(cFirstDescribeRequestId + callIndex, result);
+    }
+
+    //! Describe request ids, kept apart from the build request ids.
+    static constexpr int cFirstDescribeRequestId = 1000;
+
     QList<BuildCall> buildCalls;
+    QStringList describeCalls;
     bool mockReady{ true };
 };
 
@@ -111,11 +132,31 @@ private slots:
     void deviceAddedToEmptyListAppliesConfiguredAdapter();
     void deviceComboDisablesAddWhenLastDeviceRemoved();
 
+    void editModeLoadsReferenceWhenDescribed();
+    void editAddressOfSingleReference();
+    void editKeepsArithmeticAroundReference();
+    void editSecondOfTwoIdenticalReferences();
+    void selectingDataPointLoadsIt();
+    void syntaxErrorShowsOnlyErrorAndEditExpression();
+    void editExpressionRequestsDialogForRow();
+    void nameAndAxisEditRow();
+    void emptyNameRestoresLabel();
+    void enterInEditModeAddsNothing();
+    void deviceSwitchReplacesReferenceWithDefault();
+    void removedRowReturnsToAddMode();
+    void outsideExpressionChangeReloadsPanel();
+    void showAddModeClearsNameAndShowsAdd();
+    void descriptionAfterOwnWriteKeepsForm();
+    void expressionLabelIsEscaped();
+    void expressionWithoutDataPointShowsHint();
+
 private:
     void clickAdd();
     void addSignal(const QString& expression);
     void setAddress(const QJsonObject& values);
     void recreatePanel();
+    void editNewSignal(const QString& expression);
+    static QJsonObject holdingRegisterFields(int address);
     bool hasLabelWithText(const QString& text) const;
     deviceId_t addSimAdapter();
     static DeviceComboBox* deviceCombo(SignalEditorPanel* pPanel);
@@ -128,6 +169,7 @@ private:
     GraphDataModel* _pGraphDataModel{ nullptr };
     MockAdapterHub* _pMockHub{ nullptr };
     DataPointService* _pDataPointService{ nullptr };
+    DataPointDescriptionCache* _pDescriptionCache{ nullptr };
     MockAdapterManager* _pMockAdapterManager{ nullptr };
     MockAdapterManager* _pMockSimAdapterManager{ nullptr };
     SignalEditorPanel* _pPanel{ nullptr };

@@ -16,6 +16,7 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QSignalSpy>
+#include <QSpinBox>
 #include <QTableView>
 #include <QTest>
 
@@ -363,11 +364,12 @@ void TestSignalsDialog::deleteInNameFieldKeepsRows()
     pName->setFocus();
     QTest::keyClicks(pName, "ab");
     QTest::keyClick(pName, Qt::Key_Home);
+    const QString nameBefore = pName->text();
 
     QTest::keyClick(pName, Qt::Key_Delete);
 
     QCOMPARE(draftModel()->size(), 2);
-    QCOMPARE(pName->text(), QStringLiteral("b"));
+    QCOMPARE(pName->text(), nameBefore.mid(1));
 }
 
 void TestSignalsDialog::cancelDiscardsPanelAdds()
@@ -464,6 +466,91 @@ void TestSignalsDialog::clickOnDataPointColumnSelectsRowForRemove()
     QTest::mouseClick(_pDialog->findChild<QPushButton*>("btnRemove"), Qt::LeftButton);
 
     QCOMPARE(draftExpressions(), QStringList({ QStringLiteral("${40001}"), QStringLiteral("${40003}") }));
+}
+
+/*!
+ * \brief Select the first signal, change its address in the panel and answer the build request.
+ * \param address        The address to enter.
+ * \param builtReference The reference the adapter builds for it.
+ */
+void TestSignalsDialog::editFirstSignalAddressThroughPanel(int address, const QString& builtReference)
+{
+    _pDialog->findChild<QTableView*>("signalView")->selectRow(0);
+
+    const qsizetype describeIdx = _pMockAdapterManager->describeCalls.indexOf(draftModel()->expression(GraphIdx(0)));
+    QVERIFY(describeIdx >= 0);
+    _pMockAdapterManager->injectDescribeResult(static_cast<int>(describeIdx), QStringLiteral("described"));
+
+    auto* pAddressSpin = panel()->findChild<QSpinBox*>();
+    QVERIFY(pAddressSpin != nullptr);
+    QVERIFY(pAddressSpin->isEnabled());
+    pAddressSpin->setValue(address);
+    _pMockAdapterManager->injectBuildExpressionResult(builtReference);
+
+    QCOMPARE(draftModel()->expression(GraphIdx(0)), builtReference);
+}
+
+void TestSignalsDialog::selectingRowEditsSignalInPanel()
+{
+    openWithReadyAdapter(2);
+    draftModel()->setLabel(GraphIdx(1), QStringLiteral("Second"));
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    auto* pName = panel()->findChild<QLineEdit*>("lineName");
+    auto* pTitle = panel()->findChild<QLabel*>("lblTitle");
+
+    pView->selectRow(1);
+
+    QCOMPARE(pTitle->text(), QStringLiteral("Edit signal"));
+    QCOMPARE(pName->text(), QStringLiteral("Second"));
+
+    pView->clearSelection();
+
+    QCOMPARE(pTitle->text(), QStringLiteral("New signal"));
+    QCOMPARE(pName->text(), QString());
+
+    pView->selectRow(0);
+    QTest::mouseClick(_pDialog->findChild<QPushButton*>("btnAdd"), Qt::LeftButton);
+
+    QCOMPARE(pTitle->text(), QStringLiteral("New signal"));
+}
+
+void TestSignalsDialog::cancelDiscardsPanelEdits()
+{
+    openWithReadyAdapter(1);
+    editFirstSignalAddressThroughPanel(5, QStringLiteral("${h5}"));
+
+    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Cancel)->click();
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001}"));
+}
+
+void TestSignalsDialog::okAppliesPanelEdits()
+{
+    openWithReadyAdapter(1);
+    editFirstSignalAddressThroughPanel(5, QStringLiteral("${h5}"));
+
+    _pDialog->findChild<QDialogButtonBox*>("buttonBox")->button(QDialogButtonBox::Ok)->click();
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h5}"));
+}
+
+//! The panel keeps editing the same signal after it was dragged to another row.
+void TestSignalsDialog::editModeFollowsMovedRow()
+{
+    openWithReadyAdapter(3);
+    auto* pView = _pDialog->findChild<QTableView*>("signalView");
+    pView->selectRow(0);
+
+    QAbstractItemModel* pModel = pView->model();
+    QScopedPointer<QMimeData> pData(pModel->mimeData({ pModel->index(0, GraphDataModel::column::TEXT) }));
+    pModel->dropMimeData(pData.data(), Qt::MoveAction, 3, -1, QModelIndex());
+    QCOMPARE(draftModel()->expression(GraphIdx(2)), QStringLiteral("${40001}"));
+
+    auto* pName = panel()->findChild<QLineEdit*>("lineName");
+    pName->selectAll();
+    QTest::keyClicks(pName, "Moved");
+
+    QCOMPARE(draftModel()->label(GraphIdx(2)), QStringLiteral("Moved"));
 }
 
 QTEST_MAIN(TestSignalsDialog)

@@ -2,9 +2,11 @@
 #include "tst_signaleditorpanel.h"
 
 #include "../models/devicelisthelpers.h"
+#include "customwidgets/datapointeditorwidget.h"
 #include "customwidgets/devicecombobox.h"
 #include "customwidgets/schemaformwidget.h"
 #include "dialogs/signaleditorpanel.h"
+#include "models/datapointdescriptioncache.h"
 #include "models/device.h"
 #include "models/graphdatamodel.h"
 #include "ui_signaleditorpanel.h"
@@ -12,6 +14,9 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
+#include <QListWidget>
+#include <QPointer>
+#include <QSignalSpy>
 #include <QSpinBox>
 #include <QTest>
 
@@ -103,13 +108,16 @@ void TestSignalEditorPanel::init()
     _pMockHub = new MockAdapterHub();
     _pMockHub->addManager(QStringLiteral("modbus"), _pMockAdapterManager);
     _pDataPointService = new DataPointService(&_settingsModel, _pMockHub);
-    _pPanel = new SignalEditorPanel(_pGraphDataModel, &_settingsModel, _pDataPointService);
+    _pDescriptionCache = new DataPointDescriptionCache(_pDataPointService);
+    _pPanel = new SignalEditorPanel(_pGraphDataModel, &_settingsModel, _pDataPointService, _pDescriptionCache);
 }
 
 void TestSignalEditorPanel::cleanup()
 {
     delete _pPanel;
     _pPanel = nullptr;
+    delete _pDescriptionCache;
+    _pDescriptionCache = nullptr;
     delete _pDataPointService;
     _pDataPointService = nullptr;
     delete _pMockAdapterManager;
@@ -126,7 +134,27 @@ void TestSignalEditorPanel::cleanup()
 void TestSignalEditorPanel::recreatePanel()
 {
     delete _pPanel;
-    _pPanel = new SignalEditorPanel(_pGraphDataModel, &_settingsModel, _pDataPointService);
+    _pPanel = new SignalEditorPanel(_pGraphDataModel, &_settingsModel, _pDataPointService, _pDescriptionCache);
+}
+
+//! Add a signal with \a expression to the model and edit it in the panel.
+void TestSignalEditorPanel::editNewSignal(const QString& expression)
+{
+    GraphData graphData;
+    graphData.setLabel(QStringLiteral("Signal"));
+    graphData.setExpression(expression);
+    _pGraphDataModel->add(graphData);
+
+    _pPanel->editSignal(GraphIdx(_pGraphDataModel->size() - 1));
+}
+
+//! The describeDataPoint fields of a holding register on the first device.
+QJsonObject TestSignalEditorPanel::holdingRegisterFields(int address)
+{
+    return QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
+                        { QStringLiteral("address"), address },
+                        { QStringLiteral("dataType"), QStringLiteral("16b") },
+                        { QStringLiteral("deviceId"), static_cast<int>(Device::cFirstDeviceId) } };
 }
 
 /*!
@@ -566,6 +594,261 @@ void TestSignalEditorPanel::deviceComboDisablesAddWhenLastDeviceRemoved()
     QCOMPARE(deviceCombo(_pPanel)->count(), 0);
     QVERIFY(!_pPanel->_pUi->btnAdd->isEnabled());
     QVERIFY(!_pPanel->_pUi->lblStatus->isHidden());
+}
+
+//! Edit mode asks for the description and keeps the editor disabled until it arrives.
+void TestSignalEditorPanel::editModeLoadsReferenceWhenDescribed()
+{
+    editNewSignal(QStringLiteral("${h4}"));
+
+    QCOMPARE(_pPanel->_pUi->lblTitle->text(), QStringLiteral("Edit signal"));
+    QVERIFY(_pPanel->_pUi->btnAdd->isHidden());
+    QCOMPARE(_pPanel->_pUi->lineName->text(), QStringLiteral("Signal"));
+    QCOMPARE(_pMockAdapterManager->describeCalls, QStringList{ QStringLiteral("${h4}") });
+    QVERIFY(!_pPanel->_pEditor->isEnabled());
+
+    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(4));
+
+    QVERIFY(_pPanel->_pEditor->isEnabled());
+    QCOMPARE(addressForm(_pPanel)->values().value("address").toInt(), 4);
+    QCOMPARE(_pPanel->_pEditor->expression(), QStringLiteral("${h4}"));
+    QVERIFY(_pPanel->_pUi->lblExpression->isHidden());
+    QVERIFY(_pPanel->_pUi->listDataPoints->isHidden());
+}
+
+void TestSignalEditorPanel::editAddressOfSingleReference()
+{
+    editNewSignal(QStringLiteral("${40001}"));
+    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+
+    setAddress(holdingRegisterFields(5));
+    QCOMPARE(_pMockAdapterManager->buildCalls.last().fields["address"].toInt(), 5);
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001}"));
+
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h5}"));
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h5}"));
+    QCOMPARE(_pGraphDataModel->size(), 1);
+
+    /* The panel's own write keeps the form usable */
+    QVERIFY(_pPanel->_pEditor->isEnabled());
+    QCOMPARE(addressForm(_pPanel)->values().value("address").toInt(), 5);
+}
+
+void TestSignalEditorPanel::editKeepsArithmeticAroundReference()
+{
+    editNewSignal(QStringLiteral("${40001}/2"));
+    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+
+    QVERIFY(!_pPanel->_pUi->lblExpression->isHidden());
+    QCOMPARE(_pPanel->_pUi->lblExpression->text(),
+             QStringLiteral("<span style=\"white-space: pre-wrap\"><b>${40001}</b>/2</span>"));
+
+    setAddress(holdingRegisterFields(5));
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h5}"));
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h5}/2"));
+    QCOMPARE(_pPanel->_pUi->lblExpression->text(),
+             QStringLiteral("<span style=\"white-space: pre-wrap\"><b>${h5}</b>/2</span>"));
+}
+
+//! Only the selected occurrence of a data point used twice is replaced, and it stays selected.
+void TestSignalEditorPanel::editSecondOfTwoIdenticalReferences()
+{
+    editNewSignal(QStringLiteral("${h0} - ${h0}"));
+    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+
+    QVERIFY(!_pPanel->_pUi->listDataPoints->isHidden());
+    QCOMPARE(_pPanel->_pUi->listDataPoints->count(), 2);
+
+    _pPanel->_pUi->listDataPoints->setCurrentRow(1);
+    setAddress(holdingRegisterFields(5));
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h5}"));
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h0} - ${h5}"));
+    QCOMPARE(_pPanel->_pUi->listDataPoints->currentRow(), 1);
+
+    setAddress(holdingRegisterFields(6));
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h6}"));
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h0} - ${h6}"));
+}
+
+void TestSignalEditorPanel::selectingDataPointLoadsIt()
+{
+    editNewSignal(QStringLiteral("${h3}*10 + ${h7}"));
+    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 2);
+    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(3));
+    _pMockAdapterManager->injectDescribeResult(1, holdingRegisterFields(7));
+
+    QCOMPARE(_pPanel->_pUi->lblDataPoints->text(), QStringLiteral("This signal combines 2 data points."));
+    QCOMPARE(_pPanel->_pUi->listDataPoints->item(1)->text(), QStringLiteral("${h7}  described ${h7}"));
+    QCOMPARE(addressForm(_pPanel)->values().value("address").toInt(), 3);
+
+    _pPanel->_pUi->listDataPoints->setCurrentRow(1);
+
+    QCOMPARE(_pPanel->_pEditor->expression(), QStringLiteral("${h7}"));
+    QCOMPARE(addressForm(_pPanel)->values().value("address").toInt(), 7);
+    QCOMPARE(_pPanel->_pUi->lblExpression->text(),
+             QStringLiteral("<span style=\"white-space: pre-wrap\">${h3}*10 + <b>${h7}</b></span>"));
+}
+
+void TestSignalEditorPanel::syntaxErrorShowsOnlyErrorAndEditExpression()
+{
+    GraphData graphData;
+    graphData.setExpression(QStringLiteral("${h0} +"));
+    _pGraphDataModel->add(graphData);
+    _pGraphDataModel->setExpressionState(GraphIdx(0), GraphData::ExpressionState::SYNTAX_ERROR,
+                                         QStringLiteral("Unexpected end of expression"));
+
+    _pPanel->editSignal(GraphIdx(0));
+
+    QVERIFY(_pPanel->_pUi->addressContainer->isHidden());
+    QVERIFY(_pPanel->_pUi->listDataPoints->isHidden());
+    QVERIFY(_pPanel->_pUi->lblExpression->isHidden());
+    QVERIFY(!_pPanel->_pUi->btnEditExpression->isHidden());
+    QCOMPARE(_pPanel->_pUi->lblStatus->text(), QStringLiteral("Unexpected end of expression"));
+    QVERIFY(_pMockAdapterManager->describeCalls.isEmpty());
+}
+
+void TestSignalEditorPanel::editExpressionRequestsDialogForRow()
+{
+    editNewSignal(QStringLiteral("${h0}"));
+    editNewSignal(QStringLiteral("${h1}"));
+    QSignalSpy spy(_pPanel, &SignalEditorPanel::editExpressionRequested);
+
+    QTest::mouseClick(_pPanel->_pUi->btnEditExpression, Qt::LeftButton);
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(spy.first().first().value<GraphIdx>(), GraphIdx(1));
+}
+
+void TestSignalEditorPanel::nameAndAxisEditRow()
+{
+    editNewSignal(QStringLiteral("${h0}"));
+
+    _pPanel->_pUi->lineName->selectAll();
+    QTest::keyClicks(_pPanel->_pUi->lineName, "Pressure");
+    QTest::mouseClick(_pPanel->_pUi->radioSecondary, Qt::LeftButton);
+
+    QCOMPARE(_pGraphDataModel->label(GraphIdx(0)), QStringLiteral("Pressure"));
+    QCOMPARE(_pGraphDataModel->valueAxis(GraphIdx(0)), GraphData::VALUE_AXIS_SECONDARY);
+    QCOMPARE(_pGraphDataModel->size(), 1);
+}
+
+void TestSignalEditorPanel::emptyNameRestoresLabel()
+{
+    editNewSignal(QStringLiteral("${h0}"));
+
+    _pPanel->_pUi->lineName->selectAll();
+    QTest::keyClick(_pPanel->_pUi->lineName, Qt::Key_Backspace);
+    QCOMPARE(_pGraphDataModel->label(GraphIdx(0)), QStringLiteral("Signal"));
+
+    emit _pPanel->_pUi->lineName->editingFinished();
+
+    QCOMPARE(_pPanel->_pUi->lineName->text(), QStringLiteral("Signal"));
+}
+
+void TestSignalEditorPanel::enterInEditModeAddsNothing()
+{
+    editNewSignal(QStringLiteral("${h0}"));
+    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+
+    QTest::keyClick(_pPanel->_pUi->lineName, Qt::Key_Return);
+
+    QCOMPARE(_pGraphDataModel->size(), 1);
+}
+
+//! A device on another adapter resets the form to that adapter's defaults and replaces the reference.
+void TestSignalEditorPanel::deviceSwitchReplacesReferenceWithDefault()
+{
+    const deviceId_t simDeviceId = addSimAdapter();
+    editNewSignal(QStringLiteral("${h0}*2"));
+    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+
+    deviceCombo(_pPanel)->setSelectedDeviceId(simDeviceId);
+    QCOMPARE(_pMockSimAdapterManager->buildCalls.last().fields.value("channel").toInt(), 3);
+
+    _pMockSimAdapterManager->injectBuildExpressionResult(QStringLiteral("${c3@2}"));
+
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${c3@2}*2"));
+}
+
+void TestSignalEditorPanel::removedRowReturnsToAddMode()
+{
+    editNewSignal(QStringLiteral("${h0}"));
+
+    _pGraphDataModel->removeSignals({ GraphIdx(0) });
+
+    QCOMPARE(_pPanel->_pUi->lblTitle->text(), QStringLiteral("New signal"));
+    QVERIFY(!_pPanel->_pUi->btnAdd->isHidden());
+    QVERIFY(_pPanel->_pUi->btnEditExpression->isHidden());
+}
+
+//! An expression changed elsewhere, for example in Compose expression, is loaded again.
+void TestSignalEditorPanel::outsideExpressionChangeReloadsPanel()
+{
+    editNewSignal(QStringLiteral("${h0}"));
+    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+
+    _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${h7} + ${h8}"));
+
+    QCOMPARE(_pPanel->_pUi->listDataPoints->count(), 2);
+    QCOMPARE(_pPanel->_pEditor->expression(), QStringLiteral("${h7}"));
+    QVERIFY(!_pPanel->_pEditor->isEnabled());
+    QVERIFY(_pMockAdapterManager->describeCalls.contains(QStringLiteral("${h7}")));
+}
+
+void TestSignalEditorPanel::showAddModeClearsNameAndShowsAdd()
+{
+    editNewSignal(QStringLiteral("${h0}"));
+    QCOMPARE(_pPanel->_pUi->lineName->text(), QStringLiteral("Signal"));
+
+    _pPanel->showAddMode();
+
+    QCOMPARE(_pPanel->_pUi->lineName->text(), QString());
+    QCOMPARE(_pPanel->_pUi->lblTitle->text(), QStringLiteral("New signal"));
+    QVERIFY(!_pPanel->_pUi->btnAdd->isHidden());
+    QVERIFY(_pPanel->_pEditor->isEnabled());
+    QVERIFY(_pPanel->_pUi->listDataPoints->isHidden());
+}
+
+//! The description of the reference the panel just wrote does not rebuild the form being edited.
+void TestSignalEditorPanel::descriptionAfterOwnWriteKeepsForm()
+{
+    editNewSignal(QStringLiteral("${h0}"));
+    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+
+    setAddress(holdingRegisterFields(5));
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h5}"));
+    const qsizetype describeIdx = _pMockAdapterManager->describeCalls.indexOf(QStringLiteral("${h5}"));
+    QVERIFY(describeIdx >= 0);
+    auto* pAddressSpin = _pPanel->_pUi->addressContainer->findChild<QSpinBox*>();
+    QVERIFY(pAddressSpin != nullptr);
+    const QPointer<QSpinBox> spinBefore(pAddressSpin);
+
+    _pMockAdapterManager->injectDescribeResult(static_cast<int>(describeIdx), holdingRegisterFields(5));
+
+    QVERIFY(!spinBefore.isNull());
+    QCOMPARE(_pPanel->_pUi->addressContainer->findChild<QSpinBox*>(), spinBefore.data());
+    QVERIFY(_pPanel->_pEditor->isEnabled());
+}
+
+void TestSignalEditorPanel::expressionLabelIsEscaped()
+{
+    editNewSignal(QStringLiteral("${h0} < 2 & 1"));
+
+    QCOMPARE(_pPanel->_pUi->lblExpression->text(),
+             QStringLiteral("<span style=\"white-space: pre-wrap\"><b>${h0}</b> &lt; 2 &amp; 1</span>"));
+}
+
+void TestSignalEditorPanel::expressionWithoutDataPointShowsHint()
+{
+    editNewSignal(QStringLiteral("5"));
+
+    QVERIFY(_pPanel->_pUi->addressContainer->isHidden());
+    QVERIFY(!_pPanel->_pUi->btnEditExpression->isHidden());
+    QCOMPARE(_pPanel->_pUi->lblStatus->text(), QStringLiteral("This signal reads no data point."));
 }
 
 void TestSignalEditorPanel::clickAdd()

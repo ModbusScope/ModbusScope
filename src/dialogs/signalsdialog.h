@@ -2,6 +2,7 @@
 #define SIGNALSDIALOG_H
 
 #include "customwidgets/centeredbox.h"
+#include "util/graphindex.h"
 
 #include <QDialog>
 
@@ -41,6 +42,8 @@ private slots:
     void activatedCell(QModelIndex modelIndex);
     void onSignalInserted(const QModelIndex& parent, int first, int last);
     void handleExpressionEdit(const QModelIndex& index);
+    void openExpressionDialog(GraphIdx graphIdx);
+    void onSelectionChanged();
     void updateDataPointLimitIndication();
 
 private:

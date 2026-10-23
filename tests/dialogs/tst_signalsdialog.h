@@ -109,6 +109,11 @@ private slots:
     void dragFromDataPointColumnReordersSignals();
     void clickOnDataPointColumnSelectsRowForRemove();
 
+    void selectingRowEditsSignalInPanel();
+    void cancelDiscardsPanelEdits();
+    void okAppliesPanelEdits();
+    void editModeFollowsMovedRow();
+
 private:
     static QJsonObject buildTestRegisterSchema();
     static QJsonObject buildDescribeWithMaxRegisters(int maxRegisters);
@@ -120,6 +125,7 @@ private:
     void openWithReadyAdapter(int signalCount);
     void addSignalThroughPanel(const QString& expression);
     QStringList draftExpressions() const;
+    void editFirstSignalAddressThroughPanel(int address, const QString& builtReference);
 
     SettingsModel _settingsModel;
     GraphDataModel* _pGraphDataModel{ nullptr };
