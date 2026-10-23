@@ -97,6 +97,7 @@ void DataPointEditorWidget::setReference(const QString& referenceText, const QJs
     }
 
     applyDevice(referenceDeviceId, fields);
+    _expressionValues = _pAddressForm->values();
 
     setError(QString());
     setExpression(referenceText, true);
@@ -186,6 +187,12 @@ void DataPointEditorWidget::retryAfterFailure()
 void DataPointEditorWidget::onValuesChanged()
 {
     if (_bApplyingForm)
+    {
+        return;
+    }
+
+    /* A spin box reports its value again on Enter; that keeps the reference */
+    if (_bValid && _pAddressForm->values() == _expressionValues)
     {
         return;
     }
@@ -280,7 +287,8 @@ void DataPointEditorWidget::applyDevice(deviceId_t deviceId, const QJsonObject& 
 void DataPointEditorWidget::requestBuild()
 {
     _bWaitingForAdapter = false;
-    _pendingTicket = _pDataPointService->buildExpression(deviceId(), _pAddressForm->values());
+    _expressionValues = _pAddressForm->values();
+    _pendingTicket = _pDataPointService->buildExpression(deviceId(), _expressionValues);
     setError(QString());
     setExpression(_expression, false);
 }

@@ -93,6 +93,7 @@ private slots:
     void consecutiveAddsWithoutReopening();
     void startAddClearsNameAndFocusesIt();
     void enterAddsSignal();
+    void enterInAddressFieldAddsSignal();
     void enterIgnoredWhileBuildPending();
 
     void statusNamesAddedSignal();

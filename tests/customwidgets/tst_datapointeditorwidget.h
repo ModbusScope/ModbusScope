@@ -21,6 +21,8 @@ private slots:
     void buildsDefaultReferenceOnOpen();
     void builtReferenceShownAsPreview();
     void fieldChangeBuildsReference();
+    void unchangedValuesKeepBuiltReference();
+    void unchangedValuesKeepSetReference();
     void staleReplyIgnored();
     void deviceSwitchRebuildsForm();
     void setReferenceKeepsTextUntilFieldChange();

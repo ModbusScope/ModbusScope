@@ -12,6 +12,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
+#include <QSpinBox>
 #include <QTest>
 
 QJsonObject TestSignalEditorPanel::buildAddressSchema()
@@ -365,6 +366,20 @@ void TestSignalEditorPanel::enterAddsSignal()
 
     QCOMPARE(_pGraphDataModel->size(), 1);
     QCOMPARE(_pGraphDataModel->label(GraphIdx(0)), QStringLiteral("By enter"));
+}
+
+//! Enter in an address field adds the signal; the spin box reporting its value again keeps the reference.
+void TestSignalEditorPanel::enterInAddressFieldAddsSignal()
+{
+    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+
+    auto* pAddressSpin = _pPanel->_pUi->addressContainer->findChild<QSpinBox*>();
+    QVERIFY(pAddressSpin != nullptr);
+    QTest::keyClick(pAddressSpin, Qt::Key_Return);
+
+    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 1);
+    QCOMPARE(_pGraphDataModel->size(), 1);
+    QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h0}"));
 }
 
 void TestSignalEditorPanel::enterIgnoredWhileBuildPending()
