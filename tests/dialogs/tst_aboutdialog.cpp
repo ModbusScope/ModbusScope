@@ -1,7 +1,7 @@
 #include "tst_aboutdialog.h"
 
+#include "../mocks/mockadapterhub.h"
 #include "dialogs/aboutdialog.h"
-#include "mockadapterhub.h"
 #include "models/adapterdata.h"
 #include "models/settingsmodel.h"
 #include "util/updatenotify.h"

@@ -104,9 +104,9 @@ void TestSignalEditorPanel::init()
     _settingsModel.setAdapterDataPointSchema("modbus", buildTestRegisterSchema());
 
     _pGraphDataModel = new GraphDataModel();
-    _pMockAdapterManager = new MockAdapterManager(&_settingsModel);
+    _pMockDataPointManager = new MockDataPointManager(QStringLiteral("modbus"), &_settingsModel);
     _pMockHub = new MockAdapterHub();
-    _pMockHub->addManager(QStringLiteral("modbus"), _pMockAdapterManager);
+    _pMockHub->addManager(QStringLiteral("modbus"), _pMockDataPointManager);
     _pDataPointService = new DataPointService(&_settingsModel, _pMockHub);
     _pDescriptionCache = new DataPointDescriptionCache(_pDataPointService);
     _pPanel = new SignalEditorPanel(_pGraphDataModel, &_settingsModel, _pDataPointService, _pDescriptionCache);
@@ -120,8 +120,8 @@ void TestSignalEditorPanel::cleanup()
     _pDescriptionCache = nullptr;
     delete _pDataPointService;
     _pDataPointService = nullptr;
-    delete _pMockAdapterManager;
-    _pMockAdapterManager = nullptr;
+    delete _pMockDataPointManager;
+    _pMockDataPointManager = nullptr;
     delete _pMockSimAdapterManager;
     _pMockSimAdapterManager = nullptr;
     delete _pMockHub;
@@ -148,6 +148,13 @@ void TestSignalEditorPanel::editNewSignal(const QString& expression)
     _pPanel->editSignal(GraphIdx(_pGraphDataModel->size() - 1));
 }
 
+//! Answer a describeDataPoint() call (0 for the first) with \a fields and the description "described <reference>".
+void TestSignalEditorPanel::describeCall(qsizetype callIndex, const QJsonObject& fields)
+{
+    const QString description = QStringLiteral("described %1").arg(_pMockDataPointManager->describeCalls.at(callIndex));
+    _pMockDataPointManager->injectDescribeResult(callIndex, description, fields);
+}
+
 //! The describeDataPoint fields of a holding register on the first device.
 QJsonObject TestSignalEditorPanel::holdingRegisterFields(int address)
 {
@@ -169,7 +176,7 @@ deviceId_t TestSignalEditorPanel::addSimAdapter()
     describeResult["name"] = QStringLiteral("Simulator");
     _settingsModel.updateAdapterFromDescribe(QStringLiteral("sim"), describeResult);
 
-    _pMockSimAdapterManager = new MockAdapterManager(&_settingsModel, QStringLiteral("sim"));
+    _pMockSimAdapterManager = new MockDataPointManager(QStringLiteral("sim"), &_settingsModel);
     _pMockHub->addManager(QStringLiteral("sim"), _pMockSimAdapterManager);
 
     const deviceId_t simDeviceId = DeviceListHelpers::seedNextDevice(&_settingsModel, QStringLiteral("sim"));
@@ -211,7 +218,7 @@ void TestSignalEditorPanel::registerDefault()
                             { QStringLiteral("address"), 100 },
                             { QStringLiteral("dataType"), QStringLiteral("16b") } });
 
-    const MockAdapterManager::BuildCall call = _pMockAdapterManager->buildCalls.last();
+    const MockDataPointManager::BuildCall call = _pMockDataPointManager->buildCalls.last();
 
     addSignal(QStringLiteral("${h100}"));
 
@@ -231,7 +238,7 @@ void TestSignalEditorPanel::registerType()
     setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
                             { QStringLiteral("address"), 0 },
                             { QStringLiteral("dataType"), QStringLiteral("32b") } });
-    QCOMPARE(_pMockAdapterManager->buildCalls.last().dataType, QStringLiteral("32b"));
+    QCOMPARE(_pMockDataPointManager->buildCalls.last().dataType, QStringLiteral("32b"));
 
     addSignal(QStringLiteral("${h0:32b}"));
 
@@ -242,7 +249,8 @@ void TestSignalEditorPanel::registerObjectType()
 {
     setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("input register") },
                             { QStringLiteral("address"), 0 } });
-    QCOMPARE(_pMockAdapterManager->buildCalls.last().fields["objectType"].toString(), QStringLiteral("input register"));
+    QCOMPARE(_pMockDataPointManager->buildCalls.last().fields["objectType"].toString(),
+             QStringLiteral("input register"));
 
     addSignal(QStringLiteral("${i0}"));
 
@@ -259,7 +267,7 @@ void TestSignalEditorPanel::registerDevice()
     addSignal(QStringLiteral("${h0@2}"));
 
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h0@2}"));
-    QCOMPARE(_pMockAdapterManager->buildCalls.last().deviceId, secondDeviceId);
+    QCOMPARE(_pMockDataPointManager->buildCalls.last().deviceId, secondDeviceId);
 }
 
 void TestSignalEditorPanel::registerValueAxis()
@@ -274,10 +282,10 @@ void TestSignalEditorPanel::registerValueAxis()
 //! The form builds the default reference on open; Add waits for it.
 void TestSignalEditorPanel::addDisabledUntilFirstBuildReply()
 {
-    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->buildCalls.size(), 1);
     QVERIFY(!_pPanel->_pUi->btnAdd->isEnabled());
 
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
 
     QVERIFY(_pPanel->_pUi->btnAdd->isEnabled());
 }
@@ -285,14 +293,14 @@ void TestSignalEditorPanel::addDisabledUntilFirstBuildReply()
 //! A field change disables Add until the new reference is built.
 void TestSignalEditorPanel::addDisabledWhileBuildPending()
 {
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
     QVERIFY(_pPanel->_pUi->btnAdd->isEnabled());
 
     setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
                             { QStringLiteral("address"), 5 } });
 
     QVERIFY(!_pPanel->_pUi->btnAdd->isEnabled());
-    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 2);
+    QCOMPARE(_pMockDataPointManager->buildCalls.size(), 2);
 }
 
 /*!
@@ -301,7 +309,7 @@ void TestSignalEditorPanel::addDisabledWhileBuildPending()
  */
 void TestSignalEditorPanel::buildExpressionFailureKeepsFormUsable()
 {
-    _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Address out of range"));
+    _pMockDataPointManager->injectBuildFailure(QStringLiteral("Address out of range"));
     QTRY_VERIFY(!_pPanel->_pUi->lblStatus->isHidden());
     QVERIFY(!_pPanel->_pUi->btnAdd->isEnabled());
 
@@ -342,14 +350,14 @@ void TestSignalEditorPanel::addKeepsDeviceFieldsAndAxis()
     QTest::mouseClick(_pPanel->_pUi->radioSecondary, Qt::LeftButton);
     setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
                             { QStringLiteral("address"), 100 } });
-    const qsizetype buildCallsBefore = _pMockAdapterManager->buildCalls.size();
+    const qsizetype buildCallsBefore = _pMockDataPointManager->buildCalls.size();
 
     addSignal(QStringLiteral("${h100}"));
 
     QCOMPARE(addressForm(_pPanel)->values().value("address").toInt(), 100);
     QCOMPARE(deviceCombo(_pPanel)->selectedDeviceId(), Device::cFirstDeviceId);
     QVERIFY(_pPanel->_pUi->radioSecondary->isChecked());
-    QCOMPARE(_pMockAdapterManager->buildCalls.size(), buildCallsBefore);
+    QCOMPARE(_pMockDataPointManager->buildCalls.size(), buildCallsBefore);
     QVERIFY(_pPanel->_pUi->btnAdd->isEnabled());
 }
 
@@ -387,7 +395,7 @@ void TestSignalEditorPanel::startAddClearsNameAndFocusesIt()
 //! Enter in the name field adds the signal, as clicking Add signal does.
 void TestSignalEditorPanel::enterAddsSignal()
 {
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
     QTest::keyClicks(_pPanel->_pUi->lineName, "By enter");
 
     QTest::keyClick(_pPanel->_pUi->lineName, Qt::Key_Return);
@@ -399,13 +407,13 @@ void TestSignalEditorPanel::enterAddsSignal()
 //! Enter in an address field adds the signal; the spin box reporting its value again keeps the reference.
 void TestSignalEditorPanel::enterInAddressFieldAddsSignal()
 {
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
 
     auto* pAddressSpin = _pPanel->_pUi->addressContainer->findChild<QSpinBox*>();
     QVERIFY(pAddressSpin != nullptr);
     QTest::keyClick(pAddressSpin, Qt::Key_Return);
 
-    QCOMPARE(_pMockAdapterManager->buildCalls.size(), 1);
+    QCOMPARE(_pMockDataPointManager->buildCalls.size(), 1);
     QCOMPARE(_pGraphDataModel->size(), 1);
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h0}"));
 }
@@ -435,7 +443,7 @@ void TestSignalEditorPanel::buildErrorReplacesAddedStatus()
     setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
                             { QStringLiteral("address"), 5 } });
 
-    _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Invalid address"));
+    _pMockDataPointManager->injectBuildFailure(QStringLiteral("Invalid address"));
     QTRY_VERIFY(_pPanel->_pUi->lblStatus->text().startsWith(QStringLiteral("Invalid address")));
 
     setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
@@ -459,7 +467,7 @@ void TestSignalEditorPanel::fieldChangeClearsAddedStatus()
 //! An empty build result is reported instead of silently ignored.
 void TestSignalEditorPanel::emptyBuildResultShowsReason()
 {
-    _pMockAdapterManager->injectBuildExpressionResult(QString());
+    _pMockDataPointManager->injectBuildResult(QString());
 
     QVERIFY(!_pPanel->_pUi->lblStatus->isHidden());
     QVERIFY(!_pPanel->_pUi->lblStatus->text().isEmpty());
@@ -469,7 +477,7 @@ void TestSignalEditorPanel::emptyBuildResultShowsReason()
 //! A failure without a reason still tells the user the address was not accepted.
 void TestSignalEditorPanel::buildFailureWithoutReasonShowsFallback()
 {
-    _pMockAdapterManager->injectBuildExpressionFailure(QString());
+    _pMockDataPointManager->injectBuildFailure(QString());
 
     QTRY_VERIFY(!_pPanel->_pUi->lblStatus->isHidden());
     QVERIFY(!_pPanel->_pUi->lblStatus->text().isEmpty());
@@ -484,7 +492,7 @@ void TestSignalEditorPanel::statusIsPlainText()
 //! A field change after a failure hides the failure reason.
 void TestSignalEditorPanel::fieldChangeHidesBuildError()
 {
-    _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Invalid address"));
+    _pMockDataPointManager->injectBuildFailure(QStringLiteral("Invalid address"));
     QTRY_VERIFY(!_pPanel->_pUi->lblStatus->isHidden());
 
     setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
@@ -499,7 +507,7 @@ void TestSignalEditorPanel::deviceSwitchHidesBuildError()
 {
     const deviceId_t simDeviceId = addSimAdapter();
 
-    _pMockAdapterManager->injectBuildExpressionFailure(QStringLiteral("Invalid address"));
+    _pMockDataPointManager->injectBuildFailure(QStringLiteral("Invalid address"));
     QTRY_VERIFY(!_pPanel->_pUi->lblStatus->isHidden());
 
     deviceCombo(_pPanel)->setSelectedDeviceId(simDeviceId);
@@ -520,15 +528,15 @@ void TestSignalEditorPanel::noDeviceDisablesAddWithHint()
 void TestSignalEditorPanel::buildExpressionRoutedToSelectedDevice()
 {
     const deviceId_t simDeviceId = addSimAdapter();
-    const qsizetype modbusCallsBefore = _pMockAdapterManager->buildCalls.size();
+    const qsizetype modbusCallsBefore = _pMockDataPointManager->buildCalls.size();
 
     deviceCombo(_pPanel)->setSelectedDeviceId(simDeviceId);
 
     QCOMPARE(_pMockSimAdapterManager->buildCalls.size(), 1);
-    QCOMPARE(_pMockAdapterManager->buildCalls.size(), modbusCallsBefore);
+    QCOMPARE(_pMockDataPointManager->buildCalls.size(), modbusCallsBefore);
     QCOMPARE(_pMockSimAdapterManager->buildCalls[0].deviceId, simDeviceId);
 
-    _pMockSimAdapterManager->injectBuildExpressionResult(QStringLiteral("${c3}"));
+    _pMockSimAdapterManager->injectBuildResult(QStringLiteral("${c3}"));
     clickAdd();
 
     QCOMPARE(_pGraphDataModel->size(), 1);
@@ -543,7 +551,7 @@ void TestSignalEditorPanel::btnAddDisabledWhenSelectedDeviceAdapterUnavailable()
     recreatePanel();
 
     /* Device 1 is initially selected and it belongs to the modbus adapter */
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
     QVERIFY(_pPanel->_pUi->btnAdd->isEnabled());
 
     deviceCombo(_pPanel)->setSelectedDeviceId(unavailableDeviceId);
@@ -551,7 +559,7 @@ void TestSignalEditorPanel::btnAddDisabledWhenSelectedDeviceAdapterUnavailable()
     QTRY_VERIFY(!_pPanel->_pUi->lblStatus->isHidden());
 
     deviceCombo(_pPanel)->setSelectedDeviceId(Device::cFirstDeviceId);
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
     QVERIFY(_pPanel->_pUi->btnAdd->isEnabled());
 }
 
@@ -561,7 +569,7 @@ void TestSignalEditorPanel::deviceAddedToEmptyListAppliesConfiguredAdapter()
     QJsonObject describeResult;
     describeResult["name"] = QStringLiteral("Simulator");
     _settingsModel.updateAdapterFromDescribe(QStringLiteral("sim"), describeResult);
-    _pMockSimAdapterManager = new MockAdapterManager(&_settingsModel, QStringLiteral("sim"));
+    _pMockSimAdapterManager = new MockDataPointManager(QStringLiteral("sim"), &_settingsModel);
     _pMockHub->addManager(QStringLiteral("sim"), _pMockSimAdapterManager);
 
     /* Start from an empty device list, so the device added below becomes the selected one
@@ -579,14 +587,14 @@ void TestSignalEditorPanel::deviceAddedToEmptyListAppliesConfiguredAdapter()
     QVERIFY(hasLabelWithText(QStringLiteral("Protocol: Simulator")));
     QCOMPARE(addressForm(_pPanel)->values().value("channel").toInt(), 3);
 
-    _pMockSimAdapterManager->injectBuildExpressionResult(QStringLiteral("${c3}"));
+    _pMockSimAdapterManager->injectBuildResult(QStringLiteral("${c3}"));
     QVERIFY(_pPanel->_pUi->btnAdd->isEnabled());
     QVERIFY(_pPanel->_pUi->lblStatus->isHidden());
 }
 
 void TestSignalEditorPanel::deviceComboDisablesAddWhenLastDeviceRemoved()
 {
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
     QVERIFY(_pPanel->_pUi->btnAdd->isEnabled());
 
     DeviceListHelpers::dropDevice(&_settingsModel, Device::cFirstDeviceId);
@@ -604,10 +612,10 @@ void TestSignalEditorPanel::editModeLoadsReferenceWhenDescribed()
     QCOMPARE(_pPanel->_pUi->lblTitle->text(), QStringLiteral("Edit signal"));
     QVERIFY(_pPanel->_pUi->btnAdd->isHidden());
     QCOMPARE(_pPanel->_pUi->lineName->text(), QStringLiteral("Signal"));
-    QCOMPARE(_pMockAdapterManager->describeCalls, QStringList{ QStringLiteral("${h4}") });
+    QCOMPARE(_pMockDataPointManager->describeCalls, QStringList{ QStringLiteral("${h4}") });
     QVERIFY(!_pPanel->_pEditor->isEnabled());
 
-    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(4));
+    describeCall(0, holdingRegisterFields(4));
 
     QVERIFY(_pPanel->_pEditor->isEnabled());
     QCOMPARE(addressForm(_pPanel)->values().value("address").toInt(), 4);
@@ -619,13 +627,13 @@ void TestSignalEditorPanel::editModeLoadsReferenceWhenDescribed()
 void TestSignalEditorPanel::editAddressOfSingleReference()
 {
     editNewSignal(QStringLiteral("${40001}"));
-    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+    describeCall(0, holdingRegisterFields(0));
 
     setAddress(holdingRegisterFields(5));
-    QCOMPARE(_pMockAdapterManager->buildCalls.last().fields["address"].toInt(), 5);
+    QCOMPARE(_pMockDataPointManager->buildCalls.last().fields["address"].toInt(), 5);
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${40001}"));
 
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h5}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h5}"));
 
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h5}"));
     QCOMPARE(_pGraphDataModel->size(), 1);
@@ -638,14 +646,14 @@ void TestSignalEditorPanel::editAddressOfSingleReference()
 void TestSignalEditorPanel::editKeepsArithmeticAroundReference()
 {
     editNewSignal(QStringLiteral("${40001}/2"));
-    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+    describeCall(0, holdingRegisterFields(0));
 
     QVERIFY(!_pPanel->_pUi->lblExpression->isHidden());
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
              QStringLiteral("<span style=\"white-space: pre-wrap\"><b>${40001}</b>/2</span>"));
 
     setAddress(holdingRegisterFields(5));
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h5}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h5}"));
 
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h5}/2"));
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
@@ -656,20 +664,20 @@ void TestSignalEditorPanel::editKeepsArithmeticAroundReference()
 void TestSignalEditorPanel::editSecondOfTwoIdenticalReferences()
 {
     editNewSignal(QStringLiteral("${h0} - ${h0}"));
-    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+    describeCall(0, holdingRegisterFields(0));
 
     QVERIFY(!_pPanel->_pUi->listDataPoints->isHidden());
     QCOMPARE(_pPanel->_pUi->listDataPoints->count(), 2);
 
     _pPanel->_pUi->listDataPoints->setCurrentRow(1);
     setAddress(holdingRegisterFields(5));
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h5}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h5}"));
 
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h0} - ${h5}"));
     QCOMPARE(_pPanel->_pUi->listDataPoints->currentRow(), 1);
 
     setAddress(holdingRegisterFields(6));
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h6}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h6}"));
 
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h0} - ${h6}"));
 }
@@ -677,9 +685,9 @@ void TestSignalEditorPanel::editSecondOfTwoIdenticalReferences()
 void TestSignalEditorPanel::selectingDataPointLoadsIt()
 {
     editNewSignal(QStringLiteral("${h3}*10 + ${h7}"));
-    QCOMPARE(_pMockAdapterManager->describeCalls.size(), 2);
-    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(3));
-    _pMockAdapterManager->injectDescribeResult(1, holdingRegisterFields(7));
+    QCOMPARE(_pMockDataPointManager->describeCalls.size(), 2);
+    describeCall(0, holdingRegisterFields(3));
+    describeCall(1, holdingRegisterFields(7));
 
     QCOMPARE(_pPanel->_pUi->lblDataPoints->text(), QStringLiteral("This signal combines 2 data points."));
     QCOMPARE(_pPanel->_pUi->listDataPoints->item(1)->text(), QStringLiteral("${h7}  described ${h7}"));
@@ -708,7 +716,7 @@ void TestSignalEditorPanel::syntaxErrorShowsOnlyErrorAndEditExpression()
     QVERIFY(_pPanel->_pUi->lblExpression->isHidden());
     QVERIFY(!_pPanel->_pUi->btnEditExpression->isHidden());
     QCOMPARE(_pPanel->_pUi->lblStatus->text(), QStringLiteral("Unexpected end of expression"));
-    QVERIFY(_pMockAdapterManager->describeCalls.isEmpty());
+    QVERIFY(_pMockDataPointManager->describeCalls.isEmpty());
 }
 
 void TestSignalEditorPanel::editExpressionRequestsDialogForRow()
@@ -752,7 +760,7 @@ void TestSignalEditorPanel::emptyNameRestoresLabel()
 void TestSignalEditorPanel::enterInEditModeAddsNothing()
 {
     editNewSignal(QStringLiteral("${h0}"));
-    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+    describeCall(0, holdingRegisterFields(0));
 
     QTest::keyClick(_pPanel->_pUi->lineName, Qt::Key_Return);
 
@@ -764,12 +772,12 @@ void TestSignalEditorPanel::deviceSwitchReplacesReferenceWithDefault()
 {
     const deviceId_t simDeviceId = addSimAdapter();
     editNewSignal(QStringLiteral("${h0}*2"));
-    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+    describeCall(0, holdingRegisterFields(0));
 
     deviceCombo(_pPanel)->setSelectedDeviceId(simDeviceId);
     QCOMPARE(_pMockSimAdapterManager->buildCalls.last().fields.value("channel").toInt(), 3);
 
-    _pMockSimAdapterManager->injectBuildExpressionResult(QStringLiteral("${c3@2}"));
+    _pMockSimAdapterManager->injectBuildResult(QStringLiteral("${c3@2}"));
 
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${c3@2}*2"));
 }
@@ -789,14 +797,14 @@ void TestSignalEditorPanel::removedRowReturnsToAddMode()
 void TestSignalEditorPanel::outsideExpressionChangeReloadsPanel()
 {
     editNewSignal(QStringLiteral("${h0}"));
-    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+    describeCall(0, holdingRegisterFields(0));
 
     _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${h7} + ${h8}"));
 
     QCOMPARE(_pPanel->_pUi->listDataPoints->count(), 2);
     QCOMPARE(_pPanel->_pEditor->expression(), QStringLiteral("${h7}"));
     QVERIFY(!_pPanel->_pEditor->isEnabled());
-    QVERIFY(_pMockAdapterManager->describeCalls.contains(QStringLiteral("${h7}")));
+    QVERIFY(_pMockDataPointManager->describeCalls.contains(QStringLiteral("${h7}")));
 }
 
 void TestSignalEditorPanel::showAddModeClearsNameAndShowsAdd()
@@ -817,17 +825,17 @@ void TestSignalEditorPanel::showAddModeClearsNameAndShowsAdd()
 void TestSignalEditorPanel::descriptionAfterOwnWriteKeepsForm()
 {
     editNewSignal(QStringLiteral("${h0}"));
-    _pMockAdapterManager->injectDescribeResult(0, holdingRegisterFields(0));
+    describeCall(0, holdingRegisterFields(0));
 
     setAddress(holdingRegisterFields(5));
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h5}"));
-    const qsizetype describeIdx = _pMockAdapterManager->describeCalls.indexOf(QStringLiteral("${h5}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h5}"));
+    const qsizetype describeIdx = _pMockDataPointManager->describeCalls.indexOf(QStringLiteral("${h5}"));
     QVERIFY(describeIdx >= 0);
     auto* pAddressSpin = _pPanel->_pUi->addressContainer->findChild<QSpinBox*>();
     QVERIFY(pAddressSpin != nullptr);
     const QPointer<QSpinBox> spinBefore(pAddressSpin);
 
-    _pMockAdapterManager->injectDescribeResult(static_cast<int>(describeIdx), holdingRegisterFields(5));
+    describeCall(static_cast<int>(describeIdx), holdingRegisterFields(5));
 
     QVERIFY(!spinBefore.isNull());
     QCOMPARE(_pPanel->_pUi->addressContainer->findChild<QSpinBox*>(), spinBefore.data());
@@ -864,7 +872,7 @@ void TestSignalEditorPanel::addSignal(const QString& expression)
     const qint32 sizeBefore = _pGraphDataModel->size();
 
     /* Simulate the adapter returning the expression string */
-    _pMockAdapterManager->injectBuildExpressionResult(expression);
+    _pMockDataPointManager->injectBuildResult(expression);
 
     clickAdd();
 

@@ -1,6 +1,6 @@
 #include "tst_datapointservice.h"
 
-#include "../dialogs/mockadapterhub.h"
+#include "../mocks/mockadapterhub.h"
 #include "../models/devicelisthelpers.h"
 #include "ProtocolAdapter/datapointservice.h"
 

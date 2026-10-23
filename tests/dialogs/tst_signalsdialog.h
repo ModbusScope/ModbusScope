@@ -2,8 +2,8 @@
 #ifndef TST_SIGNALSDIALOG_H
 #define TST_SIGNALSDIALOG_H
 
-#include "ProtocolAdapter/adaptermanager.h"
-#include "mockadapterhub.h"
+#include "../mocks/mockadapterhub.h"
+#include "../mocks/mockdatapointmanager.h"
 #include "models/settingsmodel.h"
 
 #include <QJsonObject>
@@ -12,71 +12,6 @@
 class GraphDataModel;
 class SignalEditorPanel;
 class SignalsDialog;
-
-/*!
- * \brief Test double for AdapterManager.
- *
- * Captures buildExpression() and describeDataPoint() calls and provides inject
- * helpers to answer them, without a real adapter process.
- */
-class MockAdapterManager : public AdapterManager
-{
-    Q_OBJECT
-
-public:
-    struct BuildCall
-    {
-        QJsonObject fields;
-        QString dataType;
-        deviceId_t deviceId;
-    };
-
-    explicit MockAdapterManager(SettingsModel* pSettingsModel,
-                                const QString& adapterId = QStringLiteral("modbus"),
-                                QObject* parent = nullptr)
-        : AdapterManager(adapterId, QString(), pSettingsModel, parent)
-    {
-    }
-
-    int buildExpression(const QJsonObject& fields, const QString& dataType, deviceId_t deviceId) override
-    {
-        buildCalls.append({ fields, dataType, deviceId });
-        return buildCalls.size();
-    }
-
-    int describeDataPoint(const QString& address) override
-    {
-        describeCalls.append(address);
-        return cFirstDescribeRequestId + static_cast<int>(describeCalls.size()) - 1;
-    }
-
-    bool isAdapterReady() const override
-    {
-        return mockReady;
-    }
-
-    //! Simulate the adapter returning an expression string for the last buildExpression() request.
-    void injectBuildExpressionResult(const QString& expression)
-    {
-        emit buildExpressionResult(static_cast<int>(buildCalls.size()), expression);
-    }
-
-    //! Simulate the adapter describing the data point of the given describeDataPoint() call (0 for the first).
-    void injectDescribeResult(int callIndex, const QString& description)
-    {
-        QJsonObject result;
-        result["valid"] = true;
-        result["description"] = description;
-        emit describeDataPointResult(cFirstDescribeRequestId + callIndex, result);
-    }
-
-    //! Describe request ids, kept apart from the build request ids.
-    static constexpr int cFirstDescribeRequestId = 1000;
-
-    QList<BuildCall> buildCalls;
-    QStringList describeCalls;
-    bool mockReady{ false };
-};
 
 class TestSignalsDialog : public QObject
 {
@@ -132,7 +67,7 @@ private:
     SettingsModel _settingsModel;
     GraphDataModel* _pGraphDataModel{ nullptr };
     MockAdapterHub* _pMockHub{ nullptr };
-    MockAdapterManager* _pMockAdapterManager{ nullptr };
+    MockDataPointManager* _pMockDataPointManager{ nullptr };
     SignalsDialog* _pDialog{ nullptr };
 };
 

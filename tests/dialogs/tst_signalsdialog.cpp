@@ -53,9 +53,10 @@ void TestSignalsDialog::init()
     _settingsModel.setAdapterDataPointSchema("modbus", buildTestRegisterSchema());
 
     _pGraphDataModel = new GraphDataModel();
-    _pMockAdapterManager = new MockAdapterManager(&_settingsModel);
+    _pMockDataPointManager = new MockDataPointManager(QStringLiteral("modbus"), &_settingsModel);
+    _pMockDataPointManager->mockReady = false;
     _pMockHub = new MockAdapterHub();
-    _pMockHub->addManager(QStringLiteral("modbus"), _pMockAdapterManager);
+    _pMockHub->addManager(QStringLiteral("modbus"), _pMockDataPointManager);
 }
 
 void TestSignalsDialog::cleanup()
@@ -64,8 +65,8 @@ void TestSignalsDialog::cleanup()
     _pDialog = nullptr;
     delete _pGraphDataModel;
     _pGraphDataModel = nullptr;
-    delete _pMockAdapterManager;
-    _pMockAdapterManager = nullptr;
+    delete _pMockDataPointManager;
+    _pMockDataPointManager = nullptr;
     delete _pMockHub;
     _pMockHub = nullptr;
 }
@@ -300,7 +301,7 @@ SignalEditorPanel* TestSignalsDialog::panel() const
 void TestSignalsDialog::openWithReadyAdapter(int signalCount)
 {
     DeviceListHelpers::seedDevice(&_settingsModel, 1, QStringLiteral("modbus"));
-    _pMockAdapterManager->mockReady = true;
+    _pMockDataPointManager->mockReady = true;
     seedSignals(signalCount);
 
     _pDialog = new SignalsDialog(_pGraphDataModel, &_settingsModel, _pMockHub);
@@ -311,7 +312,7 @@ void TestSignalsDialog::openWithReadyAdapter(int signalCount)
 //! Answer the panel's pending build request with \a expression and click Add signal.
 void TestSignalsDialog::addSignalThroughPanel(const QString& expression)
 {
-    _pMockAdapterManager->injectBuildExpressionResult(expression);
+    _pMockDataPointManager->injectBuildResult(expression);
     QTest::mouseClick(panel()->findChild<QPushButton*>("btnAdd"), Qt::LeftButton);
 }
 
@@ -345,7 +346,7 @@ void TestSignalsDialog::addedSignalScrolledIntoViewNotSelected()
 void TestSignalsDialog::enterInPanelDoesNotCloseDialog()
 {
     openWithReadyAdapter(0);
-    _pMockAdapterManager->injectBuildExpressionResult(QStringLiteral("${h0}"));
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
     auto* pName = panel()->findChild<QLineEdit*>("lineName");
     pName->setFocus();
 
@@ -449,9 +450,9 @@ void TestSignalsDialog::dataPointColumnShowsDescription()
     QCOMPARE(pView->model()->headerData(GraphDataModel::column::COUNT, Qt::Horizontal).toString(),
              QStringLiteral("Data point"));
     QCOMPARE(dataPointIndex.data().toString(), QStringLiteral("${40001}"));
-    QCOMPARE(_pMockAdapterManager->describeCalls, QStringList({ QStringLiteral("${40001}") }));
+    QCOMPARE(_pMockDataPointManager->describeCalls, QStringList({ QStringLiteral("${40001}") }));
 
-    _pMockAdapterManager->injectDescribeResult(0, QStringLiteral("Holding register 40001"));
+    _pMockDataPointManager->injectDescribeResult(0, QStringLiteral("Holding register 40001"));
 
     QCOMPARE(dataPointIndex.data().toString(), QStringLiteral("Holding register 40001"));
 }
@@ -502,15 +503,15 @@ void TestSignalsDialog::editFirstSignalAddressThroughPanel(int address, const QS
 {
     _pDialog->findChild<QTableView*>("signalView")->selectRow(0);
 
-    const qsizetype describeIdx = _pMockAdapterManager->describeCalls.indexOf(draftModel()->expression(GraphIdx(0)));
+    const qsizetype describeIdx = _pMockDataPointManager->describeCalls.indexOf(draftModel()->expression(GraphIdx(0)));
     QVERIFY(describeIdx >= 0);
-    _pMockAdapterManager->injectDescribeResult(static_cast<int>(describeIdx), QStringLiteral("described"));
+    _pMockDataPointManager->injectDescribeResult(static_cast<int>(describeIdx), QStringLiteral("described"));
 
     auto* pAddressSpin = panel()->findChild<QSpinBox*>();
     QVERIFY(pAddressSpin != nullptr);
     QVERIFY(pAddressSpin->isEnabled());
     pAddressSpin->setValue(address);
-    _pMockAdapterManager->injectBuildExpressionResult(builtReference);
+    _pMockDataPointManager->injectBuildResult(builtReference);
 
     QCOMPARE(draftModel()->expression(GraphIdx(0)), builtReference);
 }

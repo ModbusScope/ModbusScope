@@ -1,9 +1,10 @@
 
 #include "tst_signaltableproxymodel.h"
 
+#include "../mocks/mockadapterhub.h"
+#include "../mocks/mockdatapointmanager.h"
 #include "ProtocolAdapter/datapointservice.h"
 #include "dialogs/signaltableproxymodel.h"
-#include "mockadapterhub.h"
 #include "models/datapointdescriptioncache.h"
 #include "models/graphdatamodel.h"
 #include "models/settingsmodel.h"
@@ -33,7 +34,7 @@ void TestSignalTableProxyModel::init()
     _pSettingsModel = new SettingsModel(this);
     _pSettingsModel->deviceSettings(Device::cFirstDeviceId)->setAdapterId("modbus");
 
-    _pManager = new MockDescribeManager(this);
+    _pManager = new MockDataPointManager(QStringLiteral("modbus"), this);
     _pHub = new MockAdapterHub(this);
     _pHub->addManager(QStringLiteral("modbus"), _pManager);
     _pService = new DataPointService(_pSettingsModel, _pHub, this);
@@ -76,7 +77,11 @@ void TestSignalTableProxyModel::modelTester()
     _pGraphDataModel->setExpression(GraphIdx(2), QStringLiteral("${40004}"));
     _pGraphDataModel->moveSignal(GraphIdx(0), GraphIdx(2));
     _pGraphDataModel->removeSignals({ GraphIdx(1) });
-    _pManager->injectDescribeResult(1, QStringLiteral("Holding register 40001"));
+
+    /* A description arriving changes the Data point column */
+    _pProxy->data(_pProxy->index(0, _pProxy->dataPointColumn()));
+    QVERIFY(!_pManager->describeCalls.isEmpty());
+    _pManager->injectDescribeResult(0, QStringLiteral("Holding register 40001"));
     _pGraphDataModel->clear();
 
     /* Removing the last signal one by one leaves an empty model */
@@ -142,7 +147,7 @@ void TestSignalTableProxyModel::describedShowsDescription()
     addSignal(_pGraphDataModel, QStringLiteral("${40001}"));
     text(0);
 
-    _pManager->injectDescribeResult(1, QStringLiteral("Holding register 40001, unsigned 16-bit"));
+    _pManager->injectDescribeResult(0, QStringLiteral("Holding register 40001, unsigned 16-bit"));
 
     QCOMPARE(text(0), QStringLiteral("Holding register 40001, unsigned 16-bit"));
     QCOMPARE(text(0, Qt::ToolTipRole), QStringLiteral("Holding register 40001, unsigned 16-bit"));
@@ -157,7 +162,7 @@ void TestSignalTableProxyModel::descriptionUpdatesOnlyAffectedRow()
     text(1);
 
     QSignalSpy spy(_pProxy, &SignalTableProxyModel::dataChanged);
-    _pManager->injectDescribeResult(2, QStringLiteral("Holding register 40002"));
+    _pManager->injectDescribeResult(1, QStringLiteral("Holding register 40002"));
 
     QCOMPARE(spy.count(), 1);
     const QModelIndex topLeft = spy.at(0).at(0).value<QModelIndex>();
@@ -172,7 +177,7 @@ void TestSignalTableProxyModel::invalidShowsReferenceInRedWithError()
     addSignal(_pGraphDataModel, QStringLiteral("${99999999}"));
     text(0);
 
-    _pManager->injectDescribeInvalid(1, QStringLiteral("Address out of range"));
+    _pManager->injectDescribeInvalid(0, QStringLiteral("Address out of range"));
 
     QCOMPARE(text(0), QStringLiteral("${99999999}"));
     QCOMPARE(text(0, Qt::ToolTipRole), QStringLiteral("${99999999}: Address out of range"));
@@ -184,7 +189,7 @@ void TestSignalTableProxyModel::invalidReferenceNamedInExpressionToolTip()
 {
     addSignal(_pGraphDataModel, QStringLiteral("${99999999}"));
     text(0);
-    _pManager->injectDescribeInvalid(1, QStringLiteral("Address out of range"));
+    _pManager->injectDescribeInvalid(0, QStringLiteral("Address out of range"));
 
     const QModelIndex expression = _pProxy->index(0, GraphDataModel::column::EXPRESSION);
     QCOMPARE(_pProxy->data(expression, Qt::ToolTipRole).toString(),
@@ -195,7 +200,7 @@ void TestSignalTableProxyModel::severalReferencesShowCount()
 {
     addSignal(_pGraphDataModel, QStringLiteral("${40001} - ${40002}"));
     text(0);
-    _pManager->injectDescribeResult(1, QStringLiteral("Holding register 40001"));
+    _pManager->injectDescribeResult(0, QStringLiteral("Holding register 40001"));
 
     QCOMPARE(text(0), QStringLiteral("2 data points"));
     QCOMPARE(text(0, Qt::ToolTipRole), QStringLiteral("Holding register 40001\n${40002}"));
@@ -206,7 +211,7 @@ void TestSignalTableProxyModel::duplicateReferencesListedTwice()
     addSignal(_pGraphDataModel, QStringLiteral("${40001} - ${40001}"));
     text(0);
     QCOMPARE(_pManager->describeCalls.size(), 1);
-    _pManager->injectDescribeResult(1, QStringLiteral("Holding register 40001"));
+    _pManager->injectDescribeResult(0, QStringLiteral("Holding register 40001"));
 
     QCOMPARE(text(0), QStringLiteral("2 data points"));
     QCOMPARE(text(0, Qt::ToolTipRole), QStringLiteral("Holding register 40001\nHolding register 40001"));
@@ -250,7 +255,7 @@ void TestSignalTableProxyModel::oneLookupPerReference()
 {
     addSignal(_pGraphDataModel, QStringLiteral("${40001}"));
     text(0);
-    _pManager->injectDescribeInvalid(1, QStringLiteral("Address out of range"));
+    _pManager->injectDescribeInvalid(0, QStringLiteral("Address out of range"));
 
     text(0);
     text(0, Qt::ToolTipRole);
