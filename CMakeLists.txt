@@ -29,7 +29,7 @@ option(USE_GCOV "Enable gcov support" OFF)
 
 # Find the QtCore library
 find_package(QT NAMES Qt6 COMPONENTS Core REQUIRED)
-find_package(Qt${QT_VERSION_MAJOR} COMPONENTS Core REQUIRED)
+find_package(Qt${QT_VERSION_MAJOR} 6.8 COMPONENTS Core REQUIRED)
 
 message(STATUS "Using Qt${QT_VERSION_MAJOR} version ${Qt${QT_VERSION_MAJOR}Core_VERSION}")
 
