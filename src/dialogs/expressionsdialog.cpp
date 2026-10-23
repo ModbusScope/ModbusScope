@@ -4,6 +4,7 @@
 #include "ProtocolAdapter/adapterhub.h"
 #include "ProtocolAdapter/adaptermanager.h"
 #include "communication/datapoint.h"
+#include "customwidgets/datapointeditorwidget.h"
 #include "customwidgets/devicecombobox.h"
 #include "dialogs/expressionhighlighting.h"
 #include "models/datapointdescriptioncache.h"
@@ -15,6 +16,7 @@
 #include <QKeyEvent>
 #include <QPushButton>
 #include <QSignalBlocker>
+#include <QTextCursor>
 
 using State = DataQuality::State;
 
@@ -43,6 +45,7 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
                                      GraphIdx idx,
                                      AdapterHub* pAdapterHub,
                                      SettingsModel* pSettingsModel,
+                                     DataPointService* pDataPointService,
                                      DataPointDescriptionCache* pDescriptionCache,
                                      QWidget* parent)
     : QDialog(parent),
@@ -50,6 +53,7 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
       _pGraphDataModel(pGraphDataModel),
       _pAdapterHub(pAdapterHub),
       _pSettingsModel(pSettingsModel),
+      _pDataPointService(pDataPointService),
       _pDescriptionCache(pDescriptionCache),
       _bUpdating(false)
 {
@@ -79,6 +83,7 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
 
     setupButtons();
     setupExpressionEditor();
+    setupInsertDataPoint();
 
     connect(_pUi->lineExpression, &QPlainTextEdit::textChanged, this, &ExpressionsDialog::handleExpressionChange);
     _pUi->lineExpression->setPlainText(_pGraphDataModel->expression(_graphIdx));
@@ -90,17 +95,19 @@ ExpressionsDialog::~ExpressionsDialog()
 }
 
 /*!
- * \brief Accept the expression with Enter in the expression editor.
+ * \brief Handle Enter in the expression editor and in the insert data point form.
  *
- * Enter accepts when the expression can be applied. Shift+Enter is ignored, so the
- * expression never gets a line break.
+ * In the expression editor, Enter accepts when the expression can be applied. Shift+Enter is
+ * ignored, so the expression never gets a line break. In the insert data point form, Enter
+ * inserts the data point.
  * \param pWatched The object that received the event.
  * \param pEvent   The event.
  * \return true when the event was handled here.
  */
 bool ExpressionsDialog::eventFilter(QObject* pWatched, QEvent* pEvent)
 {
-    if (pWatched != _pUi->lineExpression || pEvent->type() != QEvent::KeyPress)
+    const bool bWatched = pWatched == _pUi->lineExpression || pWatched == _pUi->widgetInsertDataPoint;
+    if (!bWatched || pEvent->type() != QEvent::KeyPress)
     {
         return QDialog::eventFilter(pWatched, pEvent);
     }
@@ -111,7 +118,11 @@ bool ExpressionsDialog::eventFilter(QObject* pWatched, QEvent* pEvent)
         return QDialog::eventFilter(pWatched, pEvent);
     }
 
-    if (!pKeyEvent->modifiers().testFlag(Qt::ShiftModifier))
+    if (pWatched == _pUi->widgetInsertDataPoint)
+    {
+        insertDataPoint();
+    }
+    else if (!pKeyEvent->modifiers().testFlag(Qt::ShiftModifier))
     {
         handleAccept();
     }
@@ -159,7 +170,9 @@ void ExpressionsDialog::setupButtons()
     connect(_pUi->buttonBox, &QDialogButtonBox::accepted, this, &ExpressionsDialog::handleAccept);
     connect(_pUi->buttonBox, &QDialogButtonBox::rejected, this, &ExpressionsDialog::handleCancel);
 
-    setTabOrder(_pUi->lineExpression, _pUi->tblExpressionInput);
+    setTabOrder(_pUi->lineExpression, _pUi->btnInsertDataPoint);
+    setTabOrder(_pUi->btnInsertDataPoint, _pUi->btnInsertAtCursor);
+    setTabOrder(_pUi->btnInsertAtCursor, _pUi->tblExpressionInput);
     setTabOrder(_pUi->tblExpressionInput, _pAcceptButton);
     setTabOrder(_pAcceptButton, pCancelButton);
     setTabOrder(pCancelButton, _pUi->btnInfo);
@@ -180,6 +193,81 @@ void ExpressionsDialog::setupExpressionEditor()
     pEditor->setFixedHeight(textHeight + margins);
 
     pEditor->installEventFilter(this);
+}
+
+/*!
+ * \brief Hide the insert data point form until Insert data point is checked.
+ */
+void ExpressionsDialog::setupInsertDataPoint()
+{
+    _pUi->widgetInsertDataPoint->setVisible(false);
+    _pUi->btnInsertAtCursor->setEnabled(false);
+    _pUi->widgetInsertDataPoint->installEventFilter(this);
+
+    connect(_pUi->btnInsertDataPoint, &QAbstractButton::toggled, this,
+            &ExpressionsDialog::handleInsertDataPointToggled);
+    connect(_pUi->btnInsertAtCursor, &QAbstractButton::clicked, this, &ExpressionsDialog::insertDataPoint);
+}
+
+/*!
+ * \brief Show or hide the insert data point form.
+ *
+ * The form is created the first time it is shown, so the dialog does not ask the adapter to build a
+ * data point when the form is never used. It starts on the device of the first data point in the
+ * expression.
+ * \param bChecked Whether the form is shown.
+ */
+void ExpressionsDialog::handleInsertDataPointToggled(bool bChecked)
+{
+    if (bChecked && _pInsertEditor == nullptr)
+    {
+        _pInsertEditor = new DataPointEditorWidget(_pSettingsModel, _pDataPointService, _pUi->insertEditorContainer);
+        _pUi->insertEditorLayout->addWidget(_pInsertEditor);
+
+        connect(_pInsertEditor, &DataPointEditorWidget::expressionChanged, this,
+                &ExpressionsDialog::updateInsertButton);
+        connect(_pInsertEditor, &DataPointEditorWidget::errorChanged, _pUi->lblInsertError, &QLabel::setText);
+        connect(_pInsertEditor, &DataPointEditorWidget::errorChanged, this, &ExpressionsDialog::updateInsertButton);
+
+        const QList<ExpressionReferences::Reference> references =
+          ExpressionReferences::find(_pUi->lineExpression->toPlainText());
+        if (!references.isEmpty() && _pSettingsModel->hasDevice(references.first().deviceId))
+        {
+            _pInsertEditor->setDevice(references.first().deviceId);
+        }
+
+        setTabOrder(_pUi->btnInsertDataPoint, _pInsertEditor);
+        setTabOrder(_pInsertEditor, _pUi->btnInsertAtCursor);
+        updateInsertButton();
+    }
+
+    _pUi->widgetInsertDataPoint->setVisible(bChecked);
+}
+
+/*!
+ * \brief Allow Insert at cursor only while the form holds a built data point reference.
+ */
+void ExpressionsDialog::updateInsertButton()
+{
+    _pUi->btnInsertAtCursor->setEnabled(_pInsertEditor != nullptr && _pInsertEditor->hasValidExpression());
+}
+
+/*!
+ * \brief Insert the data point reference of the form at the cursor of the expression editor.
+ *
+ * Replaces the selected text, if any. Does nothing while the form has no built reference.
+ */
+void ExpressionsDialog::insertDataPoint()
+{
+    if (_pInsertEditor == nullptr || !_pInsertEditor->hasValidExpression())
+    {
+        return;
+    }
+
+    QTextCursor cursor = _pUi->lineExpression->textCursor();
+    cursor.insertText(_pInsertEditor->expression());
+    _pUi->lineExpression->setTextCursor(cursor);
+    _pUi->lineExpression->setFocus();
 }
 
 /*!

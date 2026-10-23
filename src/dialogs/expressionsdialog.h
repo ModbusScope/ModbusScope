@@ -11,6 +11,8 @@
 class AdapterHub;
 class AdapterManager;
 class DataPointDescriptionCache;
+class DataPointEditorWidget;
+class DataPointService;
 class ExpressionHighlighting;
 class QKeyEvent;
 class QPushButton;
@@ -31,6 +33,7 @@ public:
                                GraphIdx idx,
                                AdapterHub* pAdapterHub,
                                SettingsModel* pSettingsModel,
+                               DataPointService* pDataPointService,
                                DataPointDescriptionCache* pDescriptionCache,
                                QWidget* parent = nullptr);
     ~ExpressionsDialog();
@@ -49,6 +52,9 @@ private slots:
     void handleExpressionHelpResult(const QString& helpText);
     void handleDescriptionChanged(const QString& referenceText);
     void onHelpDeviceChanged(deviceId_t deviceId);
+    void handleInsertDataPointToggled(bool bChecked);
+    void updateInsertButton();
+    void insertDataPoint();
 
 private:
     void showDescription(qint32 row);
@@ -60,6 +66,7 @@ private:
     void setupButtons();
     static bool isEnterKey(const QKeyEvent* pEvent);
     void setupExpressionEditor();
+    void setupInsertDataPoint();
 
     static constexpr int cExpressionEditorLines = 3;
 
@@ -75,7 +82,9 @@ private:
     GraphDataModel* _pGraphDataModel;
     AdapterHub* _pAdapterHub;
     SettingsModel* _pSettingsModel;
+    DataPointService* _pDataPointService;
     DataPointDescriptionCache* _pDescriptionCache;
+    DataPointEditorWidget* _pInsertEditor = nullptr;
     AdapterManager* _pHelpManager = nullptr;
     QPushButton* _pAcceptButton = nullptr;
 

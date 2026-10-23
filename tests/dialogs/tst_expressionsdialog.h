@@ -31,6 +31,32 @@ public:
         return static_cast<int>(describeCalls.size());
     }
 
+    int buildExpression(const QJsonObject& fields, const QString& dataType, deviceId_t deviceId) override
+    {
+        Q_UNUSED(fields);
+        Q_UNUSED(dataType);
+        buildCalls.append(deviceId);
+        return lastBuildRequestId();
+    }
+
+    //! Request id of the last buildExpression() call; kept apart from the describe ids.
+    int lastBuildRequestId() const
+    {
+        return cFirstBuildRequestId + static_cast<int>(buildCalls.size()) - 1;
+    }
+
+    //! Simulate the adapter returning an expression for the last buildExpression() request.
+    void injectBuildResult(const QString& expression)
+    {
+        emit buildExpressionResult(lastBuildRequestId(), expression);
+    }
+
+    //! Simulate the adapter answering the last buildExpression() request with an error.
+    void injectBuildFailure(const QString& error)
+    {
+        emit dataPointRequestFailed(lastBuildRequestId(), error);
+    }
+
     void requestExpressionHelp() override
     {
         helpRequestCount++;
@@ -76,7 +102,10 @@ public:
         emit expressionHelpResult(helpText);
     }
 
+    static constexpr int cFirstBuildRequestId = 1000;
+
     QStringList describeCalls;
+    QList<deviceId_t> buildCalls;
     int helpRequestCount{ 0 };
     bool mockIdle{ false };
 };
@@ -128,6 +157,14 @@ private slots:
     void acceptDisabledOnInvalidDataPoint();
     void acceptEnabledAfterInvalidDataPointRemoved();
     void acceptEnabledOnFailedDescribe();
+
+    void insertFormCreatedWhenShown();
+    void insertFormStartsOnFirstDataPointDevice();
+    void insertAtCursor();
+    void insertReplacesSelection();
+    void insertDisabledUntilBuilt();
+    void insertFailureShowsError();
+    void enterInInsertFormInserts();
 
     void buttonBoxHasAcceptAndCancel();
     void enterInExampleTableIgnored();
