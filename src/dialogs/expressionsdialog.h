@@ -50,7 +50,7 @@ private slots:
     void handleDescriptionChanged(const QString& referenceText);
     void requestHelpForDevice(deviceId_t deviceId);
     void handleInsertDataPointToggled(bool bChecked);
-    void updateInsertButton();
+    void updateInsertState();
     void insertDataPoint();
 
 private:
@@ -64,6 +64,7 @@ private:
     static bool isEnterKey(const QKeyEvent* pEvent);
     void setupExpressionEditor();
     void setupInsertDataPoint();
+    void updateInsertPreview();
 
     static constexpr int cExpressionEditorLines = 3;
 

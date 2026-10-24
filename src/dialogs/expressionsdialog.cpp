@@ -203,6 +203,7 @@ void ExpressionsDialog::setupInsertDataPoint()
 {
     _pUi->widgetInsertDataPoint->setVisible(false);
     _pUi->btnInsertAtCursor->setEnabled(false);
+    _pUi->lblInsertPreview->setVisible(false);
     _pUi->widgetInsertDataPoint->installEventFilter(this);
 
     /* Errors come from the adapter; never interpret them as rich text */
@@ -229,10 +230,9 @@ void ExpressionsDialog::handleInsertDataPointToggled(bool bChecked)
         _pInsertEditor = new DataPointEditorWidget(_pSettingsModel, _pDataPointService, _pUi->insertEditorContainer);
         _pUi->insertEditorLayout->addWidget(_pInsertEditor);
 
-        connect(_pInsertEditor, &DataPointEditorWidget::expressionChanged, this,
-                &ExpressionsDialog::updateInsertButton);
+        connect(_pInsertEditor, &DataPointEditorWidget::expressionChanged, this, &ExpressionsDialog::updateInsertState);
         connect(_pInsertEditor, &DataPointEditorWidget::errorChanged, _pUi->lblInsertError, &QLabel::setText);
-        connect(_pInsertEditor, &DataPointEditorWidget::errorChanged, this, &ExpressionsDialog::updateInsertButton);
+        connect(_pInsertEditor, &DataPointEditorWidget::errorChanged, this, &ExpressionsDialog::updateInsertState);
 
         const QList<ExpressionReferences::Reference> references =
           ExpressionReferences::find(_pUi->lineExpression->toPlainText());
@@ -243,18 +243,37 @@ void ExpressionsDialog::handleInsertDataPointToggled(bool bChecked)
 
         setTabOrder(_pUi->btnInsertDataPoint, _pInsertEditor);
         setTabOrder(_pInsertEditor, _pUi->btnInsertAtCursor);
-        updateInsertButton();
+        updateInsertState();
     }
 
     _pUi->widgetInsertDataPoint->setVisible(bChecked);
 }
 
 /*!
- * \brief Allow Insert at cursor only while the form holds a built data point reference.
+ * \brief Preview the built data point reference and allow Insert at cursor only while there is one.
  */
-void ExpressionsDialog::updateInsertButton()
+void ExpressionsDialog::updateInsertState()
 {
     _pUi->btnInsertAtCursor->setEnabled(_pInsertEditor != nullptr && _pInsertEditor->hasValidExpression());
+    updateInsertPreview();
+}
+
+/*!
+ * \brief Show the data point reference the form built, greyed out while a newer one is being built.
+ */
+void ExpressionsDialog::updateInsertPreview()
+{
+    if (_pInsertEditor == nullptr)
+    {
+        return;
+    }
+
+    /* The reference comes from the adapter: escape it */
+    const QString html = _pInsertEditor->expression().toHtmlEscaped();
+    _pUi->lblInsertPreview->setText(
+      QStringLiteral("Data point: <span style=\"white-space: pre-wrap\"><b>%1</b></span>").arg(html));
+    _pUi->lblInsertPreview->setEnabled(_pInsertEditor->hasValidExpression());
+    _pUi->lblInsertPreview->setVisible(!html.isEmpty());
 }
 
 /*!
@@ -669,4 +688,5 @@ void ExpressionsDialog::updateAcceptState()
 
     _pUi->lblError->setText(strError);
     _pUi->lblError->setStyleSheet(backgroundStyle);
+    _pUi->lblError->setVisible(!strError.isEmpty());
 }

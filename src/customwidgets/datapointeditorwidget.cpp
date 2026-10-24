@@ -111,7 +111,8 @@ deviceId_t DataPointEditorWidget::deviceId() const
 /*!
  * \brief Returns the reference set with setReference(), or the last one built from the form.
  *
- * Only usable when hasValidExpression() is true.
+ * Only usable as a data point when hasValidExpression() is true; while a rebuild is pending it still
+ * returns the previous reference.
  */
 QString DataPointEditorWidget::expression() const
 {
