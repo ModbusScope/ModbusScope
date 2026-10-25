@@ -60,6 +60,9 @@
       </item>
       <item row="2" column="0" colspan="2">
        <widget class="QLabel" name="lblError">
+        <property name="visible">
+         <bool>false</bool>
+        </property>
         <property name="text">
          <string/>
         </property>
@@ -94,46 +97,81 @@
           <number>0</number>
          </property>
          <item>
-          <widget class="QWidget" name="insertEditorContainer" native="true">
-           <layout class="QVBoxLayout" name="insertEditorLayout">
-            <property name="leftMargin">
-             <number>0</number>
-            </property>
-            <property name="topMargin">
-             <number>0</number>
-            </property>
-            <property name="rightMargin">
-             <number>0</number>
-            </property>
-            <property name="bottomMargin">
-             <number>0</number>
-            </property>
+          <widget class="QGroupBox" name="insertGroupBox">
+           <property name="title">
+            <string>Insert data point</string>
+           </property>
+           <layout class="QVBoxLayout" name="insertGroupLayout">
+            <item>
+             <widget class="QWidget" name="insertEditorContainer" native="true">
+              <layout class="QVBoxLayout" name="insertEditorLayout">
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <property name="bottomMargin">
+                <number>0</number>
+               </property>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="lblInsertPreview">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="textFormat">
+               <enum>Qt::TextFormat::RichText</enum>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="insertButtonLayout" stretch="1,0">
+              <item>
+               <widget class="QLabel" name="lblInsertError">
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="btnInsertAtCursor">
+                <property name="styleSheet">
+                 <string notr="true">QPushButton { background-color: palette(highlight); color: palette(highlighted-text); border: 1px solid palette(highlight); border-radius: 4px; padding: 6px 12px; font-weight: bold; }
+QPushButton:hover { border-color: palette(dark); }
+QPushButton:focus { border: 2px solid palette(dark); }
+QPushButton:pressed { background-color: palette(dark); border-color: palette(dark); }
+QPushButton:disabled { background-color: palette(button); color: palette(mid); border-color: palette(mid); }</string>
+                </property>
+                <property name="text">
+                 <string>Insert at &amp;cursor</string>
+                </property>
+                <property name="autoDefault">
+                 <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
            </layout>
           </widget>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="insertButtonLayout" stretch="1,0">
-           <item>
-            <widget class="QLabel" name="lblInsertError">
-             <property name="text">
-              <string/>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="btnInsertAtCursor">
-             <property name="text">
-              <string>Insert at &amp;cursor</string>
-             </property>
-             <property name="autoDefault">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
          </item>
         </layout>
        </widget>

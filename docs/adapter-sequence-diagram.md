@@ -28,6 +28,7 @@ Client (AdapterClient)                    Adapter (ModbusAdapter)
 [DESC]   |                                          |    returns name/version/schema/defaults/caps
          |<- {"id":2,"result":{                     |
          |    "name":"modbusAdapter",               |
+         |    "protocolName":"modbus",              |
          |    "version":"1.0.0",                    |
          |    "configVersion":1,                    |
          |    "schema":{...},                       |

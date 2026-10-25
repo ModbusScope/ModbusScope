@@ -26,9 +26,18 @@ void AdapterData::setDataPointSchema(const QJsonObject& schema)
     _dataPointSchema = schema;
 }
 
+//! \brief Returns the adapter's internal identifier from adapter.describe (e.g. "modbusAdapter").
+//! \return The describe "name" field; not meant to be shown to the user, see protocolName().
 QString AdapterData::name() const
 {
     return _name;
+}
+
+//! \brief Returns the user-facing protocol name from adapter.describe (e.g. "modbus").
+//! \return The describe "protocolName" field, or an empty string when the adapter did not report one.
+QString AdapterData::protocolName() const
+{
+    return _protocolName;
 }
 
 QString AdapterData::version() const
@@ -168,6 +177,7 @@ QJsonObject AdapterData::dataPointSchema() const
 void AdapterData::updateFromDescribe(const QJsonObject& describeResult)
 {
     _name = describeResult.value("name").toString();
+    _protocolName = describeResult.value("protocolName").toString();
     _version = describeResult.value("version").toString();
     _configVersion = describeResult.value("configVersion").toInt(0);
     _protocolVersion = describeResult.value("protocolVersion").toInt(0);

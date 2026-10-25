@@ -52,6 +52,22 @@ void TestExpressionsDialog::cleanup()
  * \brief Register a second ("sim") adapter manager in the hub.
  * \return Pointer to the created sim mock manager (owned by the test object).
  */
+//! Give the modbus adapter a schema with one integer address field, so the insert form has a spin box.
+void TestExpressionsDialog::setAddressSchema()
+{
+    QJsonObject addressField;
+    addressField["type"] = QStringLiteral("integer");
+    addressField["title"] = QStringLiteral("Address");
+    QJsonObject properties;
+    properties["address"] = addressField;
+    QJsonObject addressSchema;
+    addressSchema["type"] = QStringLiteral("object");
+    addressSchema["properties"] = properties;
+    QJsonObject schema;
+    schema["addressSchema"] = addressSchema;
+    _pSettingsModel->setAdapterDataPointSchema(QStringLiteral("modbus"), schema);
+}
+
 MockDataPointManager* TestExpressionsDialog::addSimAdapter()
 {
     auto* pSimManager = new MockDataPointManager(QStringLiteral("sim"), this);
@@ -741,6 +757,19 @@ void TestExpressionsDialog::acceptEnabledOnFailedDescribe()
     QVERIFY(_pDialog->_pUi->lblError->text().isEmpty());
 }
 
+//! The error label takes no space while there is no error.
+void TestExpressionsDialog::errorLabelHiddenWhenEmpty()
+{
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001}"));
+    QVERIFY(_pDialog->_pUi->lblError->isHidden());
+
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} +"));
+    QVERIFY(!_pDialog->_pUi->lblError->isHidden());
+
+    _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001} + 1"));
+    QVERIFY(_pDialog->_pUi->lblError->isHidden());
+}
+
 //! The insert form is hidden and asks nothing of the adapter until Insert data point is checked.
 void TestExpressionsDialog::insertFormCreatedWhenShown()
 {
@@ -836,17 +865,7 @@ void TestExpressionsDialog::insertFailureShowsError()
 //! Enter in an address field of the insert form inserts the data point and does not accept the dialog.
 void TestExpressionsDialog::enterInInsertFormInserts()
 {
-    QJsonObject addressField;
-    addressField["type"] = QStringLiteral("integer");
-    addressField["title"] = QStringLiteral("Address");
-    QJsonObject properties;
-    properties["address"] = addressField;
-    QJsonObject addressSchema;
-    addressSchema["type"] = QStringLiteral("object");
-    addressSchema["properties"] = properties;
-    QJsonObject schema;
-    schema["addressSchema"] = addressSchema;
-    _pSettingsModel->setAdapterDataPointSchema(QStringLiteral("modbus"), schema);
+    setAddressSchema();
 
     _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("2 * "));
     recreateDialog();
@@ -868,6 +887,47 @@ void TestExpressionsDialog::enterInInsertFormInserts()
     QVERIFY(_pDialog->isVisible());
     QCOMPARE(_pDialog->_pUi->lineExpression->toPlainText(), QStringLiteral("2 * ${h1}"));
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("2 * "));
+}
+
+//! The insert form previews the built reference, greyed out while a newer one is built.
+void TestExpressionsDialog::insertPreviewShowsBuiltReference()
+{
+    setAddressSchema();
+    recreateDialog();
+
+    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    QVERIFY(_pDialog->_pUi->lblInsertPreview->isHidden());
+
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h1}"));
+
+    QVERIFY(!_pDialog->_pUi->lblInsertPreview->isHidden());
+    QVERIFY(_pDialog->_pUi->lblInsertPreview->isEnabled());
+    QCOMPARE(_pDialog->_pUi->lblInsertPreview->text(),
+             QStringLiteral("Data point: <span style=\"white-space: pre-wrap\"><b>${h1}</b></span>"));
+
+    auto* pAddressSpin = _pDialog->_pInsertEditor->findChild<QSpinBox*>();
+    QVERIFY(pAddressSpin != nullptr);
+    pAddressSpin->setValue(pAddressSpin->value() + 1);
+
+    QVERIFY(!_pDialog->_pUi->lblInsertPreview->isEnabled());
+    QCOMPARE(_pDialog->_pUi->lblInsertPreview->text(),
+             QStringLiteral("Data point: <span style=\"white-space: pre-wrap\"><b>${h1}</b></span>"));
+
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${h2}"));
+
+    QVERIFY(_pDialog->_pUi->lblInsertPreview->isEnabled());
+    QCOMPARE(_pDialog->_pUi->lblInsertPreview->text(),
+             QStringLiteral("Data point: <span style=\"white-space: pre-wrap\"><b>${h2}</b></span>"));
+}
+
+//! The insert preview shows the reference from the adapter as text, not markup.
+void TestExpressionsDialog::insertPreviewEscapesHtml()
+{
+    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pMockDataPointManager->injectBuildResult(QStringLiteral("${<b>1}"));
+
+    QCOMPARE(_pDialog->_pUi->lblInsertPreview->text(),
+             QStringLiteral("Data point: <span style=\"white-space: pre-wrap\"><b>${&lt;b&gt;1}</b></span>"));
 }
 
 QTEST_MAIN(TestExpressionsDialog)

@@ -55,7 +55,11 @@
     </widget>
    </item>
    <item>
-    <widget class="QWidget" name="addressContainer" native="true"/>
+    <widget class="QGroupBox" name="addressContainer">
+     <property name="title">
+      <string>Data point</string>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QLabel" name="lblExpression">
@@ -77,25 +81,30 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="axisLayout">
-     <item>
-      <widget class="QRadioButton" name="radioPrimary">
-       <property name="text">
-        <string>Y1 axis</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="radioSecondary">
-       <property name="text">
-        <string>Y2 axis</string>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QGroupBox" name="axisGroupBox">
+     <property name="title">
+      <string>Y-axis</string>
+     </property>
+     <layout class="QHBoxLayout" name="axisLayout">
+      <item>
+       <widget class="QRadioButton" name="radioPrimary">
+        <property name="text">
+         <string>Y1 axis</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QRadioButton" name="radioSecondary">
+        <property name="text">
+         <string>Y2 axis</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
    </item>
    <item>
     <widget class="QLabel" name="lblStatus">
@@ -118,6 +127,13 @@
    </item>
    <item>
     <widget class="QPushButton" name="btnAdd">
+     <property name="styleSheet">
+      <string notr="true">QPushButton { background-color: palette(highlight); color: palette(highlighted-text); border: 1px solid palette(highlight); border-radius: 4px; padding: 6px 12px; font-weight: bold; }
+QPushButton:hover { border-color: palette(dark); }
+QPushButton:focus { border: 2px solid palette(dark); }
+QPushButton:pressed { background-color: palette(dark); border-color: palette(dark); }
+QPushButton:disabled { background-color: palette(button); color: palette(mid); border-color: palette(mid); }</string>
+     </property>
      <property name="text">
       <string>Add signal</string>
      </property>

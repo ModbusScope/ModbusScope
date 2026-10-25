@@ -112,14 +112,14 @@ void TestDataPointUsage::countPerAdapterSplitsOverAdapters()
     QCOMPARE(counts.value("dummy"), 2);
 }
 
-//! Describe response of an adapter called \a name that allows \a maxRegisters data points.
-QJsonObject TestDataPointUsage::describeWithLimit(const QString& name, int maxRegisters)
+//! Describe response of an adapter with protocol name \a protocolName that allows \a maxRegisters data points.
+QJsonObject TestDataPointUsage::describeWithLimit(const QString& protocolName, int maxRegisters)
 {
     QJsonObject capabilities;
     capabilities["maxRegisters"] = maxRegisters;
 
     QJsonObject describeResult;
-    describeResult["name"] = name;
+    describeResult["protocolName"] = protocolName;
     describeResult["capabilities"] = capabilities;
     return describeResult;
 }

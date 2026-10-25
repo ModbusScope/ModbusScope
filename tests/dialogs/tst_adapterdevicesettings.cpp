@@ -1316,6 +1316,32 @@ void TestAdapterDeviceSettings::warningLabelShowsForOverLimitAdapter()
     QVERIFY(warningLabel->text().contains("Request License"));
 }
 
+void TestAdapterDeviceSettings::warningLabelUsesProtocolName()
+{
+    SettingsModel model;
+
+    QJsonObject dev0;
+    dev0["id"] = 1;
+    QJsonObject dev1;
+    dev1["id"] = 2;
+
+    QJsonObject describe = makeAdapterDescribeWithMaxItems("modbusAdapter", 1);
+    describe["protocolName"] = "modbus";
+    model.updateAdapterFromDescribe("adapterA", describe);
+    QJsonObject config;
+    config["general"] = QJsonObject();
+    config["connections"] = QJsonArray();
+    config["devices"] = QJsonArray{ dev0, dev1 };
+    model.setAdapterCurrentConfig("adapterA", config);
+
+    AdapterDeviceSettings w(&model);
+
+    auto* warningLabel = w.findChild<QLabel*>("deviceLimitWarningLabel");
+    QVERIFY(warningLabel != nullptr);
+    QVERIFY(warningLabel->text().contains("modbus allows at most 1 device(s)"));
+    QVERIFY(!warningLabel->text().contains("modbusAdapter"));
+}
+
 //! Reproduces the real Modbus adapter's describe response, where the schema's maxItems (a
 //! fixed structural cap, e.g. 99) is much larger than capabilities.maxDevices (the live,
 //! license-aware limit actually enforced by adapter.configure, e.g. 2 when unlicensed). The

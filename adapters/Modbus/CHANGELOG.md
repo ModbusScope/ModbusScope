@@ -4,12 +4,12 @@
 
 ### Added
 
-- `adapter.describe` config schema marks `devices[].connectionId` with `x-ref` (`collection`, `value`, `label`) so hosts can render a connection picker. `shared/` is edited locally (`FieldDescriptor::reference`), pending upstream in DummyAdapter
+- `adapter.describe` reports a user-facing `protocolName` (`"modbus"`) alongside the stable `name` identifier
+- `adapter.describe` config schema marks `devices[].connectionId` with `x-ref` (`collection`, `value`, `label`) so hosts can render a connection picker
 - Add `adapter.inspectLicense`: verifies the license file at a given `path` (signature, product, expiry against the train date) and reports it in the same shape as the `adapter.describe` `license` object, so the host can confirm a license before installing it
 
 ### Changed
 
-- Bump the DummyAdapter `dfetch.yaml` pins (`shared/` and `licensecore/`) to `0451c87`
 - `MODBUSADAPTER_LICENSE_PATH` is now read by the adapter itself and passed to licensecore as a path override; same name and same `DEBUG` gate, so development builds keep it and tagged releases compile it out
 - License files larger than 64 KiB are rejected as invalid without being read in full
 

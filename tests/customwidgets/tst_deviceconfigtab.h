@@ -11,6 +11,8 @@ class TestDeviceConfigTab : public QObject
 
 private slots:
     void comboContainsAllAdapterIds();
+    void comboShowsProtocolNames();
+    void comboDisambiguatesDuplicateProtocolNames();
     void constructorSelectsCorrectAdapter();
     void valuesReturnsDeviceFieldValues();
     void adapterIdMatchesComboInitially();

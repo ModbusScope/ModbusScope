@@ -23,18 +23,13 @@ DataPointEditorWidget::DataPointEditorWidget(SettingsModel* pSettingsModel,
       _pDataPointService(pDataPointService),
       _pDeviceCombo(new DeviceComboBox(this)),
       _pProtocolLabel(new QLabel(this)),
-      _pAddressForm(new SchemaFormWidget(this)),
-      _pPreviewLabel(new QLabel(this))
+      _pAddressForm(new SchemaFormWidget(this))
 {
     auto* pLayout = new QVBoxLayout(this);
     pLayout->setContentsMargins(0, 0, 0, 0);
     pLayout->addWidget(_pDeviceCombo);
     pLayout->addWidget(_pProtocolLabel);
     pLayout->addWidget(_pAddressForm);
-    pLayout->addWidget(_pPreviewLabel);
-
-    _pPreviewLabel->setTextFormat(Qt::PlainText);
-    _pPreviewLabel->setTextInteractionFlags(Qt::TextSelectableByMouse);
 
     _pDeviceCombo->setSettingsModel(_pSettingsModel);
 
@@ -116,7 +111,8 @@ deviceId_t DataPointEditorWidget::deviceId() const
 /*!
  * \brief Returns the reference set with setReference(), or the last one built from the form.
  *
- * Only usable when hasValidExpression() is true.
+ * Only usable as a data point when hasValidExpression() is true; while a rebuild is pending it still
+ * returns the previous reference.
  */
 QString DataPointEditorWidget::expression() const
 {
@@ -226,7 +222,7 @@ void DataPointEditorWidget::onExpressionBuilt(quint64 ticket, const QString& exp
 }
 
 /*!
- * \brief Clear the preview and show why the current request failed.
+ * \brief Clear the reference and show why the current request failed.
  * \param ticket Ticket of the failed request; failures of other requests are ignored.
  * \param error  Why the request failed.
  */
@@ -295,15 +291,13 @@ void DataPointEditorWidget::requestBuild()
 }
 
 /*!
- * \brief Store the expression and its validity, update the preview and notify on change.
+ * \brief Store the expression and its validity and notify on change.
  */
 void DataPointEditorWidget::setExpression(const QString& expression, bool bValid)
 {
     const bool bChanged = expression != _expression || bValid != _bValid;
     _expression = expression;
     _bValid = bValid;
-
-    updatePreview();
 
     if (bChanged)
     {
@@ -320,13 +314,4 @@ void DataPointEditorWidget::setError(const QString& error)
 
     _error = error;
     emit errorChanged(_error);
-}
-
-/*!
- * \brief Show the reference; greyed out while a newer one is being built.
- */
-void DataPointEditorWidget::updatePreview()
-{
-    _pPreviewLabel->setText(_expression.isEmpty() ? QString() : QStringLiteral("Reference: %1").arg(_expression));
-    _pPreviewLabel->setEnabled(_pendingTicket == 0);
 }

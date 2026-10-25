@@ -50,6 +50,7 @@ private slots:
     void initialDeviceReconciliationPrefersModbusOverDiscoveryOrder();
     void addButtonRemainsAvailableWhenAdapterOverLimit();
     void warningLabelShowsForOverLimitAdapter();
+    void warningLabelUsesProtocolName();
     void warningLabelShowsForOverCapabilitiesMaxDevices();
     void addingDeviceForModbusNotBlockedByOtherAdapterOverLimit();
     void doesNotDropDevicesWhenAdapterConfigMatchesDeviceList();

@@ -59,6 +59,7 @@ private slots:
     void adapterErrorShownAsPlainText();
     void acceptEnabledAfterInvalidDataPointRemoved();
     void acceptEnabledOnFailedDescribe();
+    void errorLabelHiddenWhenEmpty();
 
     void insertFormCreatedWhenShown();
     void insertFormStartsOnFirstDataPointDevice();
@@ -67,6 +68,8 @@ private slots:
     void insertDisabledUntilBuilt();
     void insertFailureShowsError();
     void enterInInsertFormInserts();
+    void insertPreviewShowsBuiltReference();
+    void insertPreviewEscapesHtml();
 
     void buttonBoxHasAcceptAndCancel();
     void enterInExampleTableIgnored();
@@ -80,6 +83,7 @@ private slots:
 
 private:
     MockDataPointManager* addSimAdapter();
+    void setAddressSchema();
     void recreateDialog();
 
     GraphDataModel* _pGraphDataModel{ nullptr };

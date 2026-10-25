@@ -10,6 +10,7 @@
 #include <QJsonArray>
 #include <QLabel>
 #include <QLineEdit>
+#include <QMap>
 #include <QVBoxLayout>
 
 /*!
@@ -56,6 +57,8 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
     // Add stretch at the end so rebuildSchemaForm can insert before it
     _pLayout->addStretch();
 
+    QStringList deviceAdapterIds;
+    QMap<QString, int> nameCounts;
     const QStringList adapterIds = pSettingsModel->adapterIds();
     for (const auto& id : adapterIds)
     {
@@ -64,8 +67,17 @@ DeviceConfigTab::DeviceConfigTab(SettingsModel* pSettingsModel,
           pAdapter->schema().value("properties").toObject().value("devices").toObject().value("items").toObject();
         if (!itemSchema.isEmpty())
         {
-            _pAdapterCombo->addItem(id, id);
+            deviceAdapterIds << id;
+            nameCounts[pSettingsModel->adapterDisplayName(id)]++;
         }
+    }
+
+    // Protocol names are not guaranteed unique, so append the adapter ID to names that collide
+    for (const auto& id : std::as_const(deviceAdapterIds))
+    {
+        const QString name = pSettingsModel->adapterDisplayName(id);
+        const QString label = nameCounts.value(name) > 1 ? QString("%1 (%2)").arg(name, id) : name;
+        _pAdapterCombo->addItem(label, id);
     }
 
     int idx = _pAdapterCombo->findData(adapterId);
