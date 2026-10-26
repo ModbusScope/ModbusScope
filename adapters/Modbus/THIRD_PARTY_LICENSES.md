@@ -1,7 +1,8 @@
 # Third-Party Licenses
 
-`modbusadapter` and `dummymodbusadapter` statically link the following third-party library. Its
-license text must accompany any distributed copy of these binaries.
+`modbusadapter` and `dummymodbusadapter` link the following third-party library: statically on
+Linux, dynamically (`libsodium-26.dll`) on Windows. Its license text must accompany any distributed
+copy of these binaries.
 
 ## libsodium
 
