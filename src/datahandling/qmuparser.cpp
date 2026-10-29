@@ -241,20 +241,20 @@ void QMuParser::reset()
  */
 QString QMuParser::userFacingMessage(const mu::ParserError& e) const
 {
-    const QString msg = QString::fromStdWString(e.GetMsg());
+    QString msg = QString::fromStdWString(e.GetMsg());
     const QString token = QString::fromStdWString(e.GetToken());
     const qsizetype pos = e.GetPos();
 
-    if (_displayExpression.isEmpty() || token.isEmpty() || pos < 0 || pos + token.size() > _displayExpression.size())
+    if (_displayExpression.isEmpty() || token.isEmpty() || pos < 0 || pos >= _displayExpression.size())
     {
         return msg;
     }
 
+    /* mid() clamps to the end, which drops the trailing space muparser appends to the expression */
     const QString displayToken = _displayExpression.mid(pos, token.size());
 
-    QString result = msg;
-    result.replace(QStringLiteral("\"%1\"").arg(token), QStringLiteral("\"%1\"").arg(displayToken));
-    return result;
+    msg.replace(QStringLiteral("\"%1\"").arg(token), QStringLiteral("\"%1\"").arg(displayToken));
+    return msg;
 }
 
 void QMuParser::registerValue(int index, double* value, bool* success)

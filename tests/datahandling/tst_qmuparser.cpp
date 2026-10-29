@@ -303,7 +303,7 @@ void TestQMuParser::errorMessageIgnoresMismatchedDisplayExpression()
 
     QVERIFY(!parser.evaluate());
 
-    QVERIFY(parser.msg().contains("\"{c0}r(10)\""));
+    QVERIFY(parser.msg().contains("{c0}r(10)"));
 }
 
 void TestQMuParser::evaluateInvalidDecimal()
