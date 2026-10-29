@@ -12,6 +12,17 @@ cp adapters/Modbus/modbusadapter release/src/bin/linux/
 mkdir -p release/src/bin/linux/AppDir/usr/share/modbusscope
 cp data/demo.csv release/src/bin/linux/AppDir/usr/share/modbusscope/
 
+# Copy license files into the AppDir; linuxdeploy keeps existing AppDir content
+DOC_DIR=release/src/bin/linux/AppDir/usr/share/doc/modbusscope
+LICENSE_DIR=${DOC_DIR}/licenses
+mkdir -p "${LICENSE_DIR}/modbusadapter"
+cp LICENSE THIRD_PARTY_NOTICES.md "${DOC_DIR}/"
+cp licenses/LGPL-3.0.txt "${LICENSE_DIR}/"
+cp libraries/muparser/LICENSE "${LICENSE_DIR}/muparser.txt"
+cp libraries/qcustomplot/GPL.txt "${LICENSE_DIR}/qcustomplot.txt"
+cp icons/LICENSE "${LICENSE_DIR}/lucide.txt"
+cp adapters/Modbus/LICENSE.md adapters/Modbus/THIRD_PARTY_LICENSES.md "${LICENSE_DIR}/modbusadapter/"
+
 cd release/src/bin/linux/
 
 # download linuxdeploy and its Qt plugin if not already cached

@@ -22,6 +22,31 @@ REM Copy demo data file
 copy "%~dp0..\data\demo.csv" "%DEPLOY_DIR%"
 IF ERRORLEVEL 1 GOTO errorHandling
 
+REM Copy license files
+set "LICENSE_DIR=%DEPLOY_DIR%\licenses"
+mkdir "%LICENSE_DIR%\modbusadapter"
+
+copy "%~dp0..\LICENSE" "%DEPLOY_DIR%"
+IF ERRORLEVEL 1 GOTO errorHandling
+copy "%~dp0..\THIRD_PARTY_NOTICES.md" "%DEPLOY_DIR%"
+IF ERRORLEVEL 1 GOTO errorHandling
+copy "%~dp0..\licenses\LGPL-3.0.txt" "%LICENSE_DIR%\"
+IF ERRORLEVEL 1 GOTO errorHandling
+copy "%~dp0..\licenses\Apache-2.0.txt" "%LICENSE_DIR%\"
+IF ERRORLEVEL 1 GOTO errorHandling
+copy "%~dp0..\licenses\winpthreads.txt" "%LICENSE_DIR%\"
+IF ERRORLEVEL 1 GOTO errorHandling
+copy "%~dp0..\libraries\muparser\LICENSE" "%LICENSE_DIR%\muparser.txt"
+IF ERRORLEVEL 1 GOTO errorHandling
+copy "%~dp0..\libraries\qcustomplot\GPL.txt" "%LICENSE_DIR%\qcustomplot.txt"
+IF ERRORLEVEL 1 GOTO errorHandling
+copy "%~dp0..\icons\LICENSE" "%LICENSE_DIR%\lucide.txt"
+IF ERRORLEVEL 1 GOTO errorHandling
+copy "%~dp0..\adapters\Modbus\LICENSE.md" "%LICENSE_DIR%\modbusadapter\"
+IF ERRORLEVEL 1 GOTO errorHandling
+copy "%~dp0..\adapters\Modbus\THIRD_PARTY_LICENSES.md" "%LICENSE_DIR%\modbusadapter\"
+IF ERRORLEVEL 1 GOTO errorHandling
+
 cd %DEPLOY_DIR%
 
 REM Run windeployqt on both executables. Because they share the same Qt
