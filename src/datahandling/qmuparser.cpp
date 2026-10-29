@@ -7,7 +7,12 @@
 
 ResultDoubleList QMuParser::_registerValues;
 
-QMuParser::QMuParser(QString strExpression)
+/*!
+ * \brief Creates a parser for an expression.
+ * \param strExpression The expression in its internal representation, as passed to muparser.
+ * \param displayExpression The expression as the user wrote it, used in error messages.
+ */
+QMuParser::QMuParser(QString strExpression, const QString& displayExpression)
 {
     mu::ParserRegister::setRegisterCallback(&QMuParser::registerValue);
     _pExprParser = new mu::ParserRegister();
@@ -15,11 +20,12 @@ QMuParser::QMuParser(QString strExpression)
     _errorPos = -1;
     _errorType = ErrorType::NONE;
 
-    setExpression(strExpression);
+    setExpression(strExpression, displayExpression);
 }
 
 QMuParser::QMuParser(const QMuParser& source)
     : _pExprParser(new mu::ParserRegister(*source._pExprParser)),
+      _displayExpression(source._displayExpression),
       _bInvalidExpression(source._bInvalidExpression),
       _bSuccess(source._bSuccess),
       _value(source._value),
@@ -45,6 +51,7 @@ QMuParser& QMuParser::operator=(const QMuParser& source)
     delete _pExprParser;
     _pExprParser = newParser;
 
+    _displayExpression = source._displayExpression;
     _bInvalidExpression = source._bInvalidExpression;
     _bSuccess = source._bSuccess;
     _value = source._value;
@@ -66,9 +73,13 @@ QMuParser::~QMuParser()
  * expression.
  *
  * \param expr The expression string to be set for evaluation.
+ * \param displayExpression The expression as the user wrote it, used in error messages. It is only used when it has
+ *        the same length as \a expr, so positions match. Otherwise error messages use \a expr.
  */
-void QMuParser::setExpression(QString expr)
+void QMuParser::setExpression(QString expr, const QString& displayExpression)
 {
+    _displayExpression = displayExpression.size() == expr.size() ? displayExpression : QString();
+
     /* Fixed by design */
     _pExprParser->SetArgSep(static_cast<mu::char_type>(';'));
 
@@ -179,7 +190,7 @@ bool QMuParser::evaluate()
             }
             else
             {
-                _msg = QString::fromStdWString(e.GetMsg());
+                _msg = userFacingMessage(e);
             }
 
             _errorType = errCode != mu::ecGENERIC ? ErrorType::SYNTAX : ErrorType::OTHER;
@@ -221,6 +232,29 @@ void QMuParser::reset()
     _bSuccess = false;
     _value = 0;
     _msg = QStringLiteral("No result yet");
+}
+
+/*!
+ * \brief Returns the muparser error message with the internal token replaced by the text the user wrote.
+ * \param e The exception thrown by muparser.
+ * \return The error message to show to the user.
+ */
+QString QMuParser::userFacingMessage(const mu::ParserError& e) const
+{
+    const QString msg = QString::fromStdWString(e.GetMsg());
+    const QString token = QString::fromStdWString(e.GetToken());
+    const qsizetype pos = e.GetPos();
+
+    if (_displayExpression.isEmpty() || token.isEmpty() || pos < 0 || pos + token.size() > _displayExpression.size())
+    {
+        return msg;
+    }
+
+    const QString displayToken = _displayExpression.mid(pos, token.size());
+
+    QString result = msg;
+    result.replace(QStringLiteral("\"%1\"").arg(token), QStringLiteral("\"%1\"").arg(displayToken));
+    return result;
 }
 
 void QMuParser::registerValue(int index, double* value, bool* success)

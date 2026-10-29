@@ -287,6 +287,25 @@ void TestQMuParser::evaluateInvalidBinExpr_2()
     QCOMPARE(parser.errorType(), QMuParser::ErrorType::SYNTAX);
 }
 
+void TestQMuParser::errorMessageUsesDisplayExpression()
+{
+    QMuParser parser("{c0@2:s16b}r(0 )+r(0 )", "{c0@2:s16b}${i0}+${i0}");
+
+    QVERIFY(!parser.evaluate());
+
+    QVERIFY(parser.msg().contains("\"{c0@2:s16b}${i0}+${i0}\""));
+    QVERIFY(!parser.msg().contains("r(0"));
+}
+
+void TestQMuParser::errorMessageIgnoresMismatchedDisplayExpression()
+{
+    QMuParser parser("{c0}r(10)", "{c0}${1}");
+
+    QVERIFY(!parser.evaluate());
+
+    QVERIFY(parser.msg().contains("\"{c0}r(10)\""));
+}
+
 void TestQMuParser::evaluateInvalidDecimal()
 {
     QMuParser parser("1.1 + 1,5");

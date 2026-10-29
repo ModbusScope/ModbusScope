@@ -18,6 +18,7 @@ private slots:
     void expressionIsValid();
     void expressionHasSyntaxError();
     void valueErrorIsNotSyntaxError();
+    void syntaxErrorShowsUserExpression();
 
     void checkForDevices_allPresent();
     void checkForDevices_missing();

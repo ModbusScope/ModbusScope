@@ -132,6 +132,20 @@ void TestExpressionChecker::valueErrorIsNotSyntaxError()
     QVERIFY(checker.syntaxError() == false);
 }
 
+void TestExpressionChecker::syntaxErrorShowsUserExpression()
+{
+    ExpressionChecker checker;
+    checker.setExpression(QStringLiteral("{c0@2:s16b}${40001}+${40001}"));
+
+    auto resultList = ResultDoubleList() << ResultDouble(1, State::Good);
+    checker.checkWithValues(resultList);
+
+    QVERIFY(checker.isValid() == false);
+    QVERIFY(checker.strError().contains("\"{c0@2:s16b}${40001}+${40001}\""));
+    QVERIFY(!checker.strError().contains("r(0"));
+    QVERIFY(checker.syntaxError());
+}
+
 void TestExpressionChecker::checkForDevices_allPresent()
 {
     ExpressionChecker checker;

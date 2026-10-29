@@ -28,6 +28,8 @@ private slots:
     void evaluateInvalidHexExpr();
     void evaluateInvalidBinExpr();
     void evaluateInvalidBinExpr_2();
+    void errorMessageUsesDisplayExpression();
+    void errorMessageIgnoresMismatchedDisplayExpression();
 
     void evaluateDecimalSeparatorCombination();
     void evaluateNaNInf();

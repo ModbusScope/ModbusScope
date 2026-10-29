@@ -29,13 +29,13 @@ public:
         OTHER,
     };
 
-    explicit QMuParser(QString strExpression);
+    explicit QMuParser(QString strExpression, const QString& displayExpression = QString());
     QMuParser(const QMuParser& source);
 
     QMuParser& operator=(const QMuParser& source);
     ~QMuParser();
 
-    void setExpression(QString expr);
+    void setExpression(QString expr, const QString& displayExpression = QString());
 
     static void setRegistersData(const ResultDoubleList& regValues);
 
@@ -49,12 +49,14 @@ public:
 
 private:
     void reset();
+    QString userFacingMessage(const mu::ParserError& e) const;
 
     static void registerValue(int index, double* value, bool* success);
 
     static ResultDoubleList _registerValues;
 
     mu::ParserRegister* _pExprParser;
+    QString _displayExpression;
 
     bool _bInvalidExpression;
 
