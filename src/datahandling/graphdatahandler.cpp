@@ -14,7 +14,8 @@ void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<D
 {
     pGraphDataModel->activeGraphIndexList(_activeIndexList);
 
-    ExpressionParser exprParser(DataPointUsage::activeExpressions(pGraphDataModel));
+    const QStringList expressions = DataPointUsage::activeExpressions(pGraphDataModel);
+    ExpressionParser exprParser(expressions);
     const QList<DataPoint> regList = exprParser.dataPoints();
     const QStringList processedExpList = exprParser.processedExpressions();
     _expressionDataPointIndices = exprParser.expressionDataPointIndices();
@@ -22,9 +23,9 @@ void GraphDataHandler::setupExpressions(GraphDataModel* pGraphDataModel, QList<D
     _valueParsers.clear();
     _lastFailureMsgs.clear();
 
-    for (const QString& expr : processedExpList)
+    for (qsizetype idx = 0; idx < processedExpList.size(); idx++)
     {
-        _valueParsers.append(QMuParser(expr));
+        _valueParsers.append(QMuParser(processedExpList[idx], expressions[idx]));
         _lastFailureMsgs.append(QString());
     }
 

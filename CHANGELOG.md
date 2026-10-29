@@ -11,6 +11,7 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * An address the adapter rejects in the add signal form no longer stops the adapter
 * Compose expression no longer accepts an expression with a syntax error or an unknown device; an expression that mixes `.` and `,` as decimal separator is now reported as a syntax error
 * The add signal form shows why the adapter rejected an address
+* Expression error messages show the expression as written instead of its internal representation
 
 ### Changed
 
