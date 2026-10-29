@@ -19,7 +19,7 @@ namespace {
  */
 void widenToRegisterFunctions(const QString& internalExpression, qsizetype& start, qsizetype& end)
 {
-    static const QRegularExpression registerFunctionRegex(QStringLiteral(R"(\br\(\d+ *\))"));
+    static const QRegularExpression registerFunctionRegex(QStringLiteral(R"((?<![A-Za-z_])r\(\d+ *\))"));
 
     QRegularExpressionMatchIterator it = registerFunctionRegex.globalMatch(internalExpression);
     while (it.hasNext())
