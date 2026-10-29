@@ -306,6 +306,25 @@ void TestQMuParser::errorMessageIgnoresMismatchedDisplayExpression()
     QVERIFY(parser.msg().contains("{c0}r(10)"));
 }
 
+void TestQMuParser::errorMessageKeepsTokenReportedAfterItsPosition()
+{
+    QMuParser parser("1+++2", "1+++9");
+
+    QVERIFY(!parser.evaluate());
+
+    QVERIFY(parser.msg().contains("\"+\""));
+    QVERIFY(!parser.msg().contains("9"));
+}
+
+void TestQMuParser::errorMessageShowsCompleteDataPoint()
+{
+    QMuParser parser("1r(0    )", "1${40001}");
+
+    QVERIFY(!parser.evaluate());
+
+    QVERIFY(parser.msg().contains("\"${40001}\""));
+}
+
 void TestQMuParser::evaluateInvalidDecimal()
 {
     QMuParser parser("1.1 + 1,5");

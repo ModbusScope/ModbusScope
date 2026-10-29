@@ -30,6 +30,8 @@ private slots:
     void evaluateInvalidBinExpr_2();
     void errorMessageUsesDisplayExpression();
     void errorMessageIgnoresMismatchedDisplayExpression();
+    void errorMessageKeepsTokenReportedAfterItsPosition();
+    void errorMessageShowsCompleteDataPoint();
 
     void evaluateDecimalSeparatorCombination();
     void evaluateNaNInf();

@@ -5,7 +5,35 @@
 
 #include "muParser.h"
 
+#include <QRegularExpression>
+
 ResultDoubleList QMuParser::_registerValues;
+
+namespace {
+
+/*!
+ * \brief Widens a range so it covers every internal register function (r(N)) it overlaps.
+ * \param internalExpression The expression as passed to muparser.
+ * \param start Start of the range; updated in place.
+ * \param end End of the range (exclusive); updated in place.
+ */
+void widenToRegisterFunctions(const QString& internalExpression, qsizetype& start, qsizetype& end)
+{
+    static const QRegularExpression registerFunctionRegex(QStringLiteral(R"(\br\(\d+ *\))"));
+
+    QRegularExpressionMatchIterator it = registerFunctionRegex.globalMatch(internalExpression);
+    while (it.hasNext())
+    {
+        const QRegularExpressionMatch match = it.next();
+        if (match.capturedStart() < end && match.capturedEnd() > start)
+        {
+            start = qMin(start, match.capturedStart());
+            end = qMax(end, match.capturedEnd());
+        }
+    }
+}
+
+} // namespace
 
 /*!
  * \brief Creates a parser for an expression.
@@ -243,15 +271,21 @@ QString QMuParser::userFacingMessage(const mu::ParserError& e) const
 {
     QString msg = QString::fromStdWString(e.GetMsg());
     const QString token = QString::fromStdWString(e.GetToken());
-    const qsizetype pos = e.GetPos();
+    const QString internalExpression = QString::fromStdWString(e.GetExpr());
+    qsizetype start = e.GetPos();
 
-    if (_displayExpression.isEmpty() || token.isEmpty() || pos < 0 || pos >= _displayExpression.size())
+    /* Some errors report the position after the token, so only map a token that is found at its position */
+    if (_displayExpression.isEmpty() || token.isEmpty() || start < 0 ||
+        internalExpression.mid(start, token.size()) != token)
     {
         return msg;
     }
 
+    qsizetype end = start + token.size();
+    widenToRegisterFunctions(internalExpression, start, end);
+
     /* mid() clamps to the end, which drops the trailing space muparser appends to the expression */
-    const QString displayToken = _displayExpression.mid(pos, token.size());
+    const QString displayToken = _displayExpression.mid(start, end - start);
 
     msg.replace(QStringLiteral("\"%1\"").arg(token), QStringLiteral("\"%1\"").arg(displayToken));
     return msg;
