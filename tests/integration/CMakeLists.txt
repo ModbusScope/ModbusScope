@@ -83,11 +83,26 @@ add_dependencies(tst_iec104adapter iec104adapter)
 
 add_test(NAME tst_iec104adapter COMMAND tst_iec104adapter)
 
+add_executable(tst_modbusadapter
+    tst_modbusadapter.cpp
+)
+
+# Runs the shipped modbusadapter binary for the build platform (modbusadapter or modbusadapter.exe).
+target_compile_definitions(tst_modbusadapter PRIVATE
+    MODBUS_ADAPTER_EXECUTABLE="$<TARGET_FILE:modbusadapter>"
+)
+
+target_link_libraries(tst_modbusadapter Qt::Test ${QT_LIB} ${SCOPESOURCE})
+
+add_dependencies(tst_modbusadapter modbusadapter)
+
+add_test(NAME tst_modbusadapter COMMAND tst_modbusadapter)
+
 if(UNIX AND NOT APPLE)
     # Derive Qt library path so tests can find Qt shared libraries when run
     # directly from the build tree before a full install (RPATH is $ORIGIN).
     get_filename_component(_qt_lib_dir "${Qt6Core_DIR}/../.." ABSOLUTE)
-    set_tests_properties(tst_dummyadapter tst_iec104adapter PROPERTIES
+    set_tests_properties(tst_dummyadapter tst_iec104adapter tst_modbusadapter PROPERTIES
         ENVIRONMENT "LD_LIBRARY_PATH=${_qt_lib_dir}:$ENV{LD_LIBRARY_PATH}"
     )
 endif()
