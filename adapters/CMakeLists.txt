@@ -7,9 +7,7 @@
 #   adapters/Modbus/modbusadapter.exe      (Windows)
 #   adapters/Modbus/dummymodbusadapter.exe (Windows)
 #   adapters/IEC104/iec104adapter          (Linux)
-#   adapters/IEC104/dummyiec104adapter     (Linux)
 #   adapters/IEC104/iec104adapter.exe      (Windows)
-#   adapters/IEC104/dummyiec104adapter.exe (Windows)
 #   adapters/Dummy/dummyadapter            (Linux)
 #   adapters/Dummy/dummyadapter.exe        (Windows)
 
@@ -35,14 +33,6 @@ set_target_properties(dummymodbusadapter PROPERTIES
 add_executable(iec104adapter IMPORTED GLOBAL)
 set_target_properties(iec104adapter PROPERTIES
     IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/IEC104/iec104adapter${_adapter_suffix}"
-)
-
-# dummyiec104adapter is a test-harness stub of the IEC104 protocol (used only by
-# tests/ProtocolAdapter and tests/integration); it is never copied to the app output
-# directory and is not user-selectable. Not to be confused with dummyadapter below.
-add_executable(dummyiec104adapter IMPORTED GLOBAL)
-set_target_properties(dummyiec104adapter PROPERTIES
-    IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/IEC104/dummyiec104adapter${_adapter_suffix}"
 )
 
 # dummyadapter is a real, user-selectable protocol adapter (AdapterDiscovery picks it up as

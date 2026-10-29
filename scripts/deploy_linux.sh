@@ -16,13 +16,14 @@ cp data/demo.csv release/src/bin/linux/AppDir/usr/share/modbusscope/
 # Copy license files into the AppDir; linuxdeploy keeps existing AppDir content
 DOC_DIR=release/src/bin/linux/AppDir/usr/share/doc/modbusscope
 LICENSE_DIR=${DOC_DIR}/licenses
-mkdir -p "${LICENSE_DIR}/modbusadapter"
+mkdir -p "${LICENSE_DIR}/modbusadapter" "${LICENSE_DIR}/iec104adapter"
 cp LICENSE THIRD_PARTY_NOTICES.md "${DOC_DIR}/"
 cp licenses/LGPL-3.0.txt "${LICENSE_DIR}/"
 cp libraries/muparser/LICENSE "${LICENSE_DIR}/muparser.txt"
 cp libraries/qcustomplot/GPL.txt "${LICENSE_DIR}/qcustomplot.txt"
 cp icons/LICENSE "${LICENSE_DIR}/lucide.txt"
 cp adapters/Modbus/LICENSE.md adapters/Modbus/THIRD_PARTY_LICENSES.md "${LICENSE_DIR}/modbusadapter/"
+cp adapters/IEC104/LICENSE adapters/IEC104/THIRD_PARTY_LICENSES.md "${LICENSE_DIR}/iec104adapter/"
 
 cd release/src/bin/linux/
 

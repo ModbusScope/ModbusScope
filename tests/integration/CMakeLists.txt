@@ -68,11 +68,26 @@ add_dependencies(tst_dummyadapterquality dummyadapter)
 
 add_test(NAME tst_dummyadapterquality COMMAND tst_dummyadapterquality)
 
+add_executable(tst_iec104adapter
+    tst_iec104adapter.cpp
+)
+
+# Runs the shipped iec104adapter binary for the build platform (iec104adapter or iec104adapter.exe).
+target_compile_definitions(tst_iec104adapter PRIVATE
+    IEC104_ADAPTER_EXECUTABLE="$<TARGET_FILE:iec104adapter>"
+)
+
+target_link_libraries(tst_iec104adapter Qt::Test ${QT_LIB} ${SCOPESOURCE})
+
+add_dependencies(tst_iec104adapter iec104adapter)
+
+add_test(NAME tst_iec104adapter COMMAND tst_iec104adapter)
+
 if(UNIX AND NOT APPLE)
     # Derive Qt library path so tests can find Qt shared libraries when run
     # directly from the build tree before a full install (RPATH is $ORIGIN).
     get_filename_component(_qt_lib_dir "${Qt6Core_DIR}/../.." ABSOLUTE)
-    set_tests_properties(tst_dummyadapter PROPERTIES
+    set_tests_properties(tst_dummyadapter tst_iec104adapter PROPERTIES
         ENVIRONMENT "LD_LIBRARY_PATH=${_qt_lib_dir}:$ENV{LD_LIBRARY_PATH}"
     )
 endif()

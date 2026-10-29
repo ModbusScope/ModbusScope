@@ -28,6 +28,7 @@ IF ERRORLEVEL 1 GOTO errorHandling
 REM Copy license files
 set "LICENSE_DIR=%DEPLOY_DIR%\licenses"
 mkdir "%LICENSE_DIR%\modbusadapter"
+mkdir "%LICENSE_DIR%\iec104adapter"
 
 copy "%~dp0..\LICENSE" "%DEPLOY_DIR%"
 IF ERRORLEVEL 1 GOTO errorHandling
@@ -48,6 +49,10 @@ IF ERRORLEVEL 1 GOTO errorHandling
 copy "%~dp0..\adapters\Modbus\LICENSE.md" "%LICENSE_DIR%\modbusadapter\"
 IF ERRORLEVEL 1 GOTO errorHandling
 copy "%~dp0..\adapters\Modbus\THIRD_PARTY_LICENSES.md" "%LICENSE_DIR%\modbusadapter\"
+IF ERRORLEVEL 1 GOTO errorHandling
+copy "%~dp0..\adapters\IEC104\LICENSE" "%LICENSE_DIR%\iec104adapter\"
+IF ERRORLEVEL 1 GOTO errorHandling
+copy "%~dp0..\adapters\IEC104\THIRD_PARTY_LICENSES.md" "%LICENSE_DIR%\iec104adapter\"
 IF ERRORLEVEL 1 GOTO errorHandling
 
 cd %DEPLOY_DIR%
