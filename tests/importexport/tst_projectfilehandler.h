@@ -80,6 +80,9 @@ private slots:
     void deviceOfAdapterAbsentFromFileIsUntouched();
     void alignedLoadEmitsDeviceListChangedOnce();
     void roundTripOfMismatchedDevicesSavesAlignedSections();
+
+    void openXmlProjectStoresAdapterShapedConfig();
+    void xmlProjectSavedAsJsonRoundTrips();
 };
 
 #endif /* TST_PROJECTFILEHANDLER_H */
