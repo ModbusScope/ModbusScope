@@ -72,7 +72,8 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
         // An integer "id" is assigned by addItemTab() and referenced by other items, so the user must not edit it.
         QJsonObject itemProps = _itemSchema.value("properties").toObject();
         QJsonObject idProp = itemProps.value("id").toObject();
-        if (idProp.value("type").toString() == "integer")
+        _hasManagedId = idProp.value("type").toString() == "integer";
+        if (_hasManagedId)
         {
             idProp.insert("readOnly", true);
             itemProps.insert("id", idProp);
@@ -84,10 +85,17 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
         // A previous accept may have stripped an inactive if/then/else branch's fields
         // from a stored item (see SchemaFormWidget::values()); backfill them here so
         // switching back to that branch shows the adapter's defaults instead of blanks.
-        const QJsonObject defaultItem =
+        QJsonObject defaultItem =
           _pSettingsModel->adapterData(_adapterId)->defaults().value(_propertyKey).toArray().at(0).toObject();
 
+        // The default's id would duplicate an existing item's id; an item without an id gets a fresh one below.
+        if (_hasManagedId)
+        {
+            defaultItem.remove("id");
+        }
+
         const QJsonArray itemsArray = configValue.toArray();
+        int nextId = maxItemId(itemsArray) + 1;
         QList<QWidget*> pages;
         QStringList names;
         for (int i = 0; i < itemsArray.size(); ++i)
@@ -97,6 +105,13 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
             for (auto it = storedValues.constBegin(); it != storedValues.constEnd(); ++it)
             {
                 itemValues.insert(it.key(), it.value());
+            }
+
+            // No item can reference an item without an id, so assigning an unused one breaks nothing.
+            if (_hasManagedId && itemValues.value("id").toInt(-1) < 0)
+            {
+                itemValues["id"] = nextId;
+                nextId++;
             }
 
             auto* form = new SchemaFormWidget(_pItemTabs);
@@ -129,6 +144,16 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
         layout->addWidget(_pForm);
         layout->addStretch();
     }
+}
+
+int AdapterSettings::maxItemId(const QJsonArray& items)
+{
+    int maxId = 0;
+    for (const auto& item : items)
+    {
+        maxId = qMax(maxId, item.toObject().value("id").toInt());
+    }
+    return maxId;
 }
 
 QString AdapterSettings::formatTabName(int index) const
@@ -201,20 +226,11 @@ void AdapterSettings::addItemTab()
 
     int nameIndex = _nextItemTabIndex;
 
-    const QJsonObject idProp = properties.value("id").toObject();
-    if (!idProp.isEmpty() && idProp.value("type").toString() == "integer")
+    if (_hasManagedId)
     {
-        int maxId = 0;
-        for (int i = 0; i < _pItemTabs->count(); ++i)
-        {
-            auto* existingForm = qobject_cast<SchemaFormWidget*>(_pItemTabs->tabContent(i));
-            if (existingForm)
-            {
-                maxId = qMax(maxId, existingForm->values().value("id").toInt());
-            }
-        }
-        defaultValues["id"] = maxId + 1;
-        nameIndex = maxId + 1;
+        const int newId = maxItemId(sectionValue().toArray()) + 1;
+        defaultValues["id"] = newId;
+        nameIndex = newId;
     }
 
     const QJsonObject nameProp = properties.value("name").toObject();
