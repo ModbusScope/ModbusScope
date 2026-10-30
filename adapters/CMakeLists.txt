@@ -6,6 +6,8 @@
 #   adapters/Modbus/dummymodbusadapter     (Linux)
 #   adapters/Modbus/modbusadapter.exe      (Windows)
 #   adapters/Modbus/dummymodbusadapter.exe (Windows)
+#   adapters/IEC104/iec104adapter          (Linux)
+#   adapters/IEC104/iec104adapter.exe      (Windows)
 #   adapters/Dummy/dummyadapter            (Linux)
 #   adapters/Dummy/dummyadapter.exe        (Windows)
 
@@ -26,6 +28,11 @@ set_target_properties(modbusadapter PROPERTIES
 add_executable(dummymodbusadapter IMPORTED GLOBAL)
 set_target_properties(dummymodbusadapter PROPERTIES
     IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/Modbus/dummymodbusadapter${_adapter_suffix}"
+)
+
+add_executable(iec104adapter IMPORTED GLOBAL)
+set_target_properties(iec104adapter PROPERTIES
+    IMPORTED_LOCATION "${CMAKE_CURRENT_SOURCE_DIR}/IEC104/iec104adapter${_adapter_suffix}"
 )
 
 # dummyadapter is a real, user-selectable protocol adapter (AdapterDiscovery picks it up as

@@ -5,8 +5,9 @@ set -ex
 cp resources/ModbusScope.desktop release/src/bin/linux/
 cp resources/icon/icon-256x256.png release/src/bin/linux/ModbusScope.png
 
-# Copy modbusadapter so linuxdeploy bundles it alongside the main executable
+# Copy modbusadapter and iec104adapter so linuxdeploy bundles them alongside the main executable
 cp adapters/Modbus/modbusadapter release/src/bin/linux/
+cp adapters/IEC104/iec104adapter release/src/bin/linux/
 
 # Pre-create the AppDir share folder so the demo data ends up in the AppImage
 mkdir -p release/src/bin/linux/AppDir/usr/share/modbusscope
@@ -15,13 +16,14 @@ cp data/demo.csv release/src/bin/linux/AppDir/usr/share/modbusscope/
 # Copy license files into the AppDir; linuxdeploy keeps existing AppDir content
 DOC_DIR=release/src/bin/linux/AppDir/usr/share/doc/modbusscope
 LICENSE_DIR=${DOC_DIR}/licenses
-mkdir -p "${LICENSE_DIR}/modbusadapter"
+mkdir -p "${LICENSE_DIR}/modbusadapter" "${LICENSE_DIR}/iec104adapter"
 cp LICENSE THIRD_PARTY_NOTICES.md "${DOC_DIR}/"
 cp licenses/LGPL-3.0.txt "${LICENSE_DIR}/"
 cp libraries/muparser/LICENSE "${LICENSE_DIR}/muparser.txt"
 cp libraries/qcustomplot/GPL.txt "${LICENSE_DIR}/qcustomplot.txt"
 cp icons/LICENSE "${LICENSE_DIR}/lucide.txt"
 cp adapters/Modbus/LICENSE.md adapters/Modbus/THIRD_PARTY_LICENSES.md "${LICENSE_DIR}/modbusadapter/"
+cp adapters/IEC104/LICENSE adapters/IEC104/THIRD_PARTY_LICENSES.md "${LICENSE_DIR}/iec104adapter/"
 
 cd release/src/bin/linux/
 
@@ -42,6 +44,7 @@ export APPIMAGE_EXTRACT_AND_RUN=1 # Workaround because FUSE isn't available in D
 ./linuxdeploy-x86_64.AppImage --appdir AppDir \
     -e modbusscope \
     -e modbusadapter \
+    -e iec104adapter \
     -i ModbusScope.png \
     -d ModbusScope.desktop \
     --plugin qt \

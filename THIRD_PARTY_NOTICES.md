@@ -48,6 +48,16 @@ next to this file. In the AppImage, they are in `usr/share/doc/modbusscope/`.
   program and is not covered by the ModbusScope GPL-3.0 license.
 - Includes libsodium (Frank Denis, ISC), see `licenses/modbusadapter/THIRD_PARTY_LICENSES.md`
 
+## IEC104Adapter
+
+- Binary: `iec104adapter`
+- Copyright: Copyright (C) 2026 Synvis
+- License: GNU General Public License v3.0, see `licenses/iec104adapter/LICENSE`. IEC104Adapter is
+  a separate program.
+- Statically links lib60870 v2.4.1 (MZ Automation GmbH, GPL-3.0), see
+  `licenses/iec104adapter/THIRD_PARTY_LICENSES.md`
+- Source of lib60870: <https://github.com/mz-automation/lib60870>
+
 ## Windows only
 
 ### OpenSSL
