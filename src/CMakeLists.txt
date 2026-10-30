@@ -64,21 +64,39 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
 # Reset GUI type to blank
 set(GUI_TYPE "")
 
-# Copy modbusadapter next to the main executable so it can be found at runtime
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:modbusadapter>
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    COMMENT "Copying modbusadapter to output directory"
-)
+# Copy a prebuilt adapter next to the main executable so it can be found at runtime.
+# The adapter binary is a tracked input, so an updated adapter is re-copied without relinking the application.
+function(copy_adapter_to_output ADAPTER_TARGET OUTPUT_DIR)
+    get_target_property(adapter_source ${ADAPTER_TARGET} IMPORTED_LOCATION)
+    if(NOT adapter_source)
+        message(FATAL_ERROR "copy_adapter_to_output: ${ADAPTER_TARGET} has no IMPORTED_LOCATION")
+    endif()
+    get_filename_component(adapter_name "${adapter_source}" NAME)
+    set(adapter_output "${OUTPUT_DIR}/${adapter_name}")
 
-# Copy iec104adapter next to the main executable so it can be found at runtime
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        $<TARGET_FILE:iec104adapter>
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>
-    COMMENT "Copying iec104adapter to output directory"
-)
+    add_custom_command(
+        OUTPUT "${adapter_output}"
+        COMMAND ${CMAKE_COMMAND} -E make_directory "${OUTPUT_DIR}"
+        COMMAND ${CMAKE_COMMAND} -E copy "${adapter_source}" "${adapter_output}"
+        DEPENDS "${adapter_source}"
+        COMMENT "Copying ${ADAPTER_TARGET} to output directory"
+        VERBATIM
+    )
+    add_custom_target(copy_${ADAPTER_TARGET} ALL DEPENDS "${adapter_output}")
+    add_dependencies(${PROJECT_NAME} copy_${ADAPTER_TARGET})
+endfunction()
+
+set(adapter_output_dir "${CMAKE_CURRENT_BINARY_DIR}/${target_dir}")
+
+copy_adapter_to_output(modbusadapter "${adapter_output_dir}")
+copy_adapter_to_output(iec104adapter "${adapter_output_dir}")
+
+# dummyadapter is dev/test-only: copy it alongside modbusadapter in non-Release builds so it
+# is discoverable for manual testing, but keep it out of Release builds so a future deploy
+# script relying on "copy everything from the output dir" can't accidentally ship it.
+if(NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+    copy_adapter_to_output(dummyadapter "${adapter_output_dir}")
+endif()
 
 # Copy the demo data file next to the main executable (loaded from the Quick Start dialog)
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
@@ -87,18 +105,6 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         $<TARGET_FILE_DIR:${PROJECT_NAME}>
     COMMENT "Copying demo.csv to output directory"
 )
-
-# dummyadapter is dev/test-only: copy it alongside modbusadapter in non-Release builds so it
-# is discoverable for manual testing, but keep it out of Release builds so a future deploy
-# script relying on "copy everything from the output dir" can't accidentally ship it.
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Release")
-    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            $<TARGET_FILE:dummyadapter>
-            $<TARGET_FILE_DIR:${PROJECT_NAME}>
-        COMMENT "Copying dummyadapter to output directory"
-    )
-endif()
 
 # Do platform specific post target stuff
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
