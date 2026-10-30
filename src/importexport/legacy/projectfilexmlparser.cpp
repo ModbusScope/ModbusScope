@@ -6,6 +6,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QLocale>
+#include <QSet>
 
 using ProjectFileData::AdapterFileSettings;
 using ProjectFileData::DeviceSettings;
@@ -17,6 +18,130 @@ using ProjectFileData::ScaleSettings;
 using ProjectFileData::ScopeSettings;
 using ProjectFileData::ViewSettings;
 using ProjectFileData::YAxisSettings;
+
+/* Values the old in-app Modbus implementation used when a connection or device field was missing or invalid. */
+static const char cTcpType[] = "tcp";
+static const char cSerialType[] = "serial";
+static const int cDefaultPort = 502;
+static const int cDefaultBaudrate = 115200;
+static const int cDefaultDataBits = 8;
+static const int cDefaultStopBits = 1;
+static const quint8 cDefaultSlaveId = 1;
+static const quint8 cDefaultConsecutiveMax = 125;
+
+//! Return true when \a baudrate is one of the rates the old serial settings offered.
+static bool isSupportedBaudrate(int baudrate)
+{
+    const QList<int> supportedBaudrates = { 1200, 2400, 4800, 9600, 19200, 38400, 57600, 115200 };
+    return supportedBaudrates.contains(baudrate);
+}
+
+/*!
+ * \brief Convert a QSerialPort::Parity value to the adapter's parity letter.
+ *
+ * Old ModbusScope versions only wrote none (0), even (2) and odd (3); any other value fell back
+ * to no parity, so it does here too.
+ * \param parity  QSerialPort::Parity value from the XML.
+ * \return "N", "E" or "O".
+ */
+static QString parityLetter(quint32 parity)
+{
+    if (parity == 2)
+    {
+        return QStringLiteral("E");
+    }
+    if (parity == 3)
+    {
+        return QStringLiteral("O");
+    }
+    return QStringLiteral("N");
+}
+
+/*!
+ * \brief Fill the fields a legacy connection lacks with the old in-app defaults and name it.
+ * \param connection  Connection parsed from the XML.
+ * \return The connection with every field the adapter requires.
+ */
+static QJsonObject completeConnection(const QJsonObject& connection)
+{
+    QJsonObject result;
+    result[ProjectFileDefinitions::cIdJsonKey] = 1;
+    result[ProjectFileDefinitions::cConnectionTypeJsonKey] = cTcpType;
+    result[ProjectFileDefinitions::cIpTag] = "127.0.0.1";
+    result[ProjectFileDefinitions::cPortTag] = cDefaultPort;
+    result[ProjectFileDefinitions::cPortNameJsonKey] = "COM1";
+    result[ProjectFileDefinitions::cBaudrateTag] = cDefaultBaudrate;
+    result[ProjectFileDefinitions::cParityJsonKey] = "N";
+    result[ProjectFileDefinitions::cDataBitsTag] = cDefaultDataBits;
+    result[ProjectFileDefinitions::cStopBitsTag] = cDefaultStopBits;
+    result[ProjectFileDefinitions::cTimeoutTag] = 1000;
+    result[ProjectFileDefinitions::cPersistentJsonKey] = true;
+
+    for (auto it = connection.constBegin(); it != connection.constEnd(); ++it)
+    {
+        result.insert(it.key(), it.value());
+    }
+
+    // Without a name the settings page would show the adapter default's name on every connection
+    result[ProjectFileDefinitions::cNameJsonKey] =
+      QString("Connection %1").arg(result.value(ProjectFileDefinitions::cIdJsonKey).toInt());
+    return result;
+}
+
+/*!
+ * \brief Drop disabled connections that no device uses, and remove the "enabled" flag.
+ *
+ * Old files always hold all three connections; the adapter has no notion of a disabled one.
+ * \param connections  Completed connections.
+ * \param devices      Adapter devices, referencing connections by "connectionId".
+ * \return The connections to keep.
+ */
+static QJsonArray removeUnusedDisabledConnections(const QJsonArray& connections, const QJsonArray& devices)
+{
+    QSet<int> usedIds;
+    for (const auto& device : devices)
+    {
+        usedIds.insert(device.toObject().value(ProjectFileDefinitions::cConnectionIdJsonKey).toInt());
+    }
+
+    QJsonArray result;
+    for (const auto& connection : connections)
+    {
+        QJsonObject obj = connection.toObject();
+        const bool bEnabled = obj.value(ProjectFileDefinitions::cEnabledAttribute).toBool(true);
+        if (!bEnabled && !usedIds.contains(obj.value(ProjectFileDefinitions::cIdJsonKey).toInt()))
+        {
+            continue;
+        }
+        obj.remove(ProjectFileDefinitions::cEnabledAttribute);
+        result.append(obj);
+    }
+    return result;
+}
+
+/*!
+ * \brief Keep only the first connection of each id.
+ *
+ * Connections without a \c \<connectionid\> all default to the same id.
+ * \param connections  Completed connections.
+ * \return The connections with repeated ids removed.
+ */
+static QJsonArray removeDuplicateConnectionIds(const QJsonArray& connections)
+{
+    QJsonArray result;
+    QSet<int> seenIds;
+    for (const auto& connection : connections)
+    {
+        const int id = connection.toObject().value(ProjectFileDefinitions::cIdJsonKey).toInt();
+        if (seenIds.contains(id))
+        {
+            continue;
+        }
+        seenIds.insert(id);
+        result.append(connection);
+    }
+    return result;
+}
 
 ProjectFileXmlParser::ProjectFileXmlParser() : _dataLevel(0)
 {
@@ -143,7 +268,7 @@ GeneralError ProjectFileXmlParser::parseModbusTag(const QDomElement& element, Ge
 
                 parseErr = parseLegacyConnectionTag(child, &connectionJson, &deviceJson, &deviceSettings);
 
-                if (parseErr.result() && connectionJson[ProjectFileDefinitions::cEnabledAttribute].toBool(true))
+                if (parseErr.result() && connectionJson.value(ProjectFileDefinitions::cEnabledAttribute).toBool(true))
                 {
                     pGeneralSettings->deviceSettings.append(deviceSettings);
                     adapterDevicesArray.append(deviceJson);
@@ -223,10 +348,11 @@ GeneralError ProjectFileXmlParser::parseLegacyConnectionTag(const QDomElement& e
     GeneralError parseErr;
 
     /* In legacy format, each connection implicitly defines a device.
-     * The device gets a synthetic deviceId based on the connection id. */
+     * The device gets a synthetic deviceId based on the connection id. Both ids are 0-based in the
+     * XML and 1-based for the adapter. */
     quint32 connectionId = 0;
-    quint8 slaveId = 1;
-    quint8 consecutiveMax = 125;
+    quint8 slaveId = cDefaultSlaveId;
+    quint8 consecutiveMax = cDefaultConsecutiveMax;
     bool int32LittleEndian = true;
 
     QDomElement child = element.firstChildElement();
@@ -242,22 +368,24 @@ GeneralError ProjectFileXmlParser::parseLegacyConnectionTag(const QDomElement& e
 
         if (child.tagName() == ProjectFileDefinitions::cSlaveIdTag)
         {
-            slaveId = static_cast<quint8>(child.text().toUInt(&bRet));
+            const quint32 val = child.text().toUInt(&bRet);
             if (!bRet)
             {
                 parseErr.reportError(QString("Slave id ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
+            slaveId = (val >= 1 && val <= 247) ? static_cast<quint8>(val) : cDefaultSlaveId;
         }
         else if (child.tagName() == ProjectFileDefinitions::cConsecutiveMaxTag)
         {
-            consecutiveMax = static_cast<quint8>(child.text().toUInt(&bRet));
+            const quint32 val = child.text().toUInt(&bRet);
             if (!bRet)
             {
                 parseErr.reportError(
                   QString("Consecutive register maximum ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
+            consecutiveMax = (val >= 1 && val <= 125) ? static_cast<quint8>(val) : cDefaultConsecutiveMax;
         }
         else if (child.tagName() == ProjectFileDefinitions::cInt32LittleEndianTag)
         {
@@ -284,10 +412,10 @@ GeneralError ProjectFileXmlParser::parseLegacyConnectionTag(const QDomElement& e
 
         /* Build adapter device JSON blob */
         (*pDeviceJson)[ProjectFileDefinitions::cIdJsonKey] = static_cast<int>(connectionId + 1);
-        (*pDeviceJson)[ProjectFileDefinitions::cConnectionIdTag] = static_cast<int>(connectionId);
-        (*pDeviceJson)[ProjectFileDefinitions::cSlaveIdTag] = static_cast<int>(slaveId);
-        (*pDeviceJson)[ProjectFileDefinitions::cConsecutiveMaxTag] = static_cast<int>(consecutiveMax);
-        (*pDeviceJson)[ProjectFileDefinitions::cInt32LittleEndianTag] = int32LittleEndian;
+        (*pDeviceJson)[ProjectFileDefinitions::cConnectionIdJsonKey] = static_cast<int>(connectionId + 1);
+        (*pDeviceJson)[ProjectFileDefinitions::cSlaveIdJsonKey] = static_cast<int>(slaveId);
+        (*pDeviceJson)[ProjectFileDefinitions::cConsecutiveMaxJsonKey] = static_cast<int>(consecutiveMax);
+        (*pDeviceJson)[ProjectFileDefinitions::cInt32LittleEndianJsonKey] = int32LittleEndian;
     }
 
     return parseErr;
@@ -303,8 +431,8 @@ GeneralError ProjectFileXmlParser::parseDeviceTag(const QDomElement& element,
     GeneralError parseErr;
 
     quint32 connectionId = 0;
-    quint8 slaveId = 1;
-    quint8 consecutiveMax = 125;
+    quint8 slaveId = cDefaultSlaveId;
+    quint8 consecutiveMax = cDefaultConsecutiveMax;
     bool int32LittleEndian = true;
 
     QDomElement child = element.firstChildElement();
@@ -337,22 +465,24 @@ GeneralError ProjectFileXmlParser::parseDeviceTag(const QDomElement& element,
         }
         else if (child.tagName() == ProjectFileDefinitions::cSlaveIdTag)
         {
-            slaveId = static_cast<quint8>(child.text().toUInt(&bRet));
+            const quint32 val = child.text().toUInt(&bRet);
             if (!bRet)
             {
                 parseErr.reportError(QString("Slave id ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
+            slaveId = (val >= 1 && val <= 247) ? static_cast<quint8>(val) : cDefaultSlaveId;
         }
         else if (child.tagName() == ProjectFileDefinitions::cConsecutiveMaxTag)
         {
-            consecutiveMax = static_cast<quint8>(child.text().toUInt(&bRet));
+            const quint32 val = child.text().toUInt(&bRet);
             if (!bRet)
             {
                 parseErr.reportError(
                   QString("Consecutive register maximum ( %1 ) is not a valid number").arg(child.text()));
                 break;
             }
+            consecutiveMax = (val >= 1 && val <= 125) ? static_cast<quint8>(val) : cDefaultConsecutiveMax;
         }
         else if (child.tagName() == ProjectFileDefinitions::cInt32LittleEndianTag)
         {
@@ -365,10 +495,10 @@ GeneralError ProjectFileXmlParser::parseDeviceTag(const QDomElement& element,
     if (parseErr.result())
     {
         (*pDeviceJson)[ProjectFileDefinitions::cIdJsonKey] = static_cast<int>(pDeviceSettings->deviceId);
-        (*pDeviceJson)[ProjectFileDefinitions::cConnectionIdTag] = static_cast<int>(connectionId);
-        (*pDeviceJson)[ProjectFileDefinitions::cSlaveIdTag] = static_cast<int>(slaveId);
-        (*pDeviceJson)[ProjectFileDefinitions::cConsecutiveMaxTag] = static_cast<int>(consecutiveMax);
-        (*pDeviceJson)[ProjectFileDefinitions::cInt32LittleEndianTag] = int32LittleEndian;
+        (*pDeviceJson)[ProjectFileDefinitions::cConnectionIdJsonKey] = static_cast<int>(connectionId + 1);
+        (*pDeviceJson)[ProjectFileDefinitions::cSlaveIdJsonKey] = static_cast<int>(slaveId);
+        (*pDeviceJson)[ProjectFileDefinitions::cConsecutiveMaxJsonKey] = static_cast<int>(consecutiveMax);
+        (*pDeviceJson)[ProjectFileDefinitions::cInt32LittleEndianJsonKey] = int32LittleEndian;
     }
 
     return parseErr;
@@ -739,7 +869,8 @@ GeneralError ProjectFileXmlParser::parseConnectionFields(const QDomElement& chil
             parseErr.reportError(QString("Connection id (%1) is not a valid number").arg(child.text()));
             return parseErr;
         }
-        (*pConnectionJson)[ProjectFileDefinitions::cIdJsonKey] = static_cast<int>(val);
+        // XML connection ids start at 0, the adapter's at 1
+        (*pConnectionJson)[ProjectFileDefinitions::cIdJsonKey] = static_cast<int>(val + 1);
     }
     else if (child.tagName() == ProjectFileDefinitions::cConnectionEnabledTag)
     {
@@ -748,7 +879,8 @@ GeneralError ProjectFileXmlParser::parseConnectionFields(const QDomElement& chil
     }
     else if (child.tagName() == ProjectFileDefinitions::cConnectionTypeTag)
     {
-        (*pConnectionJson)[ProjectFileDefinitions::cConnectionTypeJsonKey] = child.text();
+        const bool bSerial = child.text().compare(cSerialType, Qt::CaseInsensitive) == 0;
+        (*pConnectionJson)[ProjectFileDefinitions::cConnectionTypeJsonKey] = bSerial ? cSerialType : cTcpType;
     }
     else if (child.tagName() == ProjectFileDefinitions::cIpTag)
     {
@@ -762,11 +894,12 @@ GeneralError ProjectFileXmlParser::parseConnectionFields(const QDomElement& chil
             parseErr.reportError(QString("Port (%1) is not a valid number").arg(child.text()));
             return parseErr;
         }
-        (*pConnectionJson)[ProjectFileDefinitions::cPortTag] = static_cast<int>(val);
+        (*pConnectionJson)[ProjectFileDefinitions::cPortTag] =
+          (val >= 1 && val <= 65535) ? static_cast<int>(val) : cDefaultPort;
     }
     else if (child.tagName() == ProjectFileDefinitions::cPortNameTag)
     {
-        (*pConnectionJson)[ProjectFileDefinitions::cPortNameTag] = child.text();
+        (*pConnectionJson)[ProjectFileDefinitions::cPortNameJsonKey] = child.text();
     }
     else if (child.tagName() == ProjectFileDefinitions::cBaudrateTag)
     {
@@ -776,7 +909,9 @@ GeneralError ProjectFileXmlParser::parseConnectionFields(const QDomElement& chil
             parseErr.reportError(QString("Baudrate (%1) is not a valid number").arg(child.text()));
             return parseErr;
         }
-        (*pConnectionJson)[ProjectFileDefinitions::cBaudrateTag] = static_cast<int>(val);
+        const int baudrate = static_cast<int>(val);
+        (*pConnectionJson)[ProjectFileDefinitions::cBaudrateTag] =
+          isSupportedBaudrate(baudrate) ? baudrate : cDefaultBaudrate;
     }
     else if (child.tagName() == ProjectFileDefinitions::cParityTag)
     {
@@ -786,7 +921,7 @@ GeneralError ProjectFileXmlParser::parseConnectionFields(const QDomElement& chil
             parseErr.reportError(QString("Parity (%1) is not a valid number").arg(child.text()));
             return parseErr;
         }
-        (*pConnectionJson)[ProjectFileDefinitions::cParityTag] = static_cast<int>(val);
+        (*pConnectionJson)[ProjectFileDefinitions::cParityJsonKey] = parityLetter(val);
     }
     else if (child.tagName() == ProjectFileDefinitions::cStopBitsTag)
     {
@@ -796,7 +931,9 @@ GeneralError ProjectFileXmlParser::parseConnectionFields(const QDomElement& chil
             parseErr.reportError(QString("Stop bits (%1) is not a valid number").arg(child.text()));
             return parseErr;
         }
-        (*pConnectionJson)[ProjectFileDefinitions::cStopBitsTag] = static_cast<int>(val);
+        // 1 = one, 2 = two, 3 = one and a half (QSerialPort::StopBits)
+        (*pConnectionJson)[ProjectFileDefinitions::cStopBitsTag] =
+          (val >= 1 && val <= 3) ? static_cast<int>(val) : cDefaultStopBits;
     }
     else if (child.tagName() == ProjectFileDefinitions::cDataBitsTag)
     {
@@ -806,7 +943,8 @@ GeneralError ProjectFileXmlParser::parseConnectionFields(const QDomElement& chil
             parseErr.reportError(QString("Data bits (%1) is not a valid number").arg(child.text()));
             return parseErr;
         }
-        (*pConnectionJson)[ProjectFileDefinitions::cDataBitsTag] = static_cast<int>(val);
+        (*pConnectionJson)[ProjectFileDefinitions::cDataBitsTag] =
+          (val >= 5 && val <= 8) ? static_cast<int>(val) : cDefaultDataBits;
     }
     else if (child.tagName() == ProjectFileDefinitions::cTimeoutTag)
     {
@@ -820,7 +958,7 @@ GeneralError ProjectFileXmlParser::parseConnectionFields(const QDomElement& chil
     }
     else if (child.tagName() == ProjectFileDefinitions::cPersistentConnectionTag)
     {
-        (*pConnectionJson)[ProjectFileDefinitions::cPersistentConnectionTag] =
+        (*pConnectionJson)[ProjectFileDefinitions::cPersistentJsonKey] =
           (child.text().toLower().compare(ProjectFileDefinitions::cTrueValue) == 0);
     }
 
@@ -837,8 +975,16 @@ void ProjectFileXmlParser::buildAdapterSettings(const QJsonArray& connectionsArr
     AdapterFileSettings adapterSettings;
     adapterSettings.type = "modbus";
 
+    QJsonArray connections;
+    for (const auto& connection : connectionsArray)
+    {
+        connections.append(completeConnection(connection.toObject()));
+    }
+    connections = removeUnusedDisabledConnections(connections, devicesArray);
+    connections = removeDuplicateConnectionIds(connections);
+
     QJsonObject settingsObj;
-    settingsObj[ProjectFileDefinitions::cConnectionsJsonKey] = connectionsArray;
+    settingsObj[ProjectFileDefinitions::cConnectionsJsonKey] = connections;
     settingsObj[ProjectFileDefinitions::cDevicesJsonKey] = devicesArray;
     adapterSettings.settings = settingsObj;
 

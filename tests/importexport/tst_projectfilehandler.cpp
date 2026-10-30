@@ -3,12 +3,14 @@
 
 #include "../models/devicelisthelpers.h"
 #include "importexport/projectfilehandler.h"
+#include "legacy/projectfilexmltestdata.h"
 #include "models/adapterdata.h"
 #include "models/device.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
 #include "models/settingsmodel.h"
 
+#include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -108,6 +110,18 @@ QList<int> storedDeviceIds(SettingsModel& settingsModel, const QString& adapterI
         ids.append(device.toObject().value("id").toInt(-1));
     }
     return ids;
+}
+
+//! Write \a content to \a path; returns false when the file cannot be written.
+bool writeTextFile(const QString& path, const QString& content)
+{
+    QFile file(path);
+    if (!file.open(QFile::WriteOnly | QFile::Text))
+    {
+        return false;
+    }
+    file.write(content.toUtf8());
+    return true;
 }
 
 } /* namespace */
@@ -1289,6 +1303,76 @@ void TestProjectFileHandler::roundTripOfMismatchedDevicesSavesAlignedSections()
     QCOMPARE(topLevelDeviceIds, QList<int>({ 1, 2, 3 }));
 
     QFile::remove(loadPath);
+}
+
+/*!
+ * \brief Opening a legacy XML project stores a config in the Modbus adapter's own shape.
+ */
+void TestProjectFileHandler::openXmlProjectStoresAdapterShapedConfig()
+{
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QString path = tmpDir.filePath("legacy.mbs");
+    QVERIFY(writeTextFile(path, ProjectFileXmlTestData::cDataLevel5Demo));
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    QVERIFY(settingsModel.adapterData("modbus") != nullptr);
+    const QJsonObject config = settingsModel.adapterData("modbus")->currentConfig();
+
+    const QJsonArray connections = config.value("connections").toArray();
+    QCOMPARE(connections.size(), 2);
+    QCOMPARE(connections[0].toObject().value("id").toInt(), 1);
+    QCOMPARE(connections[0].toObject().value("type").toString(), QStringLiteral("tcp"));
+    QCOMPARE(connections[1].toObject().value("id").toInt(), 2);
+
+    const QJsonArray devices = config.value("devices").toArray();
+    QCOMPARE(devices.size(), 2);
+    QCOMPARE(devices[0].toObject().value("connectionId").toInt(), 1);
+    QCOMPARE(devices[1].toObject().value("connectionId").toInt(), 2);
+    QVERIFY(!devices[0].toObject().contains("connectionid"));
+
+    QCOMPARE(storedDeviceIds(settingsModel, "modbus"), QList<int>({ 1, 2 }));
+}
+
+/*!
+ * \brief A legacy XML project saved as JSON and reopened keeps the same connections and devices.
+ */
+void TestProjectFileHandler::xmlProjectSavedAsJsonRoundTrips()
+{
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QString xmlPath = tmpDir.filePath("legacy.mbs");
+    const QString jsonPath = tmpDir.filePath("converted.mbs");
+    QVERIFY(writeTextFile(xmlPath, ProjectFileXmlTestData::cDataLevel4Demo));
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(xmlPath);
+    const QJsonObject loadedConfig = settingsModel.adapterData("modbus")->currentConfig();
+    guiModel.setProjectFilePath(jsonPath);
+    handler.saveProjectFile();
+
+    GuiModel reloadGuiModel;
+    SettingsModel reloadSettingsModel;
+    GraphDataModel reloadGraphDataModel(&reloadSettingsModel);
+    ProjectFileHandler reloadHandler(&reloadGuiModel, &reloadSettingsModel, &reloadGraphDataModel);
+
+    reloadHandler.openProjectFile(jsonPath);
+    const QJsonObject reloadedConfig = reloadSettingsModel.adapterData("modbus")->currentConfig();
+
+    QCOMPARE(reloadedConfig.value("connections").toArray(), loadedConfig.value("connections").toArray());
+    QCOMPARE(reloadedConfig.value("devices").toArray(), loadedConfig.value("devices").toArray());
+    QCOMPARE(reloadedConfig.value("connections").toArray().size(), 2);
+    QCOMPARE(storedDeviceIds(reloadSettingsModel, "modbus"), QList<int>({ 1, 2 }));
 }
 
 QTEST_GUILESS_MAIN(TestProjectFileHandler)
