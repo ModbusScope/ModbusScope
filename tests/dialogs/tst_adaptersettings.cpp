@@ -234,6 +234,49 @@ void TestAdapterSettings::addTabUsesNextIndexForId()
     QCOMPARE(form->values().value("id").toInt(), 3);
 }
 
+void TestAdapterSettings::connectionIdFieldIsReadOnly()
+{
+    SettingsModel model;
+
+    QJsonObject idProp;
+    idProp["type"] = "integer";
+    idProp["title"] = "ID";
+    QJsonObject hostProp;
+    hostProp["type"] = "string";
+    QJsonObject itemProps;
+    itemProps["id"] = idProp;
+    itemProps["host"] = hostProp;
+
+    model.updateAdapterFromDescribe("testAdapter", makeDescribeResult("connections", "array", itemProps));
+
+    QJsonObject conn0;
+    conn0["id"] = 1;
+    conn0["host"] = "192.168.0.1";
+    QJsonObject config;
+    config["connections"] = QJsonArray{ conn0 };
+    model.setAdapterCurrentConfig("testAdapter", config);
+
+    AdapterSettings w(&model, "testAdapter", "connections");
+
+    auto* tabs = w.findChild<AddableTabWidget*>();
+    QVERIFY(tabs != nullptr);
+    QCOMPARE(tabs->count(), 1);
+
+    const QList<QSpinBox*> loadedSpins = tabs->tabContent(0)->findChildren<QSpinBox*>();
+    QCOMPARE(loadedSpins.size(), 1);
+    QVERIFY(!loadedSpins.first()->isEnabled());
+
+    emit tabs->addTabRequested();
+
+    QCOMPARE(tabs->count(), 2);
+    auto* form = qobject_cast<SchemaFormWidget*>(tabs->tabContent(1));
+    QVERIFY(form != nullptr);
+    const QList<QSpinBox*> addedSpins = form->findChildren<QSpinBox*>();
+    QCOMPARE(addedSpins.size(), 1);
+    QVERIFY(!addedSpins.first()->isEnabled());
+    QCOMPARE(form->values().value("id").toInt(), 2);
+}
+
 void TestAdapterSettings::addTabAssignsMaxIdPlusOneForNonContiguousIds()
 {
     SettingsModel model;
