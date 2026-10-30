@@ -68,6 +68,17 @@ void AdapterSettings::buildSection(const QJsonObject& propSchema, const QJsonVal
     if (type == "array")
     {
         _itemSchema = propSchema.value("items").toObject();
+
+        // An integer "id" is assigned by addItemTab() and referenced by other items, so the user must not edit it.
+        QJsonObject itemProps = _itemSchema.value("properties").toObject();
+        QJsonObject idProp = itemProps.value("id").toObject();
+        if (idProp.value("type").toString() == "integer")
+        {
+            idProp.insert("readOnly", true);
+            itemProps.insert("id", idProp);
+            _itemSchema.insert("properties", itemProps);
+        }
+
         _pItemTabs = new AddableTabWidget(this);
 
         // A previous accept may have stripped an inactive if/then/else branch's fields

@@ -18,6 +18,7 @@ private slots:
     void objectPropertyCreatesSingleForm();
     void addTabUsesPropertyDefaults();
     void addTabUsesNextIndexForId();
+    void connectionIdFieldIsReadOnly();
     void addTabAssignsMaxIdPlusOneForNonContiguousIds();
     void addTabNameMatchesIdForNonContiguousIds();
     void addTabNameMatchesIdForConsecutiveAddsWithNonContiguousStart();
