@@ -6,55 +6,27 @@
             "settings": {
                 "connections": [
                     {
-                        "id": 0,
-                        "connectiontype": "tcp",
-                        "ip": "127.0.0.1",
-                        "port": 502,
-                        "portname": "COM1",
-                        "baudrate": 115200,
-                        "parity": 0,
-                        "stopbits": 1,
-                        "databits": 8,
-                        "timeout": 1000,
-                        "persistentconnection": true,
-                        "enabled": true
-                    },
-                    {
                         "id": 1,
-                        "connectiontype": "tcp",
+                        "name": "Connection 1",
+                        "type": "tcp",
                         "ip": "127.0.0.1",
                         "port": 502,
-                        "portname": "COM1",
+                        "portName": "COM1",
                         "baudrate": 115200,
-                        "parity": 0,
+                        "parity": "N",
                         "stopbits": 1,
                         "databits": 8,
                         "timeout": 1000,
-                        "persistentconnection": true,
-                        "enabled": false
-                    },
-                    {
-                        "id": 2,
-                        "connectiontype": "tcp",
-                        "ip": "127.0.0.1",
-                        "port": 502,
-                        "portname": "COM1",
-                        "baudrate": 115200,
-                        "parity": 0,
-                        "stopbits": 1,
-                        "databits": 8,
-                        "timeout": 1000,
-                        "persistentconnection": true,
-                        "enabled": false
+                        "persistent": true
                     }
                 ],
                 "devices": [
                     {
-                        "id": 0,
-                        "connectionid": 0,
-                        "slaveid": 1,
-                        "consecutivemax": 125,
-                        "int32littleendian": true
+                        "id": 1,
+                        "connectionId": 1,
+                        "slaveId": 1,
+                        "consecutiveMax": 125,
+                        "int32LittleEndian": true
                     }
                 ]
             }

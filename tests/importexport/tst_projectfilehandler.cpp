@@ -3,12 +3,14 @@
 
 #include "../models/devicelisthelpers.h"
 #include "importexport/projectfilehandler.h"
+#include "legacy/projectfilexmltestdata.h"
 #include "models/adapterdata.h"
 #include "models/device.h"
 #include "models/graphdatamodel.h"
 #include "models/guimodel.h"
 #include "models/settingsmodel.h"
 
+#include <QFile>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -72,6 +74,54 @@ QString writeTempProjectFile(const QJsonArray& adapters, const QJsonArray& devic
     file->close();
     delete file;
     return path;
+}
+
+//! Build a top-level "devices" entry for device \a id owned by adapter \a adapterType.
+QJsonObject topLevelDevice(int id, const QString& adapterType)
+{
+    QJsonObject dev;
+    dev["id"] = id;
+    dev["adapter"] = QJsonObject{ { "type", adapterType } };
+    return dev;
+}
+
+//! Build an "adapters" entry whose settings hold one device entry per ID in \a deviceIds.
+QJsonObject adapterWithDevices(const QString& type, const QList<int>& deviceIds)
+{
+    QJsonArray devices;
+    for (const int id : deviceIds)
+    {
+        devices.append(QJsonObject{ { "id", id }, { "slaveId", id * 10 } });
+    }
+
+    QJsonObject adapter;
+    adapter["type"] = type;
+    adapter["settings"] = QJsonObject{ { "devices", devices } };
+    return adapter;
+}
+
+//! Return the device IDs in the stored config of \a adapterId, in order.
+QList<int> storedDeviceIds(SettingsModel& settingsModel, const QString& adapterId)
+{
+    QList<int> ids;
+    const QJsonArray devices = settingsModel.adapterData(adapterId)->currentConfig().value("devices").toArray();
+    for (const auto& device : devices)
+    {
+        ids.append(device.toObject().value("id").toInt(-1));
+    }
+    return ids;
+}
+
+//! Write \a content to \a path; returns false when the file cannot be written.
+bool writeTextFile(const QString& path, const QString& content)
+{
+    QFile file(path);
+    if (!file.open(QFile::WriteOnly | QFile::Text))
+    {
+        return false;
+    }
+    file.write(content.toUtf8());
+    return true;
 }
 
 } /* namespace */
@@ -987,6 +1037,342 @@ void TestProjectFileHandler::applyDeviceSettingsNoLimitWhenSchemaAbsent()
     QCOMPARE(settingsModel.deviceList().size(), 5);
 
     QFile::remove(path);
+}
+
+/*!
+ * \brief A device the adapter config lists but the devices section omits is added to the device list.
+ *
+ * Without this the device only appears once the adapter describes, so an expression using it fails
+ * validation with "no such device" in the meantime.
+ */
+void TestProjectFileHandler::deviceOnlyInAdapterConfigIsAddedToDeviceList()
+{
+    const QJsonArray adapters{ adapterWithDevices("modbus", { 1, 2 }) };
+    const QJsonArray devices{ topLevelDevice(1, "modbus") };
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    QCOMPARE(settingsModel.deviceList(), QList<deviceId_t>({ 1, 2 }));
+    QCOMPARE(settingsModel.adapterIdForDevice(2), QStringLiteral("modbus"));
+    QCOMPARE(settingsModel.deviceSettings(2)->name(), QStringLiteral("Device 2"));
+    QCOMPARE(storedDeviceIds(settingsModel, "modbus"), QList<int>({ 1, 2 }));
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief A device the devices section lists but its adapter config omits is added to that config.
+ *
+ * Without this the device shows in the Settings dialog but is never polled.
+ */
+void TestProjectFileHandler::deviceOnlyInDevicesSectionIsAddedToAdapterConfig()
+{
+    const QJsonArray adapters{ adapterWithDevices("modbus", { 1 }) };
+    QJsonObject namedDevice = topLevelDevice(2, "modbus");
+    namedDevice["name"] = "Boiler";
+    const QJsonArray devices{ topLevelDevice(1, "modbus"), namedDevice };
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    QCOMPARE(settingsModel.deviceList(), QList<deviceId_t>({ 1, 2 }));
+    QCOMPARE(settingsModel.deviceSettings(2)->name(), QStringLiteral("Boiler"));
+    QCOMPARE(storedDeviceIds(settingsModel, "modbus"), QList<int>({ 1, 2 }));
+
+    /* The existing entry is kept as the file gave it */
+    const QJsonArray stored = settingsModel.adapterData("modbus")->currentConfig().value("devices").toArray();
+    QCOMPARE(stored.at(0).toObject().value("slaveId").toInt(), 10);
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief A device whose owner's config omits it, while another adapter's config lists it, moves to that adapter.
+ *
+ * The adapter config is what gets polled, so it decides ownership rather than the devices section.
+ */
+void TestProjectFileHandler::deviceListedByOtherAdapterMovesOwnership()
+{
+    const QJsonArray adapters{ adapterWithDevices("modbus", { 1 }), adapterWithDevices("custom", { 2 }) };
+    const QJsonArray devices{ topLevelDevice(1, "modbus"), topLevelDevice(2, "modbus") };
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    QCOMPARE(settingsModel.adapterIdForDevice(2), QStringLiteral("custom"));
+    QCOMPARE(storedDeviceIds(settingsModel, "modbus"), QList<int>({ 1 }));
+    QCOMPARE(storedDeviceIds(settingsModel, "custom"), QList<int>({ 2 }));
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief An adapter config without a "devices" key is not cross-checked against the devices section.
+ *
+ * Such a config takes its devices from the adapter defaults, which may not be known yet at load.
+ */
+void TestProjectFileHandler::adapterConfigWithoutDevicesKeyIsNotCrossChecked()
+{
+    QJsonObject adapter;
+    adapter["type"] = "modbus";
+    adapter["settings"] = QJsonObject();
+    const QJsonArray adapters{ adapter };
+    const QJsonArray devices{ topLevelDevice(3, "modbus") };
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    QCOMPARE(settingsModel.deviceList(), QList<deviceId_t>({ 3 }));
+    QVERIFY(!settingsModel.adapterData("modbus")->currentConfig().contains("devices"));
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief An adapter type listed twice is aligned against its last entry, the one the model keeps.
+ */
+void TestProjectFileHandler::duplicateAdapterTypeAlignsAgainstLastEntry()
+{
+    const QJsonArray adapters{ adapterWithDevices("modbus", { 1, 2 }), adapterWithDevices("modbus", { 1 }) };
+    const QJsonArray devices{ topLevelDevice(1, "modbus"), topLevelDevice(3, "modbus") };
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    /* Device 2 is only in the overridden first entry, so it is not added */
+    QCOMPARE(settingsModel.deviceList(), QList<deviceId_t>({ 1, 3 }));
+    QCOMPARE(storedDeviceIds(settingsModel, "modbus"), QList<int>({ 1, 3 }));
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief A device listed by several adapter configs goes to the first of them in alphabetical order.
+ */
+void TestProjectFileHandler::deviceListedByTwoAdaptersGoesToFirstAlphabetically()
+{
+    const QJsonArray adapters{ adapterWithDevices("zeta", { 2 }), adapterWithDevices("alpha", { 2 }) };
+    const QJsonArray devices{ topLevelDevice(1, "modbus") };
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    QCOMPARE(settingsModel.adapterIdForDevice(2), QStringLiteral("alpha"));
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief A device whose owner adapter is not in the file is left as the devices section gave it.
+ */
+void TestProjectFileHandler::deviceOfAdapterAbsentFromFileIsUntouched()
+{
+    const QJsonArray adapters{ adapterWithDevices("modbus", { 1 }) };
+    const QJsonArray devices{ topLevelDevice(1, "modbus"), topLevelDevice(5, "custom") };
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    QCOMPARE(settingsModel.deviceList(), QList<deviceId_t>({ 1, 5 }));
+    QCOMPARE(settingsModel.adapterIdForDevice(5), QStringLiteral("custom"));
+    QCOMPARE(storedDeviceIds(settingsModel, "modbus"), QList<int>({ 1 }));
+    QVERIFY(!settingsModel.adapterIds().contains("custom"));
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief Aligning the two device sections still reports the device list as a single change.
+ */
+void TestProjectFileHandler::alignedLoadEmitsDeviceListChangedOnce()
+{
+    const QJsonArray adapters{ adapterWithDevices("modbus", { 1, 2 }) };
+    const QJsonArray devices{ topLevelDevice(1, "modbus"), topLevelDevice(3, "modbus") };
+
+    const QString path = writeTempProjectFile(adapters, devices);
+    QVERIFY(!path.isEmpty());
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    QSignalSpy spy(&settingsModel, &SettingsModel::deviceListChanged);
+    handler.openProjectFile(path);
+
+    QCOMPARE(spy.count(), 1);
+    QCOMPARE(settingsModel.deviceList(), QList<deviceId_t>({ 1, 2, 3 }));
+
+    QFile::remove(path);
+}
+
+/*!
+ * \brief Saving a project loaded with mismatched device sections writes sections that agree.
+ */
+void TestProjectFileHandler::roundTripOfMismatchedDevicesSavesAlignedSections()
+{
+    const QJsonArray adapters{ adapterWithDevices("modbus", { 1, 2 }) };
+    const QJsonArray devices{ topLevelDevice(1, "modbus"), topLevelDevice(3, "modbus") };
+
+    const QString loadPath = writeTempProjectFile(adapters, devices);
+    QVERIFY(!loadPath.isEmpty());
+
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QString savePath = tmpDir.filePath("aligned.mbs");
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(loadPath);
+    guiModel.setProjectFilePath(savePath);
+    handler.saveProjectFile();
+
+    QFile file(savePath);
+    QVERIFY(file.open(QFile::ReadOnly | QFile::Text));
+    const QJsonObject root = QJsonDocument::fromJson(file.readAll()).object();
+
+    QList<int> adapterDeviceIds;
+    const QJsonObject savedAdapter = root.value("adapters").toArray().first().toObject();
+    const QJsonArray savedAdapterDevices = savedAdapter.value("settings").toObject().value("devices").toArray();
+    for (const auto& device : savedAdapterDevices)
+    {
+        adapterDeviceIds.append(device.toObject().value("id").toInt(-1));
+    }
+
+    QList<int> topLevelDeviceIds;
+    const QJsonArray savedDevices = root["devices"].toArray();
+    for (const auto& device : savedDevices)
+    {
+        topLevelDeviceIds.append(device.toObject().value("id").toInt(-1));
+    }
+
+    QCOMPARE(adapterDeviceIds, QList<int>({ 1, 2, 3 }));
+    QCOMPARE(topLevelDeviceIds, QList<int>({ 1, 2, 3 }));
+
+    QFile::remove(loadPath);
+}
+
+/*!
+ * \brief Opening a legacy XML project stores a config in the Modbus adapter's own shape.
+ */
+void TestProjectFileHandler::openXmlProjectStoresAdapterShapedConfig()
+{
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QString path = tmpDir.filePath("legacy.mbs");
+    QVERIFY(writeTextFile(path, ProjectFileXmlTestData::cDataLevel5Demo));
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(path);
+
+    QVERIFY(settingsModel.adapterData("modbus") != nullptr);
+    const QJsonObject config = settingsModel.adapterData("modbus")->currentConfig();
+
+    const QJsonArray connections = config.value("connections").toArray();
+    QCOMPARE(connections.size(), 2);
+    QCOMPARE(connections[0].toObject().value("id").toInt(), 1);
+    QCOMPARE(connections[0].toObject().value("type").toString(), QStringLiteral("tcp"));
+    QCOMPARE(connections[1].toObject().value("id").toInt(), 2);
+
+    const QJsonArray devices = config.value("devices").toArray();
+    QCOMPARE(devices.size(), 2);
+    QCOMPARE(devices[0].toObject().value("connectionId").toInt(), 1);
+    QCOMPARE(devices[1].toObject().value("connectionId").toInt(), 2);
+    QVERIFY(!devices[0].toObject().contains("connectionid"));
+
+    QCOMPARE(storedDeviceIds(settingsModel, "modbus"), QList<int>({ 1, 2 }));
+}
+
+/*!
+ * \brief A legacy XML project saved as JSON and reopened keeps the same connections and devices.
+ */
+void TestProjectFileHandler::xmlProjectSavedAsJsonRoundTrips()
+{
+    QTemporaryDir tmpDir;
+    QVERIFY(tmpDir.isValid());
+    const QString xmlPath = tmpDir.filePath("legacy.mbs");
+    const QString jsonPath = tmpDir.filePath("converted.mbs");
+    QVERIFY(writeTextFile(xmlPath, ProjectFileXmlTestData::cDataLevel4Demo));
+
+    GuiModel guiModel;
+    SettingsModel settingsModel;
+    GraphDataModel graphDataModel(&settingsModel);
+    ProjectFileHandler handler(&guiModel, &settingsModel, &graphDataModel);
+
+    handler.openProjectFile(xmlPath);
+    const QJsonObject loadedConfig = settingsModel.adapterData("modbus")->currentConfig();
+    guiModel.setProjectFilePath(jsonPath);
+    handler.saveProjectFile();
+
+    GuiModel reloadGuiModel;
+    SettingsModel reloadSettingsModel;
+    GraphDataModel reloadGraphDataModel(&reloadSettingsModel);
+    ProjectFileHandler reloadHandler(&reloadGuiModel, &reloadSettingsModel, &reloadGraphDataModel);
+
+    reloadHandler.openProjectFile(jsonPath);
+    const QJsonObject reloadedConfig = reloadSettingsModel.adapterData("modbus")->currentConfig();
+
+    QCOMPARE(reloadedConfig.value("connections").toArray(), loadedConfig.value("connections").toArray());
+    QCOMPARE(reloadedConfig.value("devices").toArray(), loadedConfig.value("devices").toArray());
+    QCOMPARE(reloadedConfig.value("connections").toArray().size(), 2);
+    QCOMPARE(storedDeviceIds(reloadSettingsModel, "modbus"), QList<int>({ 1, 2 }));
 }
 
 QTEST_GUILESS_MAIN(TestProjectFileHandler)
