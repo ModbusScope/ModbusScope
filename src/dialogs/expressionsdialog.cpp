@@ -73,7 +73,7 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
 
     _pUi->tblExpressionInput->setRowCount(0);
     _pUi->tblExpressionInput->setColumnCount(2);
-    _pUi->tblExpressionInput->setHorizontalHeaderLabels(QStringList() << "Data Point" << "Value");
+    _pUi->tblExpressionInput->setHorizontalHeaderLabels(QStringList() << "Data Point" << "Input value");
     _pUi->tblExpressionInput->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     _pUi->tblExpressionInput->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
@@ -134,7 +134,7 @@ bool ExpressionsDialog::eventFilter(QObject* pWatched, QEvent* pEvent)
  * \brief Ignore Enter outside the expression editor and the buttons.
  *
  * The button box makes Accept the default button when the dialog is shown. Without this,
- * Enter in the example input table would apply the expression by accident. Enter on a focused
+ * Enter in the test values table would apply the expression by accident. Enter on a focused
  * button still presses that button.
  * \param pEvent The key event.
  */

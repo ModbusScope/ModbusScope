@@ -583,7 +583,7 @@ void TestExpressionsDialog::buttonBoxHasAcceptAndCancel()
     QVERIFY(_pDialog->_pUi->buttonBox->button(QDialogButtonBox::Cancel) != nullptr);
 }
 
-//! Enter in the example input table does not accept, even though Accept is the default button.
+//! Enter in the test values table does not accept, even though Accept is the default button.
 void TestExpressionsDialog::enterInExampleTableIgnored()
 {
     _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${40001}"));
