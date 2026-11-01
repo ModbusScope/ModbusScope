@@ -1,6 +1,7 @@
 
 #include "tst_signaleditorpanel.h"
 
+#include "../customwidgets/focuschainhelpers.h"
 #include "../models/devicelisthelpers.h"
 #include "customwidgets/datapointeditorwidget.h"
 #include "customwidgets/devicecombobox.h"
@@ -11,6 +12,7 @@
 #include "models/graphdatamodel.h"
 #include "ui_signaleditorpanel.h"
 
+#include <QGroupBox>
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QLabel>
@@ -306,27 +308,28 @@ void TestSignalEditorPanel::addDisabledWhileBuildPending()
 //! Add mode shows the built reference as the expression, greyed out while a newer one is built.
 void TestSignalEditorPanel::addModeShowsBuiltExpression()
 {
-    QVERIFY(_pPanel->_pUi->lblExpression->isHidden());
+    QVERIFY(_pPanel->_pUi->expressionSection->isHidden());
 
     _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
 
+    QVERIFY(!_pPanel->_pUi->expressionSection->isHidden());
     QVERIFY(!_pPanel->_pUi->lblExpression->isHidden());
     QVERIFY(_pPanel->_pUi->lblExpression->isEnabled());
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">${h0}</span>"));
+             QStringLiteral("<span style=\"white-space: pre-wrap\">${h0}</span>"));
 
     setAddress(QJsonObject{ { QStringLiteral("objectType"), QStringLiteral("holding register") },
                             { QStringLiteral("address"), 5 } });
 
     QVERIFY(!_pPanel->_pUi->lblExpression->isEnabled());
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">${h0}</span>"));
+             QStringLiteral("<span style=\"white-space: pre-wrap\">${h0}</span>"));
 
     _pMockDataPointManager->injectBuildResult(QStringLiteral("${h5}"));
 
     QVERIFY(_pPanel->_pUi->lblExpression->isEnabled());
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">${h5}</span>"));
+             QStringLiteral("<span style=\"white-space: pre-wrap\">${h5}</span>"));
 }
 
 /*!
@@ -418,7 +421,7 @@ void TestSignalEditorPanel::startAddClearsNameAndFocusesIt()
     QCOMPARE(_pPanel->focusWidget(), _pPanel->_pUi->lineName);
 }
 
-//! Enter in the name field adds the signal, as clicking Add signal does.
+//! Enter in the name field adds the signal, as clicking Add to table does.
 void TestSignalEditorPanel::enterAddsSignal()
 {
     _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
@@ -428,6 +431,34 @@ void TestSignalEditorPanel::enterAddsSignal()
 
     QCOMPARE(_pGraphDataModel->size(), 1);
     QCOMPARE(_pGraphDataModel->label(GraphIdx(0)), QStringLiteral("By enter"));
+}
+
+/*!
+ * \brief Regression test: Qt 6.8 QGroupBox takes the platform's button press keys even when it is
+ * not checkable. On GNOME those include Enter, so Enter in a field inside a group box never reached
+ * the panel. The offscreen platform used by the tests does not list Enter, so the Enter tests
+ * cannot show this.
+ */
+void TestSignalEditorPanel::panelHasNoGroupBox()
+{
+    QVERIFY(_pPanel->findChildren<QGroupBox*>().isEmpty());
+}
+
+//! Tab follows the sections: name, axis, data point list, address fields, Edit expression, Add to table.
+void TestSignalEditorPanel::tabOrderFollowsSections()
+{
+    auto* pAddressSpin = _pPanel->_pUi->addressContainer->findChild<QSpinBox*>();
+    QVERIFY(pAddressSpin != nullptr);
+
+    const QList<QWidget*> expected{ _pPanel->_pUi->lineName,
+                                    _pPanel->_pUi->radioPrimary,
+                                    _pPanel->_pUi->radioSecondary,
+                                    _pPanel->_pUi->listDataPoints,
+                                    _pPanel->_pEditor->findChild<DeviceComboBox*>(),
+                                    pAddressSpin,
+                                    _pPanel->_pUi->btnEditExpression,
+                                    _pPanel->_pUi->btnAdd };
+    QCOMPARE(FocusChainHelpers::inTabOrder(expected), expected);
 }
 
 //! Enter in an address field adds the signal; the spin box reporting its value again keeps the reference.
@@ -648,7 +679,7 @@ void TestSignalEditorPanel::editModeLoadsReferenceWhenDescribed()
     QCOMPARE(_pPanel->_pEditor->expression(), QStringLiteral("${h4}"));
     QVERIFY(!_pPanel->_pUi->lblExpression->isHidden());
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\"><b>${h4}</b></span>"));
+             QStringLiteral("<span style=\"white-space: pre-wrap\"><b>${h4}</b></span>"));
     QVERIFY(_pPanel->_pUi->listDataPoints->isHidden());
 }
 
@@ -678,14 +709,14 @@ void TestSignalEditorPanel::editKeepsArithmeticAroundReference()
 
     QVERIFY(!_pPanel->_pUi->lblExpression->isHidden());
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\"><b>${40001}</b>/2</span>"));
+             QStringLiteral("<span style=\"white-space: pre-wrap\"><b>${40001}</b>/2</span>"));
 
     setAddress(holdingRegisterFields(5));
     _pMockDataPointManager->injectBuildResult(QStringLiteral("${h5}"));
 
     QCOMPARE(_pGraphDataModel->expression(GraphIdx(0)), QStringLiteral("${h5}/2"));
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\"><b>${h5}</b>/2</span>"));
+             QStringLiteral("<span style=\"white-space: pre-wrap\"><b>${h5}</b>/2</span>"));
 }
 
 //! Only the selected occurrence of a data point used twice is replaced, and it stays selected.
@@ -717,7 +748,8 @@ void TestSignalEditorPanel::selectingDataPointLoadsIt()
     describeCall(0, holdingRegisterFields(3));
     describeCall(1, holdingRegisterFields(7));
 
-    QCOMPARE(_pPanel->_pUi->lblDataPoints->text(), QStringLiteral("This signal combines 2 data points."));
+    QCOMPARE(_pPanel->_pUi->lblDataPoints->text(),
+             QStringLiteral("This signal combines 2 data points. Select one to edit it."));
     QCOMPARE(_pPanel->_pUi->listDataPoints->item(1)->text(), QStringLiteral("${h7}  described ${h7}"));
     QCOMPARE(addressForm(_pPanel)->values().value("address").toInt(), 3);
 
@@ -726,7 +758,7 @@ void TestSignalEditorPanel::selectingDataPointLoadsIt()
     QCOMPARE(_pPanel->_pEditor->expression(), QStringLiteral("${h7}"));
     QCOMPARE(addressForm(_pPanel)->values().value("address").toInt(), 7);
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">${h3}*10 + <b>${h7}</b></span>"));
+             QStringLiteral("<span style=\"white-space: pre-wrap\">${h3}*10 + <b>${h7}</b></span>"));
 }
 
 void TestSignalEditorPanel::syntaxErrorShowsOnlyErrorAndEditExpression()
@@ -739,11 +771,11 @@ void TestSignalEditorPanel::syntaxErrorShowsOnlyErrorAndEditExpression()
 
     _pPanel->editSignal(GraphIdx(0));
 
-    QVERIFY(_pPanel->_pUi->addressContainer->isHidden());
-    QVERIFY(_pPanel->_pUi->listDataPoints->isHidden());
+    QVERIFY(_pPanel->_pUi->dataPointSection->isHidden());
+    QVERIFY(!_pPanel->_pUi->expressionSection->isHidden());
     QVERIFY(!_pPanel->_pUi->lblExpression->isHidden());
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">${h0} +</span>"));
+             QStringLiteral("<span style=\"white-space: pre-wrap\">${h0} +</span>"));
     QVERIFY(!_pPanel->_pUi->btnEditExpression->isHidden());
     QCOMPARE(_pPanel->_pUi->lblStatus->text(), QStringLiteral("Unexpected end of expression"));
     QVERIFY(_pMockDataPointManager->describeCalls.isEmpty());
@@ -754,6 +786,10 @@ void TestSignalEditorPanel::editExpressionRequestsDialogForRow()
     editNewSignal(QStringLiteral("${h0}"));
     editNewSignal(QStringLiteral("${h1}"));
     QSignalSpy spy(_pPanel, &SignalEditorPanel::editExpressionRequested);
+
+    /* The sections only get their real size when the panel is laid out */
+    _pPanel->show();
+    QVERIFY(QTest::qWaitForWindowExposed(_pPanel));
 
     QTest::mouseClick(_pPanel->_pUi->btnEditExpression, Qt::LeftButton);
 
@@ -850,7 +886,7 @@ void TestSignalEditorPanel::showAddModeClearsNameAndShowsAdd()
     QVERIFY(_pPanel->_pEditor->isEnabled());
     QVERIFY(_pPanel->_pUi->listDataPoints->isHidden());
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">${h0}</span>"));
+             QStringLiteral("<span style=\"white-space: pre-wrap\">${h0}</span>"));
 }
 
 //! The description of the reference the panel just wrote does not rebuild the form being edited.
@@ -879,18 +915,17 @@ void TestSignalEditorPanel::expressionLabelIsEscaped()
     editNewSignal(QStringLiteral("${h0} < 2 & 1"));
 
     QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\"><b>${h0}</b> &lt; 2 &amp; 1</span>"));
+             QStringLiteral("<span style=\"white-space: pre-wrap\"><b>${h0}</b> &lt; 2 &amp; 1</span>"));
 }
 
 void TestSignalEditorPanel::expressionWithoutDataPointShowsHint()
 {
     editNewSignal(QStringLiteral("5"));
 
-    QVERIFY(_pPanel->_pUi->addressContainer->isHidden());
+    QVERIFY(_pPanel->_pUi->dataPointSection->isHidden());
     QVERIFY(!_pPanel->_pUi->btnEditExpression->isHidden());
     QCOMPARE(_pPanel->_pUi->lblStatus->text(), QStringLiteral("This signal reads no data point."));
-    QCOMPARE(_pPanel->_pUi->lblExpression->text(),
-             QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">5</span>"));
+    QCOMPARE(_pPanel->_pUi->lblExpression->text(), QStringLiteral("<span style=\"white-space: pre-wrap\">5</span>"));
 }
 
 void TestSignalEditorPanel::clickAdd()
@@ -899,7 +934,7 @@ void TestSignalEditorPanel::clickAdd()
 }
 
 /*!
- * \brief Answer the pending build request with \a expression and click Add signal.
+ * \brief Answer the pending build request with \a expression and click Add to table.
  */
 void TestSignalEditorPanel::addSignal(const QString& expression)
 {

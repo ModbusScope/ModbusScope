@@ -128,6 +128,19 @@ bool DataPointEditorWidget::hasValidExpression() const
 }
 
 /*!
+ * \brief Place the device selector and the address fields after \a pPrevious in the tab order.
+ *
+ * The fields keep this place when the form is rebuilt for another device.
+ * \param pPrevious The widget that comes before the editor.
+ * \return The last widget of the editor, to continue the tab order from.
+ */
+QWidget* DataPointEditorWidget::setTabOrderAfter(QWidget* pPrevious)
+{
+    setTabOrder(pPrevious, _pDeviceCombo);
+    return chainFieldTabOrder();
+}
+
+/*!
  * \brief Reset the form to the defaults of the device's adapter and build the default reference.
  * \param deviceId The selected device; 0 when there are no devices.
  */
@@ -267,6 +280,9 @@ void DataPointEditorWidget::applyDevice(deviceId_t deviceId, const QJsonObject& 
     _pAddressForm->setSchema(schema, values);
     _bApplyingForm = false;
 
+    /* New fields are added at the end of the window's tab order */
+    chainFieldTabOrder();
+
     if (_pSettingsModel->hasDevice(deviceId))
     {
         const QString adapterId = _pDataPointService->adapterIdForDevice(deviceId);
@@ -276,6 +292,22 @@ void DataPointEditorWidget::applyDevice(deviceId_t deviceId, const QJsonObject& 
     {
         _pProtocolLabel->clear();
     }
+}
+
+/*!
+ * \brief Put the address fields directly after the device selector in the tab order.
+ * \return The last field, or the device selector when the form has no fields.
+ */
+QWidget* DataPointEditorWidget::chainFieldTabOrder()
+{
+    QWidget* pLast = _pDeviceCombo;
+    const QList<QWidget*> fields = _pAddressForm->fieldWidgets();
+    for (QWidget* pField : fields)
+    {
+        setTabOrder(pLast, pField);
+        pLast = pField;
+    }
+    return pLast;
 }
 
 /*!

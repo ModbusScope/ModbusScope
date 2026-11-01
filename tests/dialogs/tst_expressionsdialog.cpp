@@ -1,7 +1,11 @@
 
 #include "tst_expressionsdialog.h"
 
+#include "../customwidgets/focuschainhelpers.h"
+
+#include "customwidgets/collapsibleheader.h"
 #include "customwidgets/datapointeditorwidget.h"
+#include "customwidgets/devicecombobox.h"
 #include "dialogs/expressionsdialog.h"
 #include "models/datapointdescriptioncache.h"
 #include "models/device.h"
@@ -14,11 +18,14 @@
 #include <QDialogButtonBox>
 #include <QJsonObject>
 #include <QLabel>
+#include <QLayout>
 #include <QPlainTextEdit>
 #include <QPushButton>
+#include <QScrollArea>
 #include <QSpinBox>
 #include <QTableWidget>
 #include <QTest>
+#include <QToolButton>
 
 void TestExpressionsDialog::init()
 {
@@ -352,7 +359,7 @@ void TestExpressionsDialog::describeShowsInvalidDeviceMessage()
 
 void TestExpressionsDialog::helpComboHiddenWithSingleDevice()
 {
-    /* Use isHidden(): the surrounding info panel (widgetInfo) starts collapsed,
+    /* Use isHidden(): the Expression help section (widgetInfo) starts collapsed,
      * so visibility relative to the dialog is always false */
     auto* pHelpWidget = _pDialog->findChild<QWidget*>("widgetHelpDevice");
     QVERIFY(pHelpWidget != nullptr);
@@ -583,7 +590,7 @@ void TestExpressionsDialog::buttonBoxHasAcceptAndCancel()
     QVERIFY(_pDialog->_pUi->buttonBox->button(QDialogButtonBox::Cancel) != nullptr);
 }
 
-//! Enter in the example input table does not accept, even though Accept is the default button.
+//! Enter in the test values table does not accept, even though Accept is the default button.
 void TestExpressionsDialog::enterInExampleTableIgnored()
 {
     _pGraphDataModel->setExpression(GraphIdx(0), QStringLiteral("${40001}"));
@@ -689,6 +696,23 @@ void TestExpressionsDialog::expressionEditorWraps()
     QCOMPARE(_pDialog->_pUi->lineExpression->verticalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
 }
 
+//! The expression editor grows with the dialog, from three lines up to a bounded maximum.
+void TestExpressionsDialog::expressionEditorGrowsWithDialog()
+{
+    QPlainTextEdit* pEditor = _pDialog->_pUi->lineExpression;
+    _pDialog->show();
+    _pDialog->resize(_pDialog->minimumSize());
+    QTRY_COMPARE(_pDialog->size(), _pDialog->minimumSize());
+    const int smallHeight = pEditor->height();
+
+    _pDialog->resize(_pDialog->width(), _pDialog->height() + 400);
+
+    QTRY_VERIFY(pEditor->height() > smallHeight);
+    const int lineHeight = pEditor->fontMetrics().lineSpacing();
+    QVERIFY(pEditor->minimumHeight() >= ExpressionsDialog::cExpressionEditorMinLines * lineHeight);
+    QVERIFY(pEditor->maximumHeight() < QWIDGETSIZE_MAX);
+}
+
 //! A data point the adapter rejects is shown in red with the reason, and Accept stays disabled.
 void TestExpressionsDialog::acceptDisabledOnInvalidDataPoint()
 {
@@ -770,19 +794,64 @@ void TestExpressionsDialog::errorLabelHiddenWhenEmpty()
     QVERIFY(_pDialog->_pUi->lblError->isHidden());
 }
 
-//! The insert form is hidden and asks nothing of the adapter until Insert data point is checked.
+//! The insert form is hidden and asks nothing of the adapter until Insert data point is expanded.
 void TestExpressionsDialog::insertFormCreatedWhenShown()
 {
     QVERIFY(_pDialog->_pUi->widgetInsertDataPoint->isHidden());
     QVERIFY(_pMockDataPointManager->buildCalls.isEmpty());
 
-    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pDialog->_pUi->headerInsertDataPoint->setExpanded(true);
 
     QVERIFY(!_pDialog->_pUi->widgetInsertDataPoint->isHidden());
     QCOMPARE(_pMockDataPointManager->buildCalls.size(), 1);
 
-    _pDialog->_pUi->btnInsertDataPoint->setChecked(false);
+    _pDialog->_pUi->headerInsertDataPoint->setExpanded(false);
     QVERIFY(_pDialog->_pUi->widgetInsertDataPoint->isHidden());
+}
+
+//! Test values starts expanded; Insert data point and Expression help start collapsed.
+void TestExpressionsDialog::sectionsStartState()
+{
+    QVERIFY(!_pDialog->_pUi->headerInsertDataPoint->isExpanded());
+    QVERIFY(_pDialog->_pUi->widgetInsertDataPoint->isHidden());
+
+    QVERIFY(_pDialog->_pUi->headerTestValues->isExpanded());
+    QVERIFY(!_pDialog->_pUi->widgetTestValues->isHidden());
+
+    QVERIFY(!_pDialog->_pUi->headerHelp->isExpanded());
+    QVERIFY(_pDialog->_pUi->widgetInfo->isHidden());
+
+    _pDialog->_pUi->headerHelp->setExpanded(true);
+    QVERIFY(!_pDialog->_pUi->widgetInfo->isHidden());
+}
+
+//! Long help scrolls inside an area of bounded height instead of growing the dialog.
+void TestExpressionsDialog::helpScrollsWhenLong()
+{
+    QScrollArea* pScroll = _pDialog->_pUi->scrollInfo;
+    QLabel* pInfoLabel = _pDialog->_pUi->lblInfo;
+    QVERIFY(pScroll->widget()->isAncestorOf(pInfoLabel));
+
+    _pMockDataPointManager->injectExpressionHelp(QStringLiteral("<p>Help line</p>").repeated(100));
+
+    QVERIFY(pScroll->maximumHeight() < QWIDGETSIZE_MAX);
+    QVERIFY(pInfoLabel->heightForWidth(400) > pScroll->maximumHeight());
+}
+
+//! Collapsed sections stay together; spare height does not open a gap where Test values was.
+void TestExpressionsDialog::collapsedSectionsStayTogether()
+{
+    _pDialog->_pUi->headerTestValues->setExpanded(false);
+    _pDialog->resize(640, 900);
+    _pDialog->layout()->activate();
+
+    const QWidget* pInsertHeader = _pDialog->_pUi->headerInsertDataPoint;
+    const QWidget* pTestValuesHeader = _pDialog->_pUi->headerTestValues;
+    const QWidget* pHelpHeader = _pDialog->_pUi->headerHelp;
+
+    const int insertToTestValuesGap = pTestValuesHeader->y() - pInsertHeader->geometry().bottom();
+    const int testValuesToHelpGap = pHelpHeader->y() - pTestValuesHeader->geometry().bottom();
+    QCOMPARE(testValuesToHelpGap, insertToTestValuesGap);
 }
 
 //! The insert form starts on the device of the first data point in the expression.
@@ -792,7 +861,7 @@ void TestExpressionsDialog::insertFormStartsOnFirstDataPointDevice()
     _pSettingsModel->deviceSettings(2)->setAdapterId("sim");
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("${40001@2} + ${40001}"));
 
-    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pDialog->_pUi->headerInsertDataPoint->setExpanded(true);
 
     QCOMPARE(_pDialog->_pInsertEditor->deviceId(), deviceId_t(2));
     QCOMPARE(pSimManager->buildCalls.size(), 1);
@@ -808,7 +877,7 @@ void TestExpressionsDialog::insertAtCursor()
     cursor.setPosition(4);
     pEdit->setTextCursor(cursor);
 
-    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pDialog->_pUi->headerInsertDataPoint->setExpanded(true);
     _pMockDataPointManager->injectBuildResult(QStringLiteral("${h1}"));
 
     QVERIFY(_pDialog->_pUi->btnInsertAtCursor->isEnabled());
@@ -830,7 +899,7 @@ void TestExpressionsDialog::insertReplacesSelection()
     cursor.setPosition(12, QTextCursor::KeepAnchor);
     pEdit->setTextCursor(cursor);
 
-    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pDialog->_pUi->headerInsertDataPoint->setExpanded(true);
     _pMockDataPointManager->injectBuildResult(QStringLiteral("${h2}"));
     _pDialog->_pUi->btnInsertAtCursor->click();
 
@@ -841,7 +910,7 @@ void TestExpressionsDialog::insertReplacesSelection()
 void TestExpressionsDialog::insertDisabledUntilBuilt()
 {
     _pDialog->_pUi->lineExpression->setPlainText(QStringLiteral("1"));
-    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pDialog->_pUi->headerInsertDataPoint->setExpanded(true);
 
     QVERIFY(!_pDialog->_pUi->btnInsertAtCursor->isEnabled());
     _pDialog->insertDataPoint();
@@ -854,12 +923,30 @@ void TestExpressionsDialog::insertDisabledUntilBuilt()
 //! A failed build shows the reason and keeps Insert at cursor disabled.
 void TestExpressionsDialog::insertFailureShowsError()
 {
-    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pDialog->_pUi->headerInsertDataPoint->setExpanded(true);
     _pMockDataPointManager->injectBuildFailure(QStringLiteral("Address out of range"));
     QTest::qWait(0);
 
     QVERIFY(_pDialog->_pUi->lblInsertError->text().contains(QStringLiteral("Address out of range")));
     QVERIFY(!_pDialog->_pUi->btnInsertAtCursor->isEnabled());
+}
+
+//! Tab goes from the Insert data point header through the insert form's fields to Insert at cursor.
+void TestExpressionsDialog::insertFormFieldsFollowHeaderInTabOrder()
+{
+    setAddressSchema();
+    recreateDialog();
+
+    _pDialog->_pUi->headerInsertDataPoint->setExpanded(true);
+
+    auto* pAddressSpin = _pDialog->_pInsertEditor->findChild<QSpinBox*>();
+    QVERIFY(pAddressSpin != nullptr);
+
+    const QList<QWidget*> expected{ _pDialog->_pUi->headerInsertDataPoint->toggleButton(),
+                                    _pDialog->_pInsertEditor->findChild<DeviceComboBox*>(), pAddressSpin,
+                                    _pDialog->_pUi->btnInsertAtCursor,
+                                    _pDialog->_pUi->headerTestValues->toggleButton() };
+    QCOMPARE(FocusChainHelpers::inTabOrder(expected), expected);
 }
 
 //! Enter in an address field of the insert form inserts the data point and does not accept the dialog.
@@ -876,7 +963,7 @@ void TestExpressionsDialog::enterInInsertFormInserts()
     cursor.movePosition(QTextCursor::End);
     _pDialog->_pUi->lineExpression->setTextCursor(cursor);
 
-    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pDialog->_pUi->headerInsertDataPoint->setExpanded(true);
     _pMockDataPointManager->injectBuildResult(QStringLiteral("${h1}"));
 
     auto* pAddressSpin = _pDialog->_pInsertEditor->findChild<QSpinBox*>();
@@ -895,7 +982,7 @@ void TestExpressionsDialog::insertPreviewShowsBuiltReference()
     setAddressSchema();
     recreateDialog();
 
-    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pDialog->_pUi->headerInsertDataPoint->setExpanded(true);
     QVERIFY(_pDialog->_pUi->lblInsertPreview->isHidden());
 
     _pMockDataPointManager->injectBuildResult(QStringLiteral("${h1}"));
@@ -923,7 +1010,7 @@ void TestExpressionsDialog::insertPreviewShowsBuiltReference()
 //! The insert preview shows the reference from the adapter as text, not markup.
 void TestExpressionsDialog::insertPreviewEscapesHtml()
 {
-    _pDialog->_pUi->btnInsertDataPoint->setChecked(true);
+    _pDialog->_pUi->headerInsertDataPoint->setExpanded(true);
     _pMockDataPointManager->injectBuildResult(QStringLiteral("${<b>1}"));
 
     QCOMPARE(_pDialog->_pUi->lblInsertPreview->text(),

@@ -1,6 +1,7 @@
 
 #include "tst_signalsdialog.h"
 
+#include "../customwidgets/focuschainhelpers.h"
 #include "../models/devicelisthelpers.h"
 #include "dialogs/signaleditorpanel.h"
 #include "dialogs/signalsdialog.h"
@@ -404,7 +405,7 @@ void TestSignalsDialog::openWithReadyAdapter(int signalCount)
     QVERIFY(QTest::qWaitForWindowExposed(_pDialog));
 }
 
-//! Answer the panel's pending build request with \a expression and click Add signal.
+//! Answer the panel's pending build request with \a expression and click Add to table.
 void TestSignalsDialog::addSignalThroughPanel(const QString& expression)
 {
     _pMockDataPointManager->injectBuildResult(expression);
@@ -452,6 +453,45 @@ void TestSignalsDialog::enterInPanelDoesNotCloseDialog()
     QCOMPARE(_pGraphDataModel->size(), 0);
 }
 
+//! Tab goes from the table buttons and the table through the panel to OK and Cancel.
+void TestSignalsDialog::tabOrderFollowsLayout()
+{
+    openWithReadyAdapter(1);
+
+    auto* pButtonBox = _pDialog->findChild<QDialogButtonBox*>("buttonBox");
+    QVERIFY(pButtonBox != nullptr);
+    auto* pAddressSpin = panel()->findChild<QSpinBox*>();
+    QVERIFY(pAddressSpin != nullptr);
+
+    const QList<QWidget*> expected{ _pDialog->findChild<QPushButton*>("btnAdd", Qt::FindDirectChildrenOnly),
+                                    _pDialog->findChild<QPushButton*>("btnRemove", Qt::FindDirectChildrenOnly),
+                                    _pDialog->findChild<QTableView*>("signalView"),
+                                    panel()->findChild<QLineEdit*>("lineName"),
+                                    pAddressSpin,
+                                    panel()->findChild<QPushButton*>("btnAdd"),
+                                    pButtonBox->button(QDialogButtonBox::Ok),
+                                    pButtonBox->button(QDialogButtonBox::Cancel) };
+    QVERIFY(!expected.contains(nullptr));
+    QCOMPARE(FocusChainHelpers::inTabOrder(expected), expected);
+
+    /* Editing a signal loads its data point, which rebuilds the address fields */
+    _pDialog->findChild<QTableView*>("signalView")->selectRow(0);
+    auto* pEditAddressSpin = panel()->findChild<QSpinBox*>();
+    QVERIFY(pEditAddressSpin != nullptr);
+
+    const QList<QWidget*> expectedInEditMode{ _pDialog->findChild<QTableView*>("signalView"),
+                                              panel()->findChild<QLineEdit*>("lineName"),
+                                              pEditAddressSpin,
+                                              panel()->findChild<QPushButton*>("btnEditExpression"),
+                                              pButtonBox->button(QDialogButtonBox::Ok),
+                                              pButtonBox->button(QDialogButtonBox::Cancel) };
+    QVERIFY(!expectedInEditMode.contains(nullptr));
+    QCOMPARE(FocusChainHelpers::inTabOrder(expectedInEditMode), expectedInEditMode);
+
+    /* The scroll area only holds the panel; it is no tab stop of its own */
+    QCOMPARE(_pDialog->findChild<QScrollArea*>("panelScrollArea")->focusPolicy(), Qt::NoFocus);
+}
+
 void TestSignalsDialog::deleteInNameFieldKeepsRows()
 {
     openWithReadyAdapter(2);
@@ -481,7 +521,7 @@ void TestSignalsDialog::cancelDiscardsPanelAdds()
     QCOMPARE(_pGraphDataModel->size(), 1);
 }
 
-//! At its minimum size the dialog still shows table and panel, and Add signal can be scrolled to.
+//! At its minimum size the dialog still shows table and panel, and Add to table can be scrolled to.
 void TestSignalsDialog::minimumSizeKeepsTableAndPanelUsable()
 {
     openWithReadyAdapter(3);

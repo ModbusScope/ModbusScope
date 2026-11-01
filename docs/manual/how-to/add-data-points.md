@@ -12,14 +12,14 @@ You must have at least one connection and one device configured. See [Configure 
 
    ![Signals dialog](<../_static/user_manual/add_register_dialog.png>)
 
-2. The panel on the right of the table adds signals. If a row is selected, click **New signal** to start a new signal.
-3. Optionally enter a **name** for the graph legend. A signal without a name is called *New signal*, *New signal 2*, and so on.
-4. Select the **device**. The line below it shows the device's protocol.
-5. Fill in the address fields. They depend on the device's protocol, for example the object type, address and data type for Modbus. Below the fields, **Reference** shows the data point reference that will be added, for example `${h0}`. It is updated after each change.
-6. Select **Y1 axis** or **Y2 axis**.
-7. Click **Add signal** or press Enter. The signal is added to the table and the line above the button names it. The panel stays open and keeps the device, the address fields and the axis, so for the next signal you only change what differs, for example the address.
+2. The panel on the right of the table adds signals. If a row is selected, click **Add signal** to start a new signal. The panel has three sections: **Signal** for the whole signal, **Data point** for what it reads, and **Expression** for the result.
+3. In the **Signal** section, optionally enter a **name** for the graph legend. A signal without a name is called *New signal*, *New signal 2*, and so on.
+4. In the same section, select **Y1 axis** or **Y2 axis**.
+5. In the **Data point** section, select the **device**. The line below it shows the device's protocol.
+6. Fill in the address fields. They depend on the device's protocol, for example the object type, address and data type for Modbus. The **Expression** section shows the data point reference that will be added, for example `${h0}`. It is updated after each change.
+7. Click **Add to table** or press Enter. The signal is added to the table and the line above the button names it. The panel stays open and keeps the device, the address fields and the axis, so for the next signal you only change what differs, for example the address.
 
-   If the adapter rejects the address, no reference is shown, **Add signal** is disabled and the reason appears above it. Correct the fields to try again.
+   If the adapter rejects the address, no reference is shown, **Add to table** is disabled and the reason appears above it. Correct the fields to try again.
 
 8. Repeat steps 3–7 for each signal.
 9. In the table, adjust the **Color** and the **Active** checkbox, or rename a signal in the **Name** column.
@@ -36,18 +36,18 @@ To calculate with a data point, add the signal first and then click **…** in i
 ## Edit a signal
 
 1. In the **Signals** dialog, select the signal in the table. The panel shows it under **Edit signal**.
-2. Change the **name** or the axis. The table is updated while you type.
-3. Change the device or the address fields of its data point. Each change replaces the data point reference in the expression, for example `${40001}` becomes `${h5}`. The rest of the expression is kept: `${40001}/2` becomes `${h5}/2`, and the data point being edited is shown in bold.
+2. In the **Signal** section, change the **name** or the axis. The table is updated while you type.
+3. In the **Data point** section, change the device or the address fields. Each change replaces the data point reference in the expression, for example `${40001}` becomes `${h5}`. The rest of the expression is kept: `${40001}/2` becomes `${h5}/2`. The **Expression** section shows the whole expression, with the data point being edited in bold.
 
    Selecting a device on another protocol resets the address fields to that protocol's defaults.
 
-4. A signal that reads several data points lists them, one entry for each time a data point occurs in the expression. Select an entry to edit that data point; the others stay as they are.
-5. Click **Edit expression…** to change the expression itself. For an expression with a syntax error, the panel only shows the error and this button.
+4. For a signal that reads several data points, the section is called **Data points** and lists them, one entry for each time a data point occurs in the expression. Select an entry to edit that data point; the others stay as they are.
+5. In the **Expression** section, click **Edit expression…** to change the expression itself. For an expression with a syntax error, the **Data point** section is hidden and the error is shown below this button.
 6. Click **OK** to apply the changes, or **Cancel** to discard them.
 
-Until the adapter has described the data point, its fields cannot be edited. If the adapter is not running or rejects the data point, the reason is shown above **Edit expression…**; changing a field replaces the data point.
+Until the adapter has described the data point, its fields cannot be edited. If the adapter is not running or rejects the data point, the reason is shown below **Edit expression…**; changing a field replaces the data point.
 
-To add a new signal again, click **New signal** or clear the selection.
+To add a new signal again, click **Add signal** or clear the selection.
 
 ## Tips
 

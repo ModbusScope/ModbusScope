@@ -32,7 +32,7 @@
      <item>
       <widget class="QPushButton" name="btnAdd">
        <property name="text">
-        <string>New signal</string>
+        <string>Add signal</string>
        </property>
        <property name="autoDefault">
         <bool>false</bool>
@@ -89,6 +89,9 @@
         <width>280</width>
         <height>0</height>
        </size>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::FocusPolicy::NoFocus</enum>
       </property>
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarPolicy::ScrollBarAsNeeded</enum>

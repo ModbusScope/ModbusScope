@@ -62,12 +62,16 @@ private slots:
     void errorLabelHiddenWhenEmpty();
 
     void insertFormCreatedWhenShown();
+    void sectionsStartState();
+    void helpScrollsWhenLong();
+    void collapsedSectionsStayTogether();
     void insertFormStartsOnFirstDataPointDevice();
     void insertAtCursor();
     void insertReplacesSelection();
     void insertDisabledUntilBuilt();
     void insertFailureShowsError();
     void enterInInsertFormInserts();
+    void insertFormFieldsFollowHeaderInTabOrder();
     void insertPreviewShowsBuiltReference();
     void insertPreviewEscapesHtml();
 
@@ -80,6 +84,7 @@ private slots:
     void enterIgnoredOnSyntaxError();
     void shiftEnterIgnored();
     void expressionEditorWraps();
+    void expressionEditorGrowsWithDialog();
 
 private:
     MockDataPointManager* addSimAdapter();

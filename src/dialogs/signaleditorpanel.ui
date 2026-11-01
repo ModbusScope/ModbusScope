@@ -16,90 +16,252 @@
      <property name="text">
       <string>New signal</string>
      </property>
-     <property name="styleSheet">
-      <string notr="true">QLabel { font-weight: bold; }</string>
-     </property>
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="lineName">
-     <property name="placeholderText">
-      <string>Name of signal</string>
+    <spacer name="titleSpacer">
+     <property name="orientation">
+      <enum>Qt::Orientation::Vertical</enum>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="lblDataPoints">
-     <property name="text">
-      <string/>
+     <property name="sizeType">
+      <enum>QSizePolicy::Policy::Fixed</enum>
      </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QListWidget" name="listDataPoints">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="maximumSize">
+     <property name="sizeHint" stdset="0">
       <size>
-       <width>16777215</width>
-       <height>120</height>
+       <width>20</width>
+       <height>4</height>
       </size>
      </property>
-    </widget>
+    </spacer>
    </item>
    <item>
-    <widget class="QGroupBox" name="addressContainer">
-     <property name="title">
-      <string>Data point</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="lblExpression">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="text">
-      <string/>
-     </property>
-     <property name="textFormat">
-      <enum>Qt::TextFormat::RichText</enum>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QGroupBox" name="axisGroupBox">
-     <property name="title">
-      <string>Y-axis</string>
-     </property>
-     <layout class="QHBoxLayout" name="axisLayout">
+    <widget class="QWidget" name="signalSection" native="true">
+     <layout class="QVBoxLayout" name="signalLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
       <item>
-       <widget class="QRadioButton" name="radioPrimary">
-        <property name="text">
-         <string>Y1 axis</string>
+       <layout class="QHBoxLayout" name="signalHeaderLayout">
+        <item>
+         <widget class="QLabel" name="lblSignalSection">
+          <property name="text">
+           <string>Signal</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QLabel { font-weight: bold; }</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="signalLine">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLineEdit" name="lineName">
+        <property name="placeholderText">
+         <string>Name of signal</string>
         </property>
-        <property name="checked">
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="axisLayout">
+        <item>
+         <widget class="QRadioButton" name="radioPrimary">
+          <property name="text">
+           <string>Y1 axis</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="radioSecondary">
+          <property name="text">
+           <string>Y2 axis</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="axisSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>0</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="dataPointSection" native="true">
+     <layout class="QVBoxLayout" name="dataPointLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="dataPointHeaderLayout">
+        <item>
+         <widget class="QLabel" name="lblDataPointSection">
+          <property name="text">
+           <string>Data point</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QLabel { font-weight: bold; }</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="dataPointLine">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblDataPoints">
+        <property name="text">
+         <string/>
+        </property>
+        <property name="wordWrap">
          <bool>true</bool>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QRadioButton" name="radioSecondary">
+       <widget class="QListWidget" name="listDataPoints">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Expanding" vsizetype="Maximum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>120</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QWidget" name="addressContainer" native="true"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QWidget" name="expressionSection" native="true">
+     <layout class="QVBoxLayout" name="expressionLayout">
+      <property name="leftMargin">
+       <number>0</number>
+      </property>
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <property name="rightMargin">
+       <number>0</number>
+      </property>
+      <property name="bottomMargin">
+       <number>0</number>
+      </property>
+      <item>
+       <layout class="QHBoxLayout" name="expressionHeaderLayout">
+        <item>
+         <widget class="QLabel" name="lblExpressionSection">
+          <property name="text">
+           <string>Expression</string>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">QLabel { font-weight: bold; }</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="Line" name="expressionLine">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="orientation">
+           <enum>Qt::Orientation::Horizontal</enum>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="lblExpression">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="text">
-         <string>Y2 axis</string>
+         <string/>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::TextFormat::RichText</enum>
+        </property>
+        <property name="wordWrap">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="btnEditExpression">
+        <property name="text">
+         <string>Edit expression…</string>
+        </property>
+        <property name="autoDefault">
+         <bool>false</bool>
         </property>
        </widget>
       </item>
@@ -135,17 +297,7 @@ QPushButton:pressed { background-color: palette(dark); border-color: palette(dar
 QPushButton:disabled { background-color: palette(button); color: palette(mid); border-color: palette(mid); }</string>
      </property>
      <property name="text">
-      <string>Add signal</string>
-     </property>
-     <property name="autoDefault">
-      <bool>false</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QPushButton" name="btnEditExpression">
-     <property name="text">
-      <string>Edit expression…</string>
+      <string>Add to table</string>
      </property>
      <property name="autoDefault">
       <bool>false</bool>
@@ -169,11 +321,11 @@ QPushButton:disabled { background-color: palette(button); color: palette(mid); b
  </widget>
  <tabstops>
   <tabstop>lineName</tabstop>
-  <tabstop>listDataPoints</tabstop>
   <tabstop>radioPrimary</tabstop>
   <tabstop>radioSecondary</tabstop>
-  <tabstop>btnAdd</tabstop>
+  <tabstop>listDataPoints</tabstop>
   <tabstop>btnEditExpression</tabstop>
+  <tabstop>btnAdd</tabstop>
  </tabstops>
  <resources/>
  <connections/>

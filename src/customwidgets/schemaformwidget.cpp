@@ -557,6 +557,19 @@ void SchemaFormWidget::onTriggerChanged(int /*index*/)
 }
 
 /*!
+ * \brief Return the field widgets in the order of the form rows, hidden conditional fields included.
+ */
+QList<QWidget*> SchemaFormWidget::fieldWidgets() const
+{
+    QList<QWidget*> widgets;
+    for (const auto& [key, widget] : std::as_const(_fields))
+    {
+        widgets.append(widget);
+    }
+    return widgets;
+}
+
+/*!
  * \brief Return current form input as a JSON object.
  *
  * Fields belonging to the inactive conditional branch are omitted.

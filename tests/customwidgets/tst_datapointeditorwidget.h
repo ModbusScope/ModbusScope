@@ -38,6 +38,7 @@ private slots:
     void setReferenceWithUnknownDeviceIsInvalid();
     void retriedWhenAdapterBecomesUsable();
     void rejectedBuildKeptWhenAdaptersChange();
+    void fieldsFollowDeviceInTabOrder();
 
 private:
     void createEditor();

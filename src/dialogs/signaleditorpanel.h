@@ -36,6 +36,8 @@ public:
     void showAddMode();
     void editSignal(GraphIdx graphIdx);
 
+    QWidget* setTabOrderAfter(QWidget* pPrevious);
+
 signals:
     void editExpressionRequested(GraphIdx graphIdx);
 
@@ -65,6 +67,9 @@ private:
     void updateDataPointList();
     void updateExpressionLabel();
     QString referenceProblem() const;
+
+    //! Size of the panel title relative to the normal font, so it stands out from the section headers.
+    static constexpr qreal cTitleFontScale = 1.3;
 
     Ui::SignalEditorPanel* _pUi;
     DataPointEditorWidget* _pEditor;

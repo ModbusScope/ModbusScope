@@ -84,6 +84,13 @@ Enforced by `.clang-format` (Mozilla-based, C++20):
 - Only use early return for error handling, avoid deep nesting
 - When fixing a bug, add a test that reproduces the issue before implementing the fix.
 
+## Changelog
+
+- Update `CHANGELOG.md` in the same commit as a user-facing change; add entries under `## Unreleased` in `Added`, `Fixed` or `Changed`.
+- Keep entries brief and user facing: one line per change, describing what the user sees, not how it is implemented. No refactors, tests, CI or build-only changes.
+- Entries describe the difference with the last released version (the latest tag, `git describe --tags --abbrev=0`), not with the previous commit.
+- When changing code that is not yet released, check whether its existing entry still describes the result and update it; do not add a separate fix or change entry for it.
+
 ## Development
 
 Several sub-agents are defined in `.claude/agents/` to keep build/test/lint/review output out of the main context:

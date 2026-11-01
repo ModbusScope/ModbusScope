@@ -35,10 +35,10 @@ If your device uses different values, substitute them at each step.
 
 1. Click **Signals** in the toolbar.
 2. In the panel on the right, set the name to `Signal 1` and select the device you just created.
-3. Fill in the address fields for holding register 0. **Reference** shows `${h0}`.
-4. Click **Add signal**. The panel keeps the device and the address fields.
-5. Change the name to `Signal 2` and the address to 1, then click **Add signal**.
-6. Change the name to `Signal 3` and the address to 2, then click **Add signal**.
+3. Fill in the address fields for holding register 0. The **Expression** section shows `${h0}`.
+4. Click **Add to table**. The panel keeps the device and the address fields.
+5. Change the name to `Signal 2` and the address to 1, then click **Add to table**.
+6. Change the name to `Signal 3` and the address to 2, then click **Add to table**.
 7. Click **OK**.
 
 ## Step 4 — Start logging

@@ -3,6 +3,7 @@
 
 #include "ProtocolAdapter/datapointservice.h"
 #include "communication/datapoint.h"
+#include "customwidgets/collapsibleheader.h"
 #include "customwidgets/datapointeditorwidget.h"
 #include "customwidgets/devicecombobox.h"
 #include "dialogs/expressionhighlighting.h"
@@ -18,6 +19,7 @@
 #include <QSignalBlocker>
 #include <QTextCursor>
 #include <QTextDocument>
+#include <QToolButton>
 
 using State = DataQuality::State;
 
@@ -73,15 +75,13 @@ ExpressionsDialog::ExpressionsDialog(GraphDataModel* pGraphDataModel,
 
     _pUi->tblExpressionInput->setRowCount(0);
     _pUi->tblExpressionInput->setColumnCount(2);
-    _pUi->tblExpressionInput->setHorizontalHeaderLabels(QStringList() << "Data Point" << "Value");
+    _pUi->tblExpressionInput->setHorizontalHeaderLabels(QStringList() << "Data Point" << "Input value");
     _pUi->tblExpressionInput->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
     _pUi->tblExpressionInput->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
 
     connect(_pUi->tblExpressionInput, &QTableWidget::cellChanged, this, &ExpressionsDialog::handleCellChanged);
 
-    _pUi->widgetInfo->setVisible(false);
-    connect(_pUi->btnInfo, &QAbstractButton::toggled, _pUi->widgetInfo, &QWidget::setVisible);
-
+    setupSections();
     setupButtons();
     setupExpressionEditor();
     setupInsertDataPoint();
@@ -134,8 +134,8 @@ bool ExpressionsDialog::eventFilter(QObject* pWatched, QEvent* pEvent)
  * \brief Ignore Enter outside the expression editor and the buttons.
  *
  * The button box makes Accept the default button when the dialog is shown. Without this,
- * Enter in the example input table would apply the expression by accident. Enter on a focused
- * button still presses that button.
+ * Enter in the test values table would apply the expression by accident. Enter on a focused
+ * push button still presses that button.
  * \param pEvent The key event.
  */
 void ExpressionsDialog::keyPressEvent(QKeyEvent* pEvent)
@@ -171,37 +171,82 @@ void ExpressionsDialog::setupButtons()
     connect(_pUi->buttonBox, &QDialogButtonBox::accepted, this, &ExpressionsDialog::handleAccept);
     connect(_pUi->buttonBox, &QDialogButtonBox::rejected, this, &ExpressionsDialog::handleCancel);
 
-    setTabOrder(_pUi->lineExpression, _pUi->btnInsertDataPoint);
-    setTabOrder(_pUi->btnInsertDataPoint, _pUi->btnInsertAtCursor);
-    setTabOrder(_pUi->btnInsertAtCursor, _pUi->tblExpressionInput);
-    setTabOrder(_pUi->tblExpressionInput, _pAcceptButton);
+    QToolButton* pInsertToggle = _pUi->headerInsertDataPoint->toggleButton();
+    QToolButton* pTestValuesToggle = _pUi->headerTestValues->toggleButton();
+    QToolButton* pHelpToggle = _pUi->headerHelp->toggleButton();
+
+    setTabOrder(_pUi->lineExpression, pInsertToggle);
+    setTabOrder(pInsertToggle, _pUi->btnInsertAtCursor);
+    setTabOrder(_pUi->btnInsertAtCursor, pTestValuesToggle);
+    setTabOrder(pTestValuesToggle, _pUi->tblExpressionInput);
+    setTabOrder(_pUi->tblExpressionInput, pHelpToggle);
+    setTabOrder(pHelpToggle, _pUi->cmbHelpDevice);
+    setTabOrder(_pUi->cmbHelpDevice, _pUi->scrollInfo);
+    setTabOrder(_pUi->scrollInfo, _pAcceptButton);
     setTabOrder(_pAcceptButton, pCancelButton);
-    setTabOrder(pCancelButton, _pUi->btnInfo);
-    setTabOrder(_pUi->btnInfo, _pUi->cmbHelpDevice);
 }
 
 /*!
- * \brief Size the expression editor to three lines and handle Enter in it.
+ * \brief Connect the collapsible sections to their content and bound the height of the help.
+ *
+ * Test values starts expanded; Insert data point and Expression help start collapsed. Help longer
+ * than the bound scrolls inside its area, so it never pushes the editor and the buttons out of view.
+ */
+void ExpressionsDialog::setupSections()
+{
+    _pUi->headerInsertDataPoint->setContent(_pUi->widgetInsertDataPoint);
+    _pUi->headerTestValues->setContent(_pUi->widgetTestValues);
+    _pUi->headerHelp->setContent(_pUi->widgetInfo);
+
+    connect(_pUi->headerTestValues, &CollapsibleHeader::expandedChanged, this,
+            &ExpressionsDialog::handleTestValuesExpanded);
+    _pUi->headerTestValues->setExpanded(true);
+
+    const int lineHeight = _pUi->lblInfo->fontMetrics().lineSpacing();
+    const QMargins margins = _pUi->scrollInfoLayout->contentsMargins();
+    _pUi->scrollInfo->setMaximumHeight(lineHeight * cHelpMaxLines + margins.top() + margins.bottom() +
+                                       2 * _pUi->scrollInfo->frameWidth());
+}
+
+/*!
+ * \brief Let the expression editor grow between three and ten lines, and handle Enter in it.
  *
  * Longer expressions wrap and show a vertical scroll bar.
  */
 void ExpressionsDialog::setupExpressionEditor()
 {
     QPlainTextEdit* pEditor = _pUi->lineExpression;
-    const int textHeight = pEditor->fontMetrics().lineSpacing() * cExpressionEditorLines;
+    const int lineHeight = pEditor->fontMetrics().lineSpacing();
     const int margins = static_cast<int>(2 * pEditor->document()->documentMargin()) + 2 * pEditor->frameWidth() +
                         pEditor->contentsMargins().top() + pEditor->contentsMargins().bottom();
-    pEditor->setFixedHeight(textHeight + margins);
+    pEditor->setMinimumHeight(lineHeight * cExpressionEditorMinLines + margins);
+    pEditor->setMaximumHeight(lineHeight * cExpressionEditorMaxLines + margins);
 
     pEditor->installEventFilter(this);
 }
 
 /*!
- * \brief Hide the insert data point form until Insert data point is checked.
+ * \brief Give spare height to the test values table while expanded, otherwise to the spacer below the sections.
+ * \param bExpanded Whether the test values section is expanded.
+ */
+void ExpressionsDialog::handleTestValuesExpanded(bool bExpanded)
+{
+    int row = 0;
+    int column = 0;
+    int rowSpan = 0;
+    int columnSpan = 0;
+    QGridLayout* pGrid = _pUi->gridLayout;
+    pGrid->getItemPosition(pGrid->indexOf(_pUi->widgetTestValues), &row, &column, &rowSpan, &columnSpan);
+
+    pGrid->setRowStretch(row, bExpanded ? 1 : 0);
+    pGrid->setRowStretch(pGrid->rowCount() - 1, bExpanded ? 0 : 1);
+}
+
+/*!
+ * \brief Set up the insert data point form; it stays hidden until Insert data point is expanded.
  */
 void ExpressionsDialog::setupInsertDataPoint()
 {
-    _pUi->widgetInsertDataPoint->setVisible(false);
     _pUi->btnInsertAtCursor->setEnabled(false);
     _pUi->lblInsertPreview->setVisible(false);
     _pUi->widgetInsertDataPoint->installEventFilter(this);
@@ -210,15 +255,15 @@ void ExpressionsDialog::setupInsertDataPoint()
     _pUi->lblInsertError->setTextFormat(Qt::PlainText);
     _pUi->lblError->setTextFormat(Qt::PlainText);
 
-    connect(_pUi->btnInsertDataPoint, &QAbstractButton::toggled, this,
+    connect(_pUi->headerInsertDataPoint, &CollapsibleHeader::expandedChanged, this,
             &ExpressionsDialog::handleInsertDataPointToggled);
     connect(_pUi->btnInsertAtCursor, &QAbstractButton::clicked, this, &ExpressionsDialog::insertDataPoint);
 }
 
 /*!
- * \brief Show or hide the insert data point form.
+ * \brief Create the insert data point form the first time it is shown.
  *
- * The form is created the first time it is shown, so the dialog does not ask the adapter to build a
+ * The form is created lazily, so the dialog does not ask the adapter to build a
  * data point when the form is never used. It starts on the device of the first data point in the
  * expression.
  * \param bChecked Whether the form is shown.
@@ -241,12 +286,10 @@ void ExpressionsDialog::handleInsertDataPointToggled(bool bChecked)
             _pInsertEditor->setDevice(references.first().deviceId);
         }
 
-        setTabOrder(_pUi->btnInsertDataPoint, _pInsertEditor);
-        setTabOrder(_pInsertEditor, _pUi->btnInsertAtCursor);
+        QWidget* pLastEditorWidget = _pInsertEditor->setTabOrderAfter(_pUi->headerInsertDataPoint->toggleButton());
+        setTabOrder(pLastEditorWidget, _pUi->btnInsertAtCursor);
         updateInsertState();
     }
-
-    _pUi->widgetInsertDataPoint->setVisible(bChecked);
 }
 
 /*!

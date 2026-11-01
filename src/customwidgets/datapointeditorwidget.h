@@ -31,6 +31,8 @@ public:
     QString expression() const;
     bool hasValidExpression() const;
 
+    QWidget* setTabOrderAfter(QWidget* pPrevious);
+
 signals:
     void expressionChanged(const QString& expression);
     void errorChanged(const QString& error);
@@ -46,6 +48,7 @@ private slots:
 
 private:
     void applyDevice(deviceId_t deviceId, const QJsonObject& fields);
+    QWidget* chainFieldTabOrder();
     void requestBuild();
     void setExpression(const QString& expression, bool bValid);
     void setError(const QString& error);
