@@ -418,7 +418,7 @@ void TestSignalEditorPanel::startAddClearsNameAndFocusesIt()
     QCOMPARE(_pPanel->focusWidget(), _pPanel->_pUi->lineName);
 }
 
-//! Enter in the name field adds the signal, as clicking Add signal does.
+//! Enter in the name field adds the signal, as clicking Add to table does.
 void TestSignalEditorPanel::enterAddsSignal()
 {
     _pMockDataPointManager->injectBuildResult(QStringLiteral("${h0}"));
@@ -899,7 +899,7 @@ void TestSignalEditorPanel::clickAdd()
 }
 
 /*!
- * \brief Answer the pending build request with \a expression and click Add signal.
+ * \brief Answer the pending build request with \a expression and click Add to table.
  */
 void TestSignalEditorPanel::addSignal(const QString& expression)
 {

@@ -135,7 +135,7 @@ QPushButton:pressed { background-color: palette(dark); border-color: palette(dar
 QPushButton:disabled { background-color: palette(button); color: palette(mid); border-color: palette(mid); }</string>
      </property>
      <property name="text">
-      <string>Add signal</string>
+      <string>Add to table</string>
      </property>
      <property name="autoDefault">
       <bool>false</bool>

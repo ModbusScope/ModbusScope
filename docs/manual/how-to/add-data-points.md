@@ -12,14 +12,14 @@ You must have at least one connection and one device configured. See [Configure 
 
    ![Signals dialog](<../_static/user_manual/add_register_dialog.png>)
 
-2. The panel on the right of the table adds signals. If a row is selected, click **New signal** to start a new signal.
+2. The panel on the right of the table adds signals. If a row is selected, click **Add signal** to start a new signal.
 3. Optionally enter a **name** for the graph legend. A signal without a name is called *New signal*, *New signal 2*, and so on.
 4. Select the **device**. The line below it shows the device's protocol.
 5. Fill in the address fields. They depend on the device's protocol, for example the object type, address and data type for Modbus. Below the fields, **Reference** shows the data point reference that will be added, for example `${h0}`. It is updated after each change.
 6. Select **Y1 axis** or **Y2 axis**.
-7. Click **Add signal** or press Enter. The signal is added to the table and the line above the button names it. The panel stays open and keeps the device, the address fields and the axis, so for the next signal you only change what differs, for example the address.
+7. Click **Add to table** or press Enter. The signal is added to the table and the line above the button names it. The panel stays open and keeps the device, the address fields and the axis, so for the next signal you only change what differs, for example the address.
 
-   If the adapter rejects the address, no reference is shown, **Add signal** is disabled and the reason appears above it. Correct the fields to try again.
+   If the adapter rejects the address, no reference is shown, **Add to table** is disabled and the reason appears above it. Correct the fields to try again.
 
 8. Repeat steps 3–7 for each signal.
 9. In the table, adjust the **Color** and the **Active** checkbox, or rename a signal in the **Name** column.
@@ -47,7 +47,7 @@ To calculate with a data point, add the signal first and then click **…** in i
 
 Until the adapter has described the data point, its fields cannot be edited. If the adapter is not running or rejects the data point, the reason is shown above **Edit expression…**; changing a field replaces the data point.
 
-To add a new signal again, click **New signal** or clear the selection.
+To add a new signal again, click **Add signal** or clear the selection.
 
 ## Tips
 

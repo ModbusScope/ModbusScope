@@ -404,7 +404,7 @@ void TestSignalsDialog::openWithReadyAdapter(int signalCount)
     QVERIFY(QTest::qWaitForWindowExposed(_pDialog));
 }
 
-//! Answer the panel's pending build request with \a expression and click Add signal.
+//! Answer the panel's pending build request with \a expression and click Add to table.
 void TestSignalsDialog::addSignalThroughPanel(const QString& expression)
 {
     _pMockDataPointManager->injectBuildResult(expression);
@@ -481,7 +481,7 @@ void TestSignalsDialog::cancelDiscardsPanelAdds()
     QCOMPARE(_pGraphDataModel->size(), 1);
 }
 
-//! At its minimum size the dialog still shows table and panel, and Add signal can be scrolled to.
+//! At its minimum size the dialog still shows table and panel, and Add to table can be scrolled to.
 void TestSignalsDialog::minimumSizeKeepsTableAndPanelUsable()
 {
     openWithReadyAdapter(3);

@@ -16,7 +16,7 @@ using State = DataPointDescription::State;
 
 /*!
  * \brief Constructs the panel in add mode, with a data point editor for the first configured device.
- * \param pGraphDataModel   Signal list that Add signal appends to and edit mode changes.
+ * \param pGraphDataModel   Signal list that Add to table appends to and edit mode changes.
  * \param pSettingsModel    Pointer to the application settings model.
  * \param pDataPointService Service that sends data point requests to the device's adapter.
  * \param pDescriptionCache Cache with the adapter's description of each data point.
