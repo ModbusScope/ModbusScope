@@ -36,6 +36,8 @@ public:
     void showAddMode();
     void editSignal(GraphIdx graphIdx);
 
+    QWidget* setTabOrderAfter(QWidget* pPrevious);
+
 signals:
     void editExpressionRequested(GraphIdx graphIdx);
 

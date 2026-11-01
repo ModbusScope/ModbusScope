@@ -71,6 +71,7 @@ private slots:
     void insertDisabledUntilBuilt();
     void insertFailureShowsError();
     void enterInInsertFormInserts();
+    void insertFormFieldsFollowHeaderInTabOrder();
     void insertPreviewShowsBuiltReference();
     void insertPreviewEscapesHtml();
 

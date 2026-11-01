@@ -1,8 +1,11 @@
 
 #include "tst_expressionsdialog.h"
 
+#include "../customwidgets/focuschainhelpers.h"
+
 #include "customwidgets/collapsibleheader.h"
 #include "customwidgets/datapointeditorwidget.h"
+#include "customwidgets/devicecombobox.h"
 #include "dialogs/expressionsdialog.h"
 #include "models/datapointdescriptioncache.h"
 #include "models/device.h"
@@ -22,6 +25,7 @@
 #include <QSpinBox>
 #include <QTableWidget>
 #include <QTest>
+#include <QToolButton>
 
 void TestExpressionsDialog::init()
 {
@@ -925,6 +929,24 @@ void TestExpressionsDialog::insertFailureShowsError()
 
     QVERIFY(_pDialog->_pUi->lblInsertError->text().contains(QStringLiteral("Address out of range")));
     QVERIFY(!_pDialog->_pUi->btnInsertAtCursor->isEnabled());
+}
+
+//! Tab goes from the Insert data point header through the insert form's fields to Insert at cursor.
+void TestExpressionsDialog::insertFormFieldsFollowHeaderInTabOrder()
+{
+    setAddressSchema();
+    recreateDialog();
+
+    _pDialog->_pUi->headerInsertDataPoint->setExpanded(true);
+
+    auto* pAddressSpin = _pDialog->_pInsertEditor->findChild<QSpinBox*>();
+    QVERIFY(pAddressSpin != nullptr);
+
+    const QList<QWidget*> expected{ _pDialog->_pUi->headerInsertDataPoint->toggleButton(),
+                                    _pDialog->_pInsertEditor->findChild<DeviceComboBox*>(), pAddressSpin,
+                                    _pDialog->_pUi->btnInsertAtCursor,
+                                    _pDialog->_pUi->headerTestValues->toggleButton() };
+    QCOMPARE(FocusChainHelpers::inTabOrder(expected), expected);
 }
 
 //! Enter in an address field of the insert form inserts the data point and does not accept the dialog.

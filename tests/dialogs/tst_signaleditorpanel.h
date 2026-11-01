@@ -40,6 +40,7 @@ private slots:
     void startAddClearsNameAndFocusesIt();
     void enterAddsSignal();
     void panelHasNoGroupBox();
+    void tabOrderFollowsSections();
     void enterInAddressFieldAddsSignal();
     void enterIgnoredWhileBuildPending();
 

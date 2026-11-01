@@ -137,7 +137,7 @@ Evidence: `signaleditorpanel.ui` (flat `QVBoxLayout`: `lineName`, `lblDataPoints
 - **Data point(s)** section: the data-point list (only for multi-point signals) and the address editor. The title reads *Data point*, or *Data points* when the signal combines several; the hint reads "This signal combines N data points. Select one to edit it."
 - **Expression** section: the read-only expression preview (with the edited data point in bold) and **Edit expression…**. The redundant "Expression:" caption in the preview is dropped. In add mode the section is hidden until a reference has been built.
 - Status line and the add button stay below the sections. Tab order follows the visual order for the panel's own widgets.
-- **Follow-up (separate commit):** the editor's fields are reached last with Tab, after **Add to table**. `QWidget::setTabOrder()` ignores the `NoFocus` editor container, and the form recreates its fields on every schema change, so the order has to be applied again after each rebuild.
+- **Tab order (follow-up):** `QWidget::setTabOrder()` ignores `NoFocus` containers, and widgets created after the `.ui` widgets join the end of the focus chain. `DataPointEditorWidget::setTabOrderAfter()` places the device and address fields, and places them again after each form rebuild. The panel and the Compose expression insert form use it.
 
 **Risk — investigated.**
 

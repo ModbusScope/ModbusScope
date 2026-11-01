@@ -7,9 +7,11 @@
 #include "customwidgets/datapointeditorwidget.h"
 #include "customwidgets/devicecombobox.h"
 #include "customwidgets/schemaformwidget.h"
+#include "focuschainhelpers.h"
 
 #include <QJsonArray>
 #include <QLabel>
+#include <QPushButton>
 #include <QSignalSpy>
 #include <QTest>
 
@@ -358,6 +360,33 @@ void TestDataPointEditorWidget::rejectedBuildKeptWhenAdaptersChange()
 
     QCOMPARE(_pModbusManager->buildCalls.size(), 2);
     QCOMPARE(_pEditor->_pAddressForm->values().value("address").toInt(), 7);
+}
+
+//! Tab goes from the device to the address fields, also after the form is rebuilt for another device.
+void TestDataPointEditorWidget::fieldsFollowDeviceInTabOrder()
+{
+    QWidget host;
+    auto* pBefore = new QPushButton(&host);
+    /* The host owns this editor, so it is not the fixture's _pEditor */
+    auto* pEditor = new DataPointEditorWidget(_pSettingsModel, _pService, &host);
+    auto* pAfter = new QPushButton(&host);
+
+    QWidget* pLast = pEditor->setTabOrderAfter(pBefore);
+    QWidget::setTabOrder(pLast, pAfter);
+
+    QList<QWidget*> expected{ pBefore, pEditor->_pDeviceCombo };
+    expected.append(pEditor->_pAddressForm->fieldWidgets());
+    expected.append(pAfter);
+    QCOMPARE(expected.size(), 6);
+    QCOMPARE(FocusChainHelpers::inTabOrder(expected), expected);
+
+    pEditor->setDevice(cSimDeviceId);
+
+    QList<QWidget*> expectedAfterSwitch{ pBefore, pEditor->_pDeviceCombo };
+    expectedAfterSwitch.append(pEditor->_pAddressForm->fieldWidgets());
+    expectedAfterSwitch.append(pAfter);
+    QCOMPARE(expectedAfterSwitch.size(), 4);
+    QCOMPARE(FocusChainHelpers::inTabOrder(expectedAfterSwitch), expectedAfterSwitch);
 }
 
 void TestDataPointEditorWidget::createEditor()

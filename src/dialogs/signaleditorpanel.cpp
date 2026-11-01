@@ -44,6 +44,8 @@ SignalEditorPanel::SignalEditorPanel(GraphDataModel* pGraphDataModel,
     addressLayout->setContentsMargins(0, 0, 0, 0);
     addressLayout->addWidget(_pEditor);
 
+    setTabOrderAfter(nullptr);
+
     _axisGroup.setExclusive(true);
     _axisGroup.addButton(_pUi->radioPrimary);
     _axisGroup.addButton(_pUi->radioSecondary);
@@ -142,6 +144,30 @@ void SignalEditorPanel::editSignal(GraphIdx graphIdx)
 
     applyMode(true);
     refresh(true);
+}
+
+/*!
+ * \brief Put the panel's fields in the tab order of the sections, after \a pPrevious.
+ *
+ * The data point editor is created after the .ui widgets, so its fields are moved into place here.
+ * \param pPrevious The widget that comes before the panel; nullptr to only order the panel itself.
+ * \return The last widget of the panel, to continue the tab order from.
+ */
+QWidget* SignalEditorPanel::setTabOrderAfter(QWidget* pPrevious)
+{
+    if (pPrevious != nullptr)
+    {
+        setTabOrder(pPrevious, _pUi->lineName);
+    }
+    setTabOrder(_pUi->lineName, _pUi->radioPrimary);
+    setTabOrder(_pUi->radioPrimary, _pUi->radioSecondary);
+    setTabOrder(_pUi->radioSecondary, _pUi->listDataPoints);
+
+    QWidget* pLastEditorWidget = _pEditor->setTabOrderAfter(_pUi->listDataPoints);
+    setTabOrder(pLastEditorWidget, _pUi->btnEditExpression);
+    setTabOrder(_pUi->btnEditExpression, _pUi->btnAdd);
+
+    return _pUi->btnAdd;
 }
 
 /*!

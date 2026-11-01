@@ -286,8 +286,8 @@ void ExpressionsDialog::handleInsertDataPointToggled(bool bChecked)
             _pInsertEditor->setDevice(references.first().deviceId);
         }
 
-        setTabOrder(_pUi->headerInsertDataPoint->toggleButton(), _pInsertEditor);
-        setTabOrder(_pInsertEditor, _pUi->btnInsertAtCursor);
+        QWidget* pLastEditorWidget = _pInsertEditor->setTabOrderAfter(_pUi->headerInsertDataPoint->toggleButton());
+        setTabOrder(pLastEditorWidget, _pUi->btnInsertAtCursor);
         updateInsertState();
     }
 }

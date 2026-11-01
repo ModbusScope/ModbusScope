@@ -64,6 +64,8 @@ public:
 
     QJsonObject values() const;
 
+    QList<QWidget*> fieldWidgets() const;
+
 signals:
     //! Emitted when a string field's value changes; \a key is the property name.
     void fieldChanged(const QString& key, const QString& value);

@@ -1,6 +1,7 @@
 
 #include "tst_signaleditorpanel.h"
 
+#include "../customwidgets/focuschainhelpers.h"
 #include "../models/devicelisthelpers.h"
 #include "customwidgets/datapointeditorwidget.h"
 #include "customwidgets/devicecombobox.h"
@@ -441,6 +442,23 @@ void TestSignalEditorPanel::enterAddsSignal()
 void TestSignalEditorPanel::panelHasNoGroupBox()
 {
     QVERIFY(_pPanel->findChildren<QGroupBox*>().isEmpty());
+}
+
+//! Tab follows the sections: name, axis, data point list, address fields, Edit expression, Add to table.
+void TestSignalEditorPanel::tabOrderFollowsSections()
+{
+    auto* pAddressSpin = _pPanel->_pUi->addressContainer->findChild<QSpinBox*>();
+    QVERIFY(pAddressSpin != nullptr);
+
+    const QList<QWidget*> expected{ _pPanel->_pUi->lineName,
+                                    _pPanel->_pUi->radioPrimary,
+                                    _pPanel->_pUi->radioSecondary,
+                                    _pPanel->_pUi->listDataPoints,
+                                    _pPanel->_pEditor->findChild<DeviceComboBox*>(),
+                                    pAddressSpin,
+                                    _pPanel->_pUi->btnEditExpression,
+                                    _pPanel->_pUi->btnAdd };
+    QCOMPARE(FocusChainHelpers::inTabOrder(expected), expected);
 }
 
 //! Enter in an address field adds the signal; the spin box reporting its value again keeps the reference.
