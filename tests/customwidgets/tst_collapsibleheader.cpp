@@ -50,7 +50,7 @@ void TestCollapsibleHeader::expandShowsContentAndTurnsArrow()
     QCOMPARE(spy.at(1).at(0).toBool(), false);
 }
 
-//! Content set on an expanded section is shown right away.
+//! Content set on an expanded section is shown right away; the replaced content is hidden.
 void TestCollapsibleHeader::setContentAppliesCurrentState()
 {
     _pHeader->setExpanded(true);
@@ -60,6 +60,11 @@ void TestCollapsibleHeader::setContentAppliesCurrentState()
     _pHeader->setContent(pOther);
 
     QVERIFY(!pOther->isHidden());
+    QVERIFY(_pContent->isHidden());
+
+    _pHeader->setExpanded(false);
+    _pHeader->setExpanded(true);
+    QVERIFY(_pContent->isHidden());
 }
 
 //! Clicking the arrow button expands the section.

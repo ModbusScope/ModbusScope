@@ -66,6 +66,11 @@ void CollapsibleHeader::setText(const QString& text)
  */
 void CollapsibleHeader::setContent(QWidget* pContent)
 {
+    if (_pContent != nullptr)
+    {
+        _pContent->setVisible(false);
+    }
+
     _pContent = pContent;
     if (_pContent != nullptr)
     {
