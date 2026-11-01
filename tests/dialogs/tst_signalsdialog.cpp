@@ -1,6 +1,7 @@
 
 #include "tst_signalsdialog.h"
 
+#include "../customwidgets/focuschainhelpers.h"
 #include "../models/devicelisthelpers.h"
 #include "dialogs/signaleditorpanel.h"
 #include "dialogs/signalsdialog.h"
@@ -450,6 +451,45 @@ void TestSignalsDialog::enterInPanelDoesNotCloseDialog()
     QVERIFY(_pDialog->isVisible());
     QCOMPARE(draftModel()->size(), 1);
     QCOMPARE(_pGraphDataModel->size(), 0);
+}
+
+//! Tab goes from the table buttons and the table through the panel to OK and Cancel.
+void TestSignalsDialog::tabOrderFollowsLayout()
+{
+    openWithReadyAdapter(1);
+
+    auto* pButtonBox = _pDialog->findChild<QDialogButtonBox*>("buttonBox");
+    QVERIFY(pButtonBox != nullptr);
+    auto* pAddressSpin = panel()->findChild<QSpinBox*>();
+    QVERIFY(pAddressSpin != nullptr);
+
+    const QList<QWidget*> expected{ _pDialog->findChild<QPushButton*>("btnAdd", Qt::FindDirectChildrenOnly),
+                                    _pDialog->findChild<QPushButton*>("btnRemove", Qt::FindDirectChildrenOnly),
+                                    _pDialog->findChild<QTableView*>("signalView"),
+                                    panel()->findChild<QLineEdit*>("lineName"),
+                                    pAddressSpin,
+                                    panel()->findChild<QPushButton*>("btnAdd"),
+                                    pButtonBox->button(QDialogButtonBox::Ok),
+                                    pButtonBox->button(QDialogButtonBox::Cancel) };
+    QVERIFY(!expected.contains(nullptr));
+    QCOMPARE(FocusChainHelpers::inTabOrder(expected), expected);
+
+    /* Editing a signal loads its data point, which rebuilds the address fields */
+    _pDialog->findChild<QTableView*>("signalView")->selectRow(0);
+    auto* pEditAddressSpin = panel()->findChild<QSpinBox*>();
+    QVERIFY(pEditAddressSpin != nullptr);
+
+    const QList<QWidget*> expectedInEditMode{ _pDialog->findChild<QTableView*>("signalView"),
+                                              panel()->findChild<QLineEdit*>("lineName"),
+                                              pEditAddressSpin,
+                                              panel()->findChild<QPushButton*>("btnEditExpression"),
+                                              pButtonBox->button(QDialogButtonBox::Ok),
+                                              pButtonBox->button(QDialogButtonBox::Cancel) };
+    QVERIFY(!expectedInEditMode.contains(nullptr));
+    QCOMPARE(FocusChainHelpers::inTabOrder(expectedInEditMode), expectedInEditMode);
+
+    /* The scroll area only holds the panel; it is no tab stop of its own */
+    QCOMPARE(_pDialog->findChild<QScrollArea*>("panelScrollArea")->focusPolicy(), Qt::NoFocus);
 }
 
 void TestSignalsDialog::deleteInNameFieldKeepsRows()

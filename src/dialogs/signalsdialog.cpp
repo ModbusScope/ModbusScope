@@ -257,6 +257,12 @@ void SignalsDialog::setupEditorPanel()
     _pPanel = new SignalEditorPanel(_pDraft->model(), _pSettingsModel, _pDataPointService, _pDescriptionCache, this);
     _pUi->panelScrollArea->setWidget(_pPanel);
 
+    /* The panel is created after the .ui widgets; move it between the table and the dialog buttons */
+    QWidget* pLastPanelWidget = _pPanel->setTabOrderAfter(_pUi->signalView);
+    QPushButton* pOkButton = _pUi->buttonBox->button(QDialogButtonBox::Ok);
+    setTabOrder(pLastPanelWidget, pOkButton);
+    setTabOrder(pOkButton, _pUi->buttonBox->button(QDialogButtonBox::Cancel));
+
     connect(_pUi->signalView->selectionModel(), &QItemSelectionModel::selectionChanged, this,
             &SignalsDialog::onSelectionChanged);
     connect(_pPanel, &SignalEditorPanel::editExpressionRequested, this, &SignalsDialog::openExpressionDialog);

@@ -40,6 +40,7 @@ private slots:
     void addButtonClearsSelectionAndFocusesName();
     void addedSignalScrolledIntoViewNotSelected();
     void enterInPanelDoesNotCloseDialog();
+    void tabOrderFollowsLayout();
     void deleteInNameFieldKeepsRows();
     void cancelDiscardsPanelAdds();
     void minimumSizeKeepsTableAndPanelUsable();
