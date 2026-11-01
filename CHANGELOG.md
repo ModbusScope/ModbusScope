@@ -5,6 +5,8 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 ### Added
 
 * Screenshot can be copied to the clipboard; the output mode is selected from the screenshot toolbar button and can be remembered; the button icon briefly confirms a copy
+* IEC 104 adapter is bundled alongside the Modbus adapter
+* Release packages include the license texts and third-party notices
 
 ### Fixed
 
@@ -13,19 +15,21 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * Compose expression no longer accepts an expression with a syntax error or an unknown device; an expression that mixes `.` and `,` as decimal separator is now reported as a syntax error
 * The add signal form shows why the adapter rejected an address
 * Expression error messages show the expression as written instead of its internal representation
+* A stored connection without an id gets a free id instead of duplicating an existing one
 
 ### Changed
 
-* Compose expression: the expression wraps, Enter accepts, and Accept and Cancel use a standard button row in a smaller dialog
+* Compose expression: the expression wraps and grows with the dialog, Enter accepts, Accept and Cancel use a standard button row, and Insert data point, Test values and Expression help are collapsible sections
 * Compose expression: example values accept hexadecimal (`0x`) and binary (`0b`) numbers, a point or a comma as decimal separator, and start at 1 instead of 0
 * A signal added without a name, from the add form or an import, is named "New signal", "New signal 2", and so on
 * The add signal form shows the data point reference it will add, and checks the address while you type
 * The Signals dialog has a Cancel button: Cancel and Esc discard every change made in the dialog, after a confirmation when there are changes. On OK, signals whose expression changed lose their data; the others keep it, also when they were deactivated and activated again in the dialog
-* Signals are added in a panel next to the table that stays open: Add to table (or Enter) keeps the device, address fields and axis for the next signal. Add no longer inserts a row with a default expression
+* Signals are added in a panel next to the table that stays open: Add to table (or Enter) keeps the device, address fields and axis for the next signal. Add no longer inserts a row with a default expression. The panel is organised into Signal, Data point and Expression sections and shows the resulting expression
 * Compose expression: Insert data point adds a data point at the cursor from an address form, without typing its syntax
 * Compose expression: the data point table has a row for each occurrence of a data point, a data point the adapter rejects is shown in red and blocks Accept, and a syntax error marks only the part of the expression where it was found
 * The Signals table has a Data point column that shows what each signal reads, as described by the adapter, and the error of an expression that does not parse
 * Selecting a signal edits it in the panel: its name, axis, and the device and address fields of each data point, without changing the rest of the expression
+* Settings shows the adapter's protocol name instead of its internal id; the connection id is read-only
 
 ## [v5.0.1](https://github.com/jgeudens/ModbusScope/releases/tag/5.0.1) (09/10/2026)
 
