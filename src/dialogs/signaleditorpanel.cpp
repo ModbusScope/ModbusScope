@@ -34,14 +34,15 @@ SignalEditorPanel::SignalEditorPanel(GraphDataModel* pGraphDataModel,
 {
     _pUi->setupUi(this);
 
+    QFont titleFont = _pUi->lblTitle->font();
+    titleFont.setBold(true);
+    titleFont.setPointSizeF(titleFont.pointSizeF() * cTitleFontScale);
+    _pUi->lblTitle->setFont(titleFont);
+
     _pEditor = new DataPointEditorWidget(pSettingsModel, pDataPointService, _pUi->addressContainer);
     auto* addressLayout = new QVBoxLayout(_pUi->addressContainer);
     addressLayout->setContentsMargins(0, 0, 0, 0);
     addressLayout->addWidget(_pEditor);
-
-    /* The editor is created after the .ui widgets; move its fields between data point list and axis */
-    setTabOrder(_pUi->listDataPoints, _pEditor);
-    setTabOrder(_pEditor, _pUi->radioPrimary);
 
     _axisGroup.setExclusive(true);
     _axisGroup.addButton(_pUi->radioPrimary);
@@ -455,7 +456,8 @@ void SignalEditorPanel::applyMode(bool bEditMode)
     _pUi->btnAdd->setVisible(!bEditMode);
     _pUi->btnEditExpression->setVisible(bEditMode);
 
-    _pUi->addressContainer->setVisible(true);
+    _pUi->dataPointSection->setVisible(true);
+    _pUi->lblDataPointSection->setText(QStringLiteral("Data point"));
     _pUi->lblDataPoints->setVisible(false);
     _pUi->listDataPoints->setVisible(false);
 }
@@ -502,7 +504,7 @@ void SignalEditorPanel::refresh(bool bReloadEditor)
     }
 
     const bool bHasReferences = !_references.isEmpty();
-    _pUi->addressContainer->setVisible(bHasReferences);
+    _pUi->dataPointSection->setVisible(bHasReferences);
     if (bHasReferences)
     {
         _referenceIdx = qBound(qsizetype(0), _referenceIdx, _references.size() - 1);
@@ -551,6 +553,7 @@ void SignalEditorPanel::loadReference()
 void SignalEditorPanel::updateDataPointList()
 {
     const bool bShowList = _references.size() > 1;
+    _pUi->lblDataPointSection->setText(bShowList ? QStringLiteral("Data points") : QStringLiteral("Data point"));
     _pUi->lblDataPoints->setVisible(bShowList);
     _pUi->listDataPoints->setVisible(bShowList);
     if (!bShowList)
@@ -558,7 +561,8 @@ void SignalEditorPanel::updateDataPointList()
         return;
     }
 
-    _pUi->lblDataPoints->setText(QStringLiteral("This signal combines %1 data points.").arg(_references.size()));
+    _pUi->lblDataPoints->setText(
+      QStringLiteral("This signal combines %1 data points. Select one to edit it.").arg(_references.size()));
 
     const QSignalBlocker blocker(_pUi->listDataPoints);
     if (_pUi->listDataPoints->count() != _references.size())
@@ -599,10 +603,11 @@ void SignalEditorPanel::updateDataPointList()
 }
 
 /*!
- * \brief Show the whole expression of the signal, after an "Expression:" caption.
+ * \brief Show the whole expression of the signal in the Expression section.
  *
- * Add mode shows the reference the editor built, greyed out while a newer one is being built. Edit
- * mode shows the row's expression with the edited data point in bold.
+ * Add mode shows the reference the editor built, greyed out while a newer one is being built; the
+ * section is hidden until the first one is built. Edit mode shows the row's expression with the
+ * edited data point in bold.
  */
 void SignalEditorPanel::updateExpressionLabel()
 {
@@ -629,10 +634,10 @@ void SignalEditorPanel::updateExpressionLabel()
                  .arg(before.toHtmlEscaped(), reference.text.toHtmlEscaped(), after.toHtmlEscaped());
     }
 
-    _pUi->lblExpression->setText(
-      QStringLiteral("Expression: <span style=\"white-space: pre-wrap\">%1</span>").arg(html));
+    _pUi->lblExpression->setText(QStringLiteral("<span style=\"white-space: pre-wrap\">%1</span>").arg(html));
     _pUi->lblExpression->setEnabled(bEnabled);
     _pUi->lblExpression->setVisible(!html.isEmpty());
+    _pUi->expressionSection->setVisible(_bEditMode || !html.isEmpty());
 }
 
 /*!

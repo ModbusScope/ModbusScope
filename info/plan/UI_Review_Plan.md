@@ -136,15 +136,14 @@ Evidence: `signaleditorpanel.ui` (flat `QVBoxLayout`: `lineName`, `lblDataPoints
 - **Signal** section: name, and the Y1/Y2 axis choice on one row (replaces the separate *Y-axis* group box).
 - **Data point(s)** section: the data-point list (only for multi-point signals) and the address editor. The title reads *Data point*, or *Data points* when the signal combines several; the hint reads "This signal combines N data points. Select one to edit it."
 - **Expression** section: the read-only expression preview (with the edited data point in bold) and **Edit expression…**. The redundant "Expression:" caption in the preview is dropped. In add mode the section is hidden until a reference has been built.
-- Status line and the add button stay below the sections. Tab order follows the visual order.
+- Status line and the add button stay below the sections. Tab order follows the visual order for the panel's own widgets.
+- **Follow-up (separate commit):** the editor's fields are reached last with Tab, after **Add to table**. `QWidget::setTabOrder()` ignores the `NoFocus` editor container, and the form recreates its fields on every schema change, so the order has to be applied again after each rebuild.
 
-**Risk — investigate before implementing.** A first attempt at this layout showed two problems that must be understood and fixed in this step:
+**Risk — investigated.**
 
-1. With the fields inside group boxes, Enter in the name field no longer added the signal in the Wayland test run (`enterAddsSignal`, `enterInPanelDoesNotCloseDialog`). The key press reached the group box but not the panel. With the offscreen platform these tests passed. Expect the same in the real dialog until it is proven otherwise.
-2. In a panel that is never shown, a group box lays out its children at its default size, which gave **Edit expression…** a height of 0 and made `editExpressionRequestsDialogForRow` miss its click.
+1. Enter lost inside group boxes: Qt 6.8 (the version the project ships) has a bug. `QGroupBox::event` takes every key in the platform theme's `ButtonPressKeys`, even when the box is not checkable; Qt 6.9 added the `isCheckable()` check. GNOME lists Return/Enter there, the offscreen platform does not. The existing `addressContainer` group box already caused this in the released app: on GNOME, Enter in an address field did not add the signal (`enterInAddressFieldAddsSignal` failed under Wayland). The Compose expression insert form had the same cause until step 4 removed its group box. The sections therefore use plain containers with a header row (bold title and a line, like the collapsible headers in Compose expression) and no `QGroupBox`.
+2. **Edit expression…** with height 0 only happens in a test with a panel that is never shown; the click test now shows the panel first.
 
-Separately, two Enter tests already fail on the unchanged code under Wayland (`enterInAddressFieldAddsSignal`, `enterInInsertFormInserts`); they pass with `QT_QPA_PLATFORM=offscreen`. That is a pre-existing test-environment issue and not part of this step.
-
-**Tests.** Section titles for single and multiple data points; Expression section visibility in add and edit mode; Enter still adds the signal; Edit expression still requests the dialog. Existing tests that compare the preview text are updated for the dropped caption.
+**Tests.** The panel contains no `QGroupBox` (regression test for the Enter bug, which the offscreen platform cannot show); Expression section visibility in add and edit mode; Data point section hidden without data points; Enter still adds the signal; Edit expression still requests the dialog. Existing tests that compare the preview text are updated for the dropped caption.
 
 **Docs.** `how-to/add-data-points.md`: refer to the Signal, Data point(s) and Expression sections in the add and edit steps.

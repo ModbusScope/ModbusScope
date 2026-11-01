@@ -39,6 +39,7 @@ private slots:
     void consecutiveAddsWithoutReopening();
     void startAddClearsNameAndFocusesIt();
     void enterAddsSignal();
+    void panelHasNoGroupBox();
     void enterInAddressFieldAddsSignal();
     void enterIgnoredWhileBuildPending();
 

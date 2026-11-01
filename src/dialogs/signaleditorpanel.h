@@ -66,6 +66,9 @@ private:
     void updateExpressionLabel();
     QString referenceProblem() const;
 
+    //! Size of the panel title relative to the normal font, so it stands out from the section headers.
+    static constexpr qreal cTitleFontScale = 1.3;
+
     Ui::SignalEditorPanel* _pUi;
     DataPointEditorWidget* _pEditor;
     GraphDataModel* _pGraphDataModel;
