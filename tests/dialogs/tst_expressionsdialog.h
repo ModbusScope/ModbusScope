@@ -80,6 +80,7 @@ private slots:
     void enterIgnoredOnSyntaxError();
     void shiftEnterIgnored();
     void expressionEditorWraps();
+    void expressionEditorGrowsWithDialog();
 
 private:
     MockDataPointManager* addSimAdapter();

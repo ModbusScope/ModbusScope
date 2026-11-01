@@ -66,7 +66,8 @@ private:
     void setupInsertDataPoint();
     void updateInsertPreview();
 
-    static constexpr int cExpressionEditorLines = 3;
+    static constexpr int cExpressionEditorMinLines = 3;
+    static constexpr int cExpressionEditorMaxLines = 10;
 
     //! Data roles of the data point column.
     static constexpr int cReferenceTextRole = Qt::UserRole;

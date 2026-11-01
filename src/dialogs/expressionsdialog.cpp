@@ -181,17 +181,18 @@ void ExpressionsDialog::setupButtons()
 }
 
 /*!
- * \brief Size the expression editor to three lines and handle Enter in it.
+ * \brief Let the expression editor grow between three and ten lines, and handle Enter in it.
  *
  * Longer expressions wrap and show a vertical scroll bar.
  */
 void ExpressionsDialog::setupExpressionEditor()
 {
     QPlainTextEdit* pEditor = _pUi->lineExpression;
-    const int textHeight = pEditor->fontMetrics().lineSpacing() * cExpressionEditorLines;
+    const int lineHeight = pEditor->fontMetrics().lineSpacing();
     const int margins = static_cast<int>(2 * pEditor->document()->documentMargin()) + 2 * pEditor->frameWidth() +
                         pEditor->contentsMargins().top() + pEditor->contentsMargins().bottom();
-    pEditor->setFixedHeight(textHeight + margins);
+    pEditor->setMinimumHeight(lineHeight * cExpressionEditorMinLines + margins);
+    pEditor->setMaximumHeight(lineHeight * cExpressionEditorMaxLines + margins);
 
     pEditor->installEventFilter(this);
 }

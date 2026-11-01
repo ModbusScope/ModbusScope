@@ -689,6 +689,23 @@ void TestExpressionsDialog::expressionEditorWraps()
     QCOMPARE(_pDialog->_pUi->lineExpression->verticalScrollBarPolicy(), Qt::ScrollBarAsNeeded);
 }
 
+//! The expression editor grows with the dialog, from three lines up to a bounded maximum.
+void TestExpressionsDialog::expressionEditorGrowsWithDialog()
+{
+    QPlainTextEdit* pEditor = _pDialog->_pUi->lineExpression;
+    _pDialog->show();
+    _pDialog->resize(_pDialog->minimumSize());
+    QTRY_COMPARE(_pDialog->size(), _pDialog->minimumSize());
+    const int smallHeight = pEditor->height();
+
+    _pDialog->resize(_pDialog->width(), _pDialog->height() + 400);
+
+    QTRY_VERIFY(pEditor->height() > smallHeight);
+    const int lineHeight = pEditor->fontMetrics().lineSpacing();
+    QVERIFY(pEditor->minimumHeight() >= ExpressionsDialog::cExpressionEditorMinLines * lineHeight);
+    QVERIFY(pEditor->maximumHeight() < QWIDGETSIZE_MAX);
+}
+
 //! A data point the adapter rejects is shown in red with the reason, and Accept stays disabled.
 void TestExpressionsDialog::acceptDisabledOnInvalidDataPoint()
 {
