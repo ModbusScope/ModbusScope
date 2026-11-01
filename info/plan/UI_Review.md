@@ -16,7 +16,6 @@ The biggest UI opportunities are to make the primary task more prominent, contai
 | **Medium** | **Sample-testing labels do not clearly explain the relationship between inputs and output.** “Example Input” is a section heading, the editable column is “Value,” and “Processed Output” sits separately. | Users may mistake example values for live readings or miss that changing them recalculates the result. | Use labels such as **Test values**, **Input value**, and **Calculated result**; group the output visually with the sample inputs. |
 | **Medium** | **Signals has two add affordances with subtly different meanings.** The dialog-level **New signal** button enters add mode, while the panel button **Add signal** commits the current form. | The distinction is valid, but similar labels make it harder to predict which one starts the workflow and which one adds a row. | Use one clear entry-point label, such as **Add signal**, and a distinct commit label such as **Add to list**. Keep **New signal** as the panel's mode heading. |
 | **Medium** | **The sidebar's information hierarchy is implicit.** Name, data-point selection, address fields, expression preview, axis, status, and actions are stacked together. | When editing a multi-point formula, users must infer which fields affect the selected data point and which affect the whole signal. | Organize the panel into clear sections: **Signal** (name and axis), **Data points** (selection and address editor), and **Expression** (read-only preview and edit action). Make the selected data point especially clear. |
-| **Low** | **Red styling can imply a hard stop when the expression is still saveable.** Evaluation issues from example values may be shown with error styling while Accept remains enabled. | Color alone does not explain whether the expression is invalid or only the current test values are unsuitable. | Distinguish blocking errors from test-value warnings with plain-language status text and non-color cues. Reserve error styling for cases that actually block progress. |
 
 ## Strengths to preserve
 
@@ -30,3 +29,8 @@ The biggest UI opportunities are to make the primary task more prominent, contai
 The manual screenshot at [`docs/manual/_static/user_manual/expression_dialog.png`](../../docs/manual/_static/user_manual/expression_dialog.png) appears not to match the current UI definition and behavior. For example, it shows a much taller expression editor and different action placement. Refresh the screenshot before using it as a reference for visual QA.
 
 This review focuses on visual hierarchy, layout, labeling, and presentation; it is not a live usability session.
+
+
+
+
+
