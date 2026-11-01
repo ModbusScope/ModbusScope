@@ -13,11 +13,11 @@ The manual screenshot (`expression_dialog.png`) is out of scope; it is updated s
 | 1 | Two add buttons with similar labels | Signals | Small | Low |
 | 2 | Test-values labels and grouping | Compose expression | Small | Low |
 | 3 | Redundant title and fixed editor height | Compose expression | Small | Low |
-| 4 | Insert control looks like a command | Compose expression | Small | Low |
-| 5 | Help can overwhelm the workspace | Compose expression | Medium | Low |
+| 4 | Insert control looks like a command; help can overwhelm the workspace (steps 4 and 5 merged) | Compose expression | Medium | Low |
+| 5 | *(merged into step 4)* | — | — | — |
 | 6 | Sidebar hierarchy is implicit | Signals | Large | Medium |
 
-Steps 2–5 all touch `expressionsdialog.ui`; doing them one by one keeps each diff readable. Step 6 is last because it carries the most risk.
+Steps 2–4 all touch `expressionsdialog.ui`; doing them one by one keeps each diff readable. Step 6 is last because it carries the most risk.
 
 ---
 
@@ -88,43 +88,38 @@ Evidence: `expressionsdialog.ui` (window title, `groupBox` title), `ExpressionsD
 
 ---
 
-## Step 4 — Insert data point as a disclosure control
+## Step 4 — One collapsible-section style (steps 4 and 5 merged)
 
-**Finding.** **Insert data point…** looks like a command that opens another dialog, but it is a checkable button that expands an inline form and stays pressed while open. There is no visible expanded/collapsed state. The form inside repeats the title "Insert data point".
+**Findings.**
+- **Insert data point…** looks like a command that opens another dialog, but it is a checkable button that expands an inline form. There is no visible expanded/collapsed state, and the form repeats the title "Insert data point".
+- The help is an unbounded block below the composing area. Long adapter help can push the editor and the dialog buttons out of view, and **Show info** has the same command-versus-disclosure problem.
 
-Evidence: `expressionsdialog.ui` (`btnInsertDataPoint` checkable `QPushButton`, `insertGroupBox` title), `ExpressionsDialog::handleInsertDataPointToggled()`.
+A first version that only turned Insert data point into a flat arrow button showed that it was still unclear where to click, because it looked different from the Test values group box and the Show info button.
 
-**Intent.** The control reads as "expand/collapse a section", and the expression editor stays the visually dominant element.
+Evidence: `expressionsdialog.ui` (`btnInsertDataPoint` checkable `QPushButton`, `insertGroupBox` title, `testValuesGroupBox`, `widgetInfo` with unbounded `lblInfo`, checkable `btnInfo` "Show info").
 
-**Proposed change.**
+**Intent.** Insert data point, Test values and the help all use the same recognisable section header. Help is available on demand without taking over the dialog.
 
-- `btnInsertDataPoint` becomes a checkable `QToolButton` with text and arrow: right arrow when collapsed, down arrow when expanded. Label **Insert data point** (no ellipsis); the Alt+I mnemonic stays.
-- Remove the repeated title from the form's group box; the frame stays to show what belongs to the expanded section.
-- Behaviour, tab order and the lazy creation of the form stay as they are.
+**Change.**
+- New reusable `CollapsibleHeader` widget (`src/customwidgets`):
+  - an arrow (right when collapsed, down when expanded) with a bold title, followed by a line across the row;
+  - a click anywhere on the row toggles the section, and the header shows or hides one content widget.
+- Three sections: **Insert data point** (collapsed), **Test values** (expanded) and **Expression help** (collapsed).
+  - The group box and the Show info button are removed.
+  - The lazy creation of the insert form stays.
+- The help text sits in a `QScrollArea` with a maximum height of 15 text lines. The device selector stays above it.
+- Tab order follows the visual order and includes the help scroll area.
 
-**Tests.** The arrow follows the checked state; existing insert tests keep passing.
+**Tests.**
+- Widget: the arrow and the content follow the state, and a click on the button and on the row toggles.
+- Dialog: the start state of the three sections, and the help is inside the bounded scroll area.
+- The existing insert and help tests keep passing.
 
-**Docs.** `how-to/write-expressions.md`: describe clicking **Insert data point** to expand and collapse the form.
+**Docs.** `how-to/write-expressions.md`: expand **Insert data point**, Test values open by default, a sentence on **Expression help**.
 
 ---
 
-## Step 5 — Bounded help, shown with a disclosure control
-
-**Finding.** The help appears as an unbounded block below the composing area. Long adapter help grows the dialog and can push the editor and the dialog buttons out of view on short displays. **Show info** has the same command-versus-disclosure problem as step 4.
-
-Evidence: `expressionsdialog.ui` (`widgetInfo` in the main layout, `lblInfo` word-wrapped without scroll area, checkable `btnInfo` "Show info").
-
-**Intent.** Help is available on demand without taking over the dialog; the editor and Accept/Cancel stay reachable.
-
-**Proposed change.**
-
-- Put `lblInfo` in a `QScrollArea` with a maximum height of about 15 text lines; longer help scrolls inside it. The device selector stays above it.
-- `btnInfo` becomes a disclosure `QToolButton` like step 4, labelled **Expression help**, with the same arrow behaviour.
-- The scroll area gets a place in the tab order after the device selector, so the help can be scrolled with the keyboard.
-
-**Tests.** The help label is inside the scroll area and its height is bounded; the arrow follows the checked state; existing help tests keep passing.
-
-**Docs.** `how-to/write-expressions.md`: one sentence on **Expression help**.
+## Step 5 — merged into step 4
 
 ---
 

@@ -50,6 +50,7 @@ private slots:
     void handleDescriptionChanged(const QString& referenceText);
     void requestHelpForDevice(deviceId_t deviceId);
     void handleInsertDataPointToggled(bool bChecked);
+    void handleTestValuesExpanded(bool bExpanded);
     void updateInsertState();
     void insertDataPoint();
 
@@ -61,6 +62,7 @@ private:
     void updateAcceptState();
     void populateHelpDevices();
     void setupButtons();
+    void setupSections();
     static bool isEnterKey(const QKeyEvent* pEvent);
     void setupExpressionEditor();
     void setupInsertDataPoint();
@@ -68,6 +70,7 @@ private:
 
     static constexpr int cExpressionEditorMinLines = 3;
     static constexpr int cExpressionEditorMaxLines = 10;
+    static constexpr int cHelpMaxLines = 15;
 
     //! Data roles of the data point column.
     static constexpr int cReferenceTextRole = Qt::UserRole;

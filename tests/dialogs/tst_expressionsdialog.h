@@ -62,6 +62,9 @@ private slots:
     void errorLabelHiddenWhenEmpty();
 
     void insertFormCreatedWhenShown();
+    void sectionsStartState();
+    void helpScrollsWhenLong();
+    void collapsedSectionsStayTogether();
     void insertFormStartsOnFirstDataPointDevice();
     void insertAtCursor();
     void insertReplacesSelection();

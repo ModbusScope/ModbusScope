@@ -19,9 +19,9 @@
   <property name="sizeGripEnabled">
    <bool>false</bool>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout_3" stretch="1,0">
    <item>
-    <layout class="QGridLayout" name="gridLayout" rowstretch="0,1,0,0,0,1" columnstretch="1,0">
+    <layout class="QGridLayout" name="gridLayout" rowstretch="0,1,0,0,0,0,1,0,0,0" columnstretch="1,0">
      <item row="0" column="0" colspan="2">
       <widget class="QLabel" name="label">
        <property name="text">
@@ -67,13 +67,10 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0" colspan="2" alignment="Qt::AlignmentFlag::AlignLeft">
-      <widget class="QPushButton" name="btnInsertDataPoint">
-       <property name="text">
-        <string>&amp;Insert data point…</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
+     <item row="3" column="0" colspan="2">
+      <widget class="CollapsibleHeader" name="headerInsertDataPoint" native="true">
+       <property name="text" stdset="0">
+        <string>&amp;Insert data point</string>
        </property>
       </widget>
      </item>
@@ -93,91 +90,98 @@
          <number>0</number>
         </property>
         <item>
-         <widget class="QGroupBox" name="insertGroupBox">
-          <property name="title">
-           <string>Insert data point</string>
+         <widget class="QWidget" name="insertEditorContainer" native="true">
+          <layout class="QVBoxLayout" name="insertEditorLayout">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lblInsertPreview">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
           </property>
-          <layout class="QVBoxLayout" name="insertGroupLayout">
-           <item>
-            <widget class="QWidget" name="insertEditorContainer" native="true">
-             <layout class="QVBoxLayout" name="insertEditorLayout">
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="lblInsertPreview">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Ignored" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="textFormat">
-              <enum>Qt::TextFormat::RichText</enum>
-             </property>
-             <property name="wordWrap">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="insertButtonLayout" stretch="1,0">
-             <item>
-              <widget class="QLabel" name="lblInsertError">
-               <property name="text">
-                <string/>
-               </property>
-               <property name="wordWrap">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="btnInsertAtCursor">
-               <property name="styleSheet">
-                <string notr="true">QPushButton { background-color: palette(highlight); color: palette(highlighted-text); border: 1px solid palette(highlight); border-radius: 4px; padding: 6px 12px; font-weight: bold; }
+          <property name="text">
+           <string/>
+          </property>
+          <property name="textFormat">
+           <enum>Qt::TextFormat::RichText</enum>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="insertButtonLayout" stretch="1,0">
+          <item>
+           <widget class="QLabel" name="lblInsertError">
+            <property name="text">
+             <string/>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="btnInsertAtCursor">
+            <property name="styleSheet">
+             <string notr="true">QPushButton { background-color: palette(highlight); color: palette(highlighted-text); border: 1px solid palette(highlight); border-radius: 4px; padding: 6px 12px; font-weight: bold; }
 QPushButton:hover { border-color: palette(dark); }
 QPushButton:focus { border: 2px solid palette(dark); }
 QPushButton:pressed { background-color: palette(dark); border-color: palette(dark); }
 QPushButton:disabled { background-color: palette(button); color: palette(mid); border-color: palette(mid); }</string>
-               </property>
-               <property name="text">
-                <string>Insert at &amp;cursor</string>
-               </property>
-               <property name="autoDefault">
-                <bool>false</bool>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
+            </property>
+            <property name="text">
+             <string>Insert at &amp;cursor</string>
+            </property>
+            <property name="autoDefault">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
      </item>
      <item row="5" column="0" colspan="2">
-      <widget class="QGroupBox" name="testValuesGroupBox">
-       <property name="title">
-        <string>Test values</string>
+      <widget class="CollapsibleHeader" name="headerTestValues" native="true">
+       <property name="text" stdset="0">
+        <string>&amp;Test values</string>
        </property>
+      </widget>
+     </item>
+     <item row="6" column="0" colspan="2">
+      <widget class="QWidget" name="widgetTestValues" native="true">
        <layout class="QHBoxLayout" name="testValuesLayout" stretch="1,0">
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QTableWidget" name="tblExpressionInput">
           <property name="selectionMode">
@@ -228,126 +232,142 @@ QPushButton:disabled { background-color: palette(button); color: palette(mid); b
        </layout>
       </widget>
      </item>
-    </layout>
-   </item>
-   <item>
-    <widget class="QWidget" name="widgetInfo" native="true">
-     <layout class="QVBoxLayout" name="verticalLayout_4">
-      <property name="spacing">
-       <number>8</number>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QWidget" name="widgetHelpDevice" native="true">
-        <layout class="QHBoxLayout" name="horizontalLayout_4">
-         <property name="leftMargin">
-          <number>0</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QLabel" name="lblHelpDevice">
-           <property name="text">
-            <string>Device</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="DeviceComboBox" name="cmbHelpDevice"/>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer">
-           <property name="orientation">
-            <enum>Qt::Orientation::Horizontal</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>40</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QLabel" name="lblInfo">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="text">
-         <string/>
-        </property>
-        <property name="textFormat">
-         <enum>Qt::TextFormat::RichText</enum>
-        </property>
-        <property name="wordWrap">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QPushButton" name="btnInfo">
-       <property name="text">
-        <string>&amp;Show info</string>
-       </property>
-       <property name="checkable">
-        <bool>true</bool>
+     <item row="7" column="0" colspan="2">
+      <widget class="CollapsibleHeader" name="headerHelp" native="true">
+       <property name="text" stdset="0">
+        <string>&amp;Expression help</string>
        </property>
       </widget>
      </item>
-     <item>
-      <spacer name="horizontalSpacerButtons">
+     <item row="8" column="0" colspan="2">
+      <widget class="QWidget" name="widgetInfo" native="true">
+       <layout class="QVBoxLayout" name="verticalLayout_4">
+        <property name="spacing">
+         <number>8</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <item>
+         <widget class="QWidget" name="widgetHelpDevice" native="true">
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item>
+            <widget class="QLabel" name="lblHelpDevice">
+             <property name="text">
+              <string>Device</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="DeviceComboBox" name="cmbHelpDevice"/>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer">
+             <property name="orientation">
+              <enum>Qt::Orientation::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
+         <widget class="QScrollArea" name="scrollInfo">
+          <property name="horizontalScrollBarPolicy">
+           <enum>Qt::ScrollBarPolicy::ScrollBarAlwaysOff</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="scrollInfoContents">
+           <layout class="QVBoxLayout" name="scrollInfoLayout">
+            <item>
+             <widget class="QLabel" name="lblInfo">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Minimum">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+              <property name="textFormat">
+               <enum>Qt::TextFormat::RichText</enum>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignmentFlag::AlignLeading|Qt::AlignmentFlag::AlignTop</set>
+              </property>
+              <property name="wordWrap">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item row="9" column="0" colspan="2">
+      <spacer name="sectionsBottomSpacer">
        <property name="orientation">
-        <enum>Qt::Orientation::Horizontal</enum>
+        <enum>Qt::Orientation::Vertical</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>40</width>
-         <height>20</height>
+         <width>20</width>
+         <height>0</height>
         </size>
        </property>
       </spacer>
      </item>
-     <item>
-      <widget class="QDialogButtonBox" name="buttonBox">
-       <property name="standardButtons">
-        <set>QDialogButtonBox::StandardButton::Cancel</set>
-       </property>
-      </widget>
-     </item>
     </layout>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::StandardButton::Cancel</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>CollapsibleHeader</class>
+   <extends>QWidget</extends>
+   <header>customwidgets/collapsibleheader.h</header>
+   <container>0</container>
+  </customwidget>
   <customwidget>
    <class>DeviceComboBox</class>
    <extends>QComboBox</extends>
