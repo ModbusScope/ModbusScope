@@ -1,10 +1,10 @@
 # This is a generated file by dfetch. Don't edit this, but edit the manifest.
 # For more info see https://dfetch.rtfd.io/en/latest/getting_started.html
 dfetch:
-  branch: master
-  hash: 21545eaac47dbb0304d2807fab858fd7
-  last_fetch: 09/01/2025, 22:38:10
+  branch: main
+  hash: b85154b0ede722e6989f08067ad54ded
+  last_fetch: 24/08/2026, 20:54:11
   patch: ''
   remote_url: https://github.com/lucide-icons/lucide.git
   revision: ''
-  tag: 0.469.0
+  tag: 1.34.0
