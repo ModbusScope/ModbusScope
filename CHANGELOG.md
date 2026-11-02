@@ -1,6 +1,6 @@
 The latest *ModbusScope* installer or standalone version can always be downloaded from the [release page](https://github.com/ModbusScope/ModbusScope/releases).
 
-## [v5.0.2](https://github.com/jgeudens/ModbusScope/releases/tag/5.0.2) (31/10/2026)
+## [v5.0.2](https://github.com/jgeudens/ModbusScope/releases/tag/5.0.2) (02/11/2026)
 
 ### Fixed
 
