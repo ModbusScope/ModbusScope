@@ -1,6 +1,7 @@
 #ifndef ADAPTERSETTINGS_H
 #define ADAPTERSETTINGS_H
 
+#include <QJsonArray>
 #include <QJsonObject>
 #include <QString>
 #include <QWidget>
@@ -48,8 +49,14 @@ private:
     void buildSection(const QJsonObject& propSchema, const QJsonValue& configValue, QVBoxLayout* layout);
     void addItemTab();
 
+    //! \brief Returns the highest integer "id" in \a items, or 0 if none has one.
+    static int maxItemId(const QJsonArray& items);
+
     //! \brief Returns a display name for a tab at the given 1-based \a index.
     QString formatTabName(int index) const;
+
+    //! \brief Returns this page's current value for its schema property.
+    QJsonValue sectionValue() const;
 
     //! \brief Connects \a form's fieldChanged signal to keep the tab label in sync with the \c name field.
     void connectTabNameTracking(SchemaFormWidget* form);
@@ -63,6 +70,8 @@ private:
     SchemaFormWidget* _pForm{ nullptr };
 
     QJsonObject _itemSchema;
+    //! True when array items have an integer "id" that this page assigns.
+    bool _hasManagedId{ false };
     int _nextItemTabIndex{ 1 };
 };
 

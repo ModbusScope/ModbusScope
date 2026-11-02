@@ -76,7 +76,15 @@ const char cAdapterKey[] = "adapter";
 const char cIdJsonKey[] = "id";
 const char cConnectionsJsonKey[] = "connections";
 const char cDevicesJsonKey[] = "devices";
-const char cConnectionTypeJsonKey[] = "connectiontype";
+const char cConnectionTypeJsonKey[] = "type";
+const char cNameJsonKey[] = "name";
+const char cPortNameJsonKey[] = "portName";
+const char cPersistentJsonKey[] = "persistent";
+const char cParityJsonKey[] = "parity";
+const char cConnectionIdJsonKey[] = "connectionId";
+const char cSlaveIdJsonKey[] = "slaveId";
+const char cConsecutiveMaxJsonKey[] = "consecutiveMax";
+const char cInt32LittleEndianJsonKey[] = "int32LittleEndian";
 
 /* JSON constant values */
 const quint32 cMinimumJsonVersion = 6;

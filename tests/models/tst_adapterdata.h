@@ -26,6 +26,9 @@ private slots:
     void effectiveConfigReturnsDefaults();
     void effectiveConfigReturnsStoredConfig();
     void effectiveConfigFillsMissingKeysFromDefaults();
+    void effectiveConfigBackfillsDeviceEntryFromDefaultDevice();
+    void effectiveConfigDeviceEntryKeysOverrideDefaults();
+    void effectiveConfigDoesNotBackfillDeviceId();
 
     void settingsModelAdapterDataCreatesEntry();
     void settingsModelAdapterIds();

@@ -125,6 +125,7 @@ public:
 
 private:
     int capabilityLimit(const QString& key) const;
+    void backfillDevices(QJsonObject& config) const;
 
     QString _name;
     QString _version;

@@ -223,9 +223,9 @@ bool SettingsModel::isMbcCompatible() const
  *
  * Sets the adapter's current config and marks it as having a stored config, then emits
  * adapterDataChanged() so listeners can react. Deliberately does not reconcile device
- * ownership itself: a device named in the stored config may not be meant to exist in
- * \c _devices yet (e.g. a project file's devices section can omit a device the adapter
- * config still lists) — registration and ownership stay driven by
+ * ownership itself: callers that write a config together with the device list (a project load,
+ * the Settings dialog's accept path) apply both themselves, and a config write between them must
+ * not register devices early. Registration and ownership otherwise stay driven by
  * reconcileDevicesWithAdapters()'s own trigger points (updateAdapterFromDescribe() and
  * AdapterDeviceSettings opening), not by every config write.
  * \param adapterId  The adapter identifier string.
@@ -381,7 +381,7 @@ void SettingsModel::reconcileDevicesWithAdapters()
                  * already has. That case is reachable from a legacy project file, but it is
                  * deliberately not reported here - this method re-runs on every describe, including
                  * reconnects, so a warning would repeat for as long as the adapter keeps advertising
-                 * the duplicate. ProjectFileHandler::applyDeviceSettings() reports it once, at load. */
+                 * the duplicate. ProjectFileHandler::buildDeviceList() reports it once, at load. */
                 continue;
             }
             seenDeviceIds.insert(devId);

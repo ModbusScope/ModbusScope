@@ -3,7 +3,9 @@
 
 #include "projectfiledata.h"
 
+#include <QMap>
 #include <QObject>
+#include <QStringList>
 
 // Forward declaration
 class GuiModel;
@@ -36,8 +38,13 @@ private:
     void applyLogSettings(const ProjectFileData::LogSettings& logSettings);
     void applyViewSettings(const ProjectFileData::ViewSettings& viewSettings);
     void applyGraphData(const ProjectFileData::ScopeSettings& scopeSettings);
-    void applyDeviceSettings(const QList<ProjectFileData::DeviceSettings>& deviceSettings);
     void applyAdapterSettings(const QList<ProjectFileData::AdapterFileSettings>& adapters);
+
+    static QMap<deviceId_t, Device> buildDeviceList(const QList<ProjectFileData::DeviceSettings>& deviceSettings);
+    static void alignDevicesWithAdapterConfigs(QList<ProjectFileData::AdapterFileSettings>& adapters,
+                                               QMap<deviceId_t, Device>& devices);
+    static QMap<deviceId_t, QStringList> collectDeviceClaims(
+      const QList<ProjectFileData::AdapterFileSettings>& adapters, const QMap<QString, qsizetype>& listingAdapters);
 
     QList<ProjectFileData::AdapterFileSettings> buildCurrentAdapters();
     QList<ProjectFileData::DeviceSettings> buildCurrentDevices(

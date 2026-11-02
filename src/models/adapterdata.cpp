@@ -273,14 +273,57 @@ QJsonObject AdapterData::effectiveConfig() const
      * This is a shallow merge: each top-level key in _currentConfig replaces the
      * corresponding key in result entirely. Nested objects are not merged — if a stored
      * key holds a QJsonObject, the whole sub-object is taken from _currentConfig and none
-     * of the default's nested keys are backfilled. A recursive merge would be needed if
-     * per-key deep backfilling is ever required (see result/_currentConfig/_defaults here). */
+     * of the default's nested keys are backfilled. The one exception is the device list,
+     * see backfillDevices(). */
     QJsonObject result = _defaults;
     for (auto it = _currentConfig.constBegin(); it != _currentConfig.constEnd(); ++it)
     {
         result.insert(it.key(), it.value());
     }
+    backfillDevices(result);
     return result;
+}
+
+/*! \brief Fill keys a stored device entry lacks from the adapter's first default device.
+ *
+ * A device entry can carry little more than its id, e.g. one ProjectFileHandler added because
+ * the project file's devices section named a device its adapter config did not list. Merging it
+ * with the default device keeps such an entry usable both on the wire and in the Settings dialog,
+ * whether the adapter described before or after the entry was stored. Keys the entry has win.
+ * The default's "id" is never copied: an entry without an id must stay without one rather than
+ * silently take over the default device's id.
+ * \param config  The effective config whose "devices" array is completed in place.
+ */
+void AdapterData::backfillDevices(QJsonObject& config) const
+{
+    const QJsonArray defaultDevices = _defaults.value("devices").toArray();
+    const QJsonValue devicesValue = config.value("devices");
+    if (defaultDevices.isEmpty() || !defaultDevices.first().isObject() || !devicesValue.isArray())
+    {
+        return;
+    }
+
+    QJsonObject defaultDevice = defaultDevices.first().toObject();
+    defaultDevice.remove("id");
+    QJsonArray devices;
+    const QJsonArray storedDevices = devicesValue.toArray();
+    for (const auto& device : storedDevices)
+    {
+        if (!device.isObject())
+        {
+            devices.append(device);
+            continue;
+        }
+
+        QJsonObject merged = defaultDevice;
+        const QJsonObject deviceObj = device.toObject();
+        for (auto it = deviceObj.constBegin(); it != deviceObj.constEnd(); ++it)
+        {
+            merged.insert(it.key(), it.value());
+        }
+        devices.append(merged);
+    }
+    config["devices"] = devices;
 }
 
 /*! \brief Remove entries repeating a device id already seen, keeping the first of each.

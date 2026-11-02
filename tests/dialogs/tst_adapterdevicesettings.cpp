@@ -1391,7 +1391,7 @@ void TestAdapterDeviceSettings::addingDeviceForModbusNotBlockedByOtherAdapterOve
 
 /*!
  * \brief Regression test for the interaction between ProjectFileHandler's
- * applyAdapterSettings()/applyDeviceSettings() and this dialog's constructor-time pruning: when
+ * project load and this dialog's constructor-time pruning: when
  * an adapter's stored config and SettingsModel's generic device list already agree on the full
  * set of devices (as they now do after a project load, even beyond the adapter's maxItems), the
  * constructor must not silently remove any of them.

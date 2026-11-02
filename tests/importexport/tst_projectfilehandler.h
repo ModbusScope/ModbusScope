@@ -70,6 +70,19 @@ private slots:
     void applyDeviceSettingsNoLimitWhenSchemaAbsent();
     void applyDeviceSettingsNotCappedByOtherAdaptersLowerLimit();
     void openingProjectWithExcessDevicesKeepsAdapterConfigAndDeviceListConsistent();
+
+    void deviceOnlyInAdapterConfigIsAddedToDeviceList();
+    void deviceOnlyInDevicesSectionIsAddedToAdapterConfig();
+    void deviceListedByOtherAdapterMovesOwnership();
+    void adapterConfigWithoutDevicesKeyIsNotCrossChecked();
+    void duplicateAdapterTypeAlignsAgainstLastEntry();
+    void deviceListedByTwoAdaptersGoesToFirstAlphabetically();
+    void deviceOfAdapterAbsentFromFileIsUntouched();
+    void alignedLoadEmitsDeviceListChangedOnce();
+    void roundTripOfMismatchedDevicesSavesAlignedSections();
+
+    void openXmlProjectStoresAdapterShapedConfig();
+    void xmlProjectSavedAsJsonRoundTrips();
 };
 
 #endif /* TST_PROJECTFILEHANDLER_H */
