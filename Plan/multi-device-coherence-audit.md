@@ -7,10 +7,10 @@ Device → adapter routing works where it was deliberately built for multiple ad
 | Question | Verdict |
 |---|---|
 | Is it adapter-dependent? | **Partially.** The routing spine (grouping, sessions, result merge, register creation) is fully adapter-aware. Four entry points still assume a single Modbus adapter and device 1. |
-| Is it coherent everywhere? | **Mostly.** Ownership is now resolved by two rules instead of three (adapter reconciliation, and project-file load), and the settings dialog no longer mutates the model before OK. Pressing OK still marks every adapter as explicitly configured, even ones with no tabs. |
-| Is the work finished? | **Closer.** `deviceListChanged()` now has consumers, the settings dialog is transactional, and `ScopeController::start()` now validates every referenced device before logging begins. An unknown device still resolves to `"modbus"` everywhere else, and the project file still writes device→adapter twice. |
+| Is it coherent everywhere? | **Mostly.** Ownership is resolved by adapter reconciliation, and project load now aligns the file's devices section with its adapter configs before applying either. The settings dialog no longer mutates the model before OK. Pressing OK still marks every adapter as explicitly configured, even ones with no tabs. |
+| Is the work finished? | **Closer.** `deviceListChanged()` now has consumers, the settings dialog is transactional, and `ScopeController::start()` now validates every referenced device before logging begins. A result-count mismatch now marks the group's data points Invalid. An unknown device still resolves to `"modbus"` everywhere else, and the project file still writes device→adapter twice. |
 
-Scope: `src/models`, `src/communication`, `src/ProtocolAdapter`, `src/dialogs`, `src/importexport`. Base: `f019fc9` on `claude/reconcile-devices-review-k18elr`. Analysis only — no code changed. Severity reflects likelihood of silent wrong behaviour, not implementation cost.
+Scope: `src/models`, `src/communication`, `src/ProtocolAdapter`, `src/dialogs`, `src/importexport`. Re-verified against `80ff65d` on `master` (2026-11-02). Analysis only — no code changed. Severity reflects likelihood of silent wrong behaviour, not implementation cost.
 
 ---
 
@@ -62,9 +62,9 @@ These paths were built for the multi-adapter world and hold up. They are the ref
 
 The consequence sits in `buildAdapterGroups()`: a register referencing a deleted or never-created device produces a group keyed `"modbus"`, and `${40001@7}` is sent to the Modbus adapter, which has no device 7. The failure surfaces as adapter-side errors or invalid values, never as "this register points at a device that doesn't exist".
 
-**Partially addressed:** `ScopeController::start()` — `buildAdapterGroups()`'s only caller — now checks `hasDevice()` for every referenced device before starting a session, and refuses with a message naming the device instead of misrouting it. The underlying fallback is untouched, though, and still misroutes silently everywhere else `adapterIdForDevice()` is called outside session start (`AdapterDeviceSettings`, `AddRegisterWidget`, `RegisterDialog`, `ExpressionsDialog`) — this is the gap "Where to start" item 2 (an explicit "unassigned" adapter ID) still closes.
+**Partially addressed:** `ScopeController::start()` — `buildAdapterGroups()`'s only caller — now checks `hasDevice()` for every referenced device before starting a session, and refuses with a message naming the device instead of misrouting it. The underlying fallback is untouched, though, and still misroutes silently everywhere else `adapterIdForDevice()` is called outside session start (`DataPointService`, `DataPointEditorWidget`, `DeviceComboBox`, `DataPointDescriptionCache`, `DataPointUsage`, `AdapterDeviceSettings`, `ExpressionsDialog`) — this is the gap "Where to start" item 2 (an explicit "unassigned" adapter ID) still closes.
 
-Where: `src/models/device.cpp:6` · `src/models/settingsmodel.cpp:141` · `src/communication/adapterpoll.cpp:218` · `src/controllers/scopecontroller.cpp:181`
+Where: `src/models/device.cpp:6` · `src/models/settingsmodel.cpp:131` · `src/communication/adapterpoll.cpp:219` · `src/controllers/scopecontroller.cpp:181`
 
 ### F2 — MBC import is hardcoded to device 1 and gated on the wrong adapter [High]
 
@@ -72,7 +72,7 @@ Where: `src/models/device.cpp:6` · `src/models/settingsmodel.cpp:141` · `src/c
 
 The gate is equally loose: `isMbcCompatible()` returns true if *any* registered adapter reports the capability, so the import is enabled even when device 1 belongs to an adapter that does not support MBC. There is no device picker in the import flow at all.
 
-Where: `src/MbcInterface/mbcregisterdata.cpp:181` · `src/models/settingsmodel.cpp:220` · `src/controllers/scopecontroller.cpp:237`
+Where: `src/MbcInterface/mbcregisterdata.cpp:181` · `src/models/settingsmodel.cpp:227` · `src/controllers/scopecontroller.cpp:337` · `src/dialogs/guistatecontroller.cpp:52`
 
 ### F4 — Adapter diagnostics are indistinguishable between adapters [Medium]
 
@@ -80,7 +80,7 @@ Where: `src/MbcInterface/mbcregisterdata.cpp:181` · `src/models/settingsmodel.c
 
 With two adapters running, the diagnostic log interleaves both streams with no way to tell them apart — precisely when you need it most.
 
-Where: `src/ProtocolAdapter/adaptermanager.cpp:146`
+Where: `src/ProtocolAdapter/adaptermanager.cpp:159`
 
 ### F5 — Communication statistics are aggregate only [Low]
 
@@ -92,7 +92,7 @@ Where: `src/communication/communicationstats.cpp:22`
 
 ## 4. Coherence breaks across layers
 
-**Root cause:** Device ownership is decided in two places with two different rules: `reconcileDevicesWithAdapters()` (stored-config priority, run whenever the Devices page opens or an adapter describes) and `ProjectFileHandler::applyDeviceSettings()` (file wins, fall back to `"modbus"`, run on project load). Each is individually defensible; together they can still disagree about "who owns device N?" depending on which one ran last.
+**Root cause (narrowed):** Device ownership is decided by `reconcileDevicesWithAdapters()` (stored-config priority, run whenever the Devices page opens or an adapter describes). Project load used to apply its own rule; `ProjectFileHandler::alignDevicesWithAdapterConfigs()` now makes the file's devices section and adapter configs name the same devices, using the same stored-config priority. What remains is the load-time fallback: a device with no `adapter.type` is still assigned to `"modbus"` in `buildDeviceList()` until an adapter describes and reconciliation settles it.
 
 ### F8 — Pressing OK marks every adapter as explicitly configured [Medium]
 
@@ -100,7 +100,7 @@ Where: `src/communication/communicationstats.cpp:22`
 
 `hasStoredConfig` is the load-bearing input to reconciliation's priority ordering and to `buildCurrentAdapters()`'s export decision. After one trip through Settings, the flag no longer means "the user configured this adapter" — it means "the user once opened Settings" — and the `"modbus"`-first tie-break, which only applies within the unconfigured group, is permanently disabled.
 
-Where: `src/dialogs/adapterdevicesettings.cpp:332` · `src/models/settingsmodel.cpp:244` · `src/importexport/projectfilehandler.cpp:170`
+Where: `src/dialogs/adapterdevicesettings.cpp:373` · `src/models/settingsmodel.cpp:251` · `src/importexport/projectfilehandler.cpp:187`
 
 ### F9 — The device limit warns, but doesn't prevent adding a device past it [Low]
 
@@ -108,19 +108,19 @@ Exceeding an adapter's device limit produces an orange label and nothing else �
 
 **Addressed:** those devices used to stay in `SettingsModel` with `buildAdapterGroups()` silently routing their registers to an adapter that was never told they exist. `ScopeController::sessionValidationError()` now checks, for every referenced device, that it exists, survived `configForWire()`'s truncation, and is owned by a live adapter — `start()` refuses with a message naming the device instead of starting a session that would misroute it. Covered directly by `tst_scopecontroller.cpp`'s `startWithUnknownDeviceEmitsError`, `startWithDeviceTruncatedByAdapterLimitEmitsError` and `startWithDeviceOwnedByUnavailableAdapterEmitsError` (the old `tst_dummydevicelimit` integration test still only passes an empty register list, so it exercises the adapter-side truncation but not this gate). What remains: the orange label is still advisory only — nothing stops a device being added past the limit in the first place, it just now fails cleanly at Start instead of silently at runtime.
 
-Where: `src/models/adapterdata.cpp:200` · `src/dialogs/adapterdevicesettings.cpp:229` · `src/controllers/scopecontroller.cpp:120` · `:181` · `tests/controllers/tst_scopecontroller.cpp:63` · `tests/integration/tst_dummydevicelimit.cpp:68`
+Where: `src/models/adapterdata.cpp:190` · `src/dialogs/adapterdevicesettings.cpp:199` · `src/controllers/scopecontroller.cpp:120` · `:181` · `tests/controllers/tst_scopecontroller.cpp:63` · `tests/integration/tst_dummydevicelimit.cpp:65`
 
 ### F11 — The project file stores device→adapter twice and reads one [Low]
 
 Each exported device carries both a numeric `adapterId` index into the adapters array and an `adapter.type` string. The parser reads and validates both, but `applyDeviceSettings()` uses only `adapterType`, falling back to `"modbus"` when it is empty. The index is write-only and can disagree with the string after any hand edit.
 
-Where: `src/importexport/projectfilejsonexporter.cpp:97` · `src/importexport/projectfilejsonparser.cpp:212` · `src/importexport/projectfilehandler.cpp:304`
+Where: `src/importexport/projectfilejsonexporter.cpp:97` · `src/importexport/projectfilejsonparser.cpp:212` · `src/importexport/projectfilehandler.cpp:349`
 
 ### F12 — A device's `connectionId` is never validated against the connections list [Low]
 
 `connectionId` is rendered as a plain integer field from the schema, with no awareness that it references another array in the same config. Deleting a connection on the Connections page leaves every device that pointed at it dangling, with no warning on either page. This is the main linking field in a multi-device Modbus setup.
 
-Where: `src/dialogs/adaptersettings.cpp:158` · `src/customwidgets/deviceconfigtab.cpp:110`
+Where: `src/dialogs/adaptersettings.cpp` · `src/customwidgets/deviceconfigtab.cpp`
 
 ---
 
@@ -132,7 +132,7 @@ Where: `src/dialogs/adaptersettings.cpp:158` · `src/customwidgets/deviceconfigt
 
 An adapter that accepts the request and never answers therefore freezes logging indefinitely: no data, no error, no timer. With one adapter this was already possible; fanning out to N adapters makes the whole session only as reliable as its slowest member.
 
-Where: `src/communication/adapterpoll.cpp:132` · `src/ProtocolAdapter/adapterclient.cpp:95`
+Where: `src/communication/adapterpoll.cpp:130` · `src/ProtocolAdapter/adapterclient.cpp:102`
 
 ### F15 — Any single adapter's failure terminates the entire session [Medium]
 
@@ -140,13 +140,13 @@ Where: `src/communication/adapterpoll.cpp:132` · `src/ProtocolAdapter/adaptercl
 
 This may well be the intended policy, but it is worth making explicit — the alternative (continue on the surviving adapters, mark the lost ones' registers invalid) is a plausible design and nothing in the code records which was chosen.
 
-Where: `src/ProtocolAdapter/adapterhub.cpp:211` · `src/communication/adapterpoll.cpp:197`
+Where: `src/ProtocolAdapter/adapterhub.cpp:199` · `src/communication/adapterpoll.cpp:198`
 
-### F16 — A result-count mismatch drops a whole group into default values [Low]
+### F16 — A result-count mismatch drops a whole group into default values [Fixed]
 
-When an adapter returns a different number of results than it was given expressions, the merge logs a warning and skips the group. Those slots keep default-constructed `ResultDouble`s and flow onward as if they were real. A misbehaving adapter degrades its own registers quietly rather than failing the cycle.
+**Fixed:** the merged list now starts every slot as `Invalid`, so a group whose result count doesn't match its expressions surfaces as invalid data points rather than default values. Covered by `tst_adapterpoll`'s `mismatchedGroupResultsAreInvalidNotNoValue`. The group is still skipped with a warning rather than failing the cycle, which is the intended degradation.
 
-Where: `src/communication/adapterpoll.cpp:153`
+Where: `src/communication/adapterpoll.cpp:147` · `tests/communication/tst_adapterpoll.cpp:247`
 
 ---
 
@@ -157,7 +157,7 @@ Reconciliation and dialog cancel semantics now have direct, model-level coverage
 | Area | Coverage | Gap |
 |---|---|---|
 | `reconcileDevices…` | Direct | `tst_settingsmodel` now covers it at the model level (single-emission, never-prune, name preservation across reassignment, no-op silence). |
-| AdapterPoll grouping | Single adapter | Every assertion indexes `_startCalls[0]`. Nothing exercises two groups, the index-preserving merge, partial arrival ordering, or F16's mismatch path. |
+| AdapterPoll grouping | Single adapter | F16's mismatch path is now covered, but every test still uses one register on one adapter. Nothing exercises two groups, the index-preserving merge, or partial arrival ordering. |
 | Mixed adapter states | Direct | `tst_adapterhub::initAdapterReinitializesOnlyIdleManagers` now covers the former F13 deadlock scenario directly. |
 | Device limit | Direct | `tst_scopecontroller` now covers a register aimed at an unknown, truncated, or unavailable-adapter device directly, at the layer that gates Start. `tst_dummydevicelimit` still only confirms the adapter-side session starts after truncation, using an empty register list. |
 | Cancel semantics | Direct | `cancelDiscardsDeviceListEdits`, `cancelDiscardsDeviceFieldEdits`, `nameChangeDoesNotReachModelUntilAccept` and `adapterChangeDoesNotReachModelUntilAccept` now assert renames and reassignments are discarded on cancel. |
@@ -170,7 +170,7 @@ Ordered by how much they unblock, not by size.
 
 1. **Add a read-data timeout (F14).** Per-adapter, reusing the handshake-timeout machinery. Decide alongside it whether a timed-out adapter fails the session (current F15 policy) or degrades to invalid results for its own registers.
 
-2. **Introduce an explicit "unassigned" adapter ID (F1).** Stop letting `"modbus"` double as the default. Every silent misroute above depends on an unknown device resolving to a real adapter — `ScopeController::start()` now catches it at session start, but `AdapterDeviceSettings`, `AddRegisterWidget`, `RegisterDialog` and `ExpressionsDialog` all still call `adapterIdForDevice()` directly.
+2. **Introduce an explicit "unassigned" adapter ID (F1).** Stop letting `"modbus"` double as the default. Every silent misroute above depends on an unknown device resolving to a real adapter — `ScopeController::start()` now catches it at session start, but `DataPointService`, `DataPointEditorWidget`, `DeviceComboBox`, `AdapterDeviceSettings` and `ExpressionsDialog` all still call `adapterIdForDevice()` directly.
 
 3. **Give MBC import a device (F2).** Add a device selector, emit `@deviceId` from `toExpression()`, and gate the action on the selected device's adapter rather than on any adapter.
 
