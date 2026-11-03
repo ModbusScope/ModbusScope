@@ -31,6 +31,14 @@ The latest *ModbusScope* installer or standalone version can always be downloade
 * Selecting a signal edits it in the panel: its name, axis, and the device and address fields of each data point, without changing the rest of the expression
 * Settings shows the adapter's protocol name instead of its internal id; the connection id is read-only
 
+## [v5.0.2](https://github.com/jgeudens/ModbusScope/releases/tag/5.0.2) (02/11/2026)
+
+### Fixed
+
+* ModbusScope v3 and v4 (XML) project files load with working connections; the Modbus adapter no longer rejects their connection settings
+* A project file that lists a device in only its devices section or only its adapter config is aligned on load
+* A stored connection without an id gets a unique id instead of duplicating an existing one; the connection id is read-only in the connection settings
+
 ## [v5.0.1](https://github.com/jgeudens/ModbusScope/releases/tag/5.0.1) (09/10/2026)
 
 ### Added
