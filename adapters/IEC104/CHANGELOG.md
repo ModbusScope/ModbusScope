@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## v0.0.4 - 03/11/2026
 
 ### Added
 
@@ -41,6 +41,6 @@
   general interrogations; received points with type, addresses, cause of transmission, value and
   quality, incl. points without a matching datapoint), behind the `ADAPTER_VERBOSE_COMM_LOGGING`
   build option (~~off by default~~)
-- Real IEC 104 client (`Lib608s70Iec104Client`) backed by the vendored lib60870 v2.4.1 stack
+- Real IEC 104 client (`Lib60870Iec104Client`) backed by the vendored lib60870 v2.4.1 stack
   (GPL-3.0, threadless CS104 API driven on a dedicated worker thread) as the production default,
   plus an in-process CS104 test slave and client↔slave integration tests
