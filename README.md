@@ -59,4 +59,4 @@ If you believe you have found a security vulnerability in ModbusScope, please re
 
 ### Update checks
 
-When ModbusScope checks for updates on startup, the request includes your current app version and operating system type (e.g. "linux", "winnt", or "darwin"). IP addresses are processed by Cloudflare for request handling but are anonymised and not retained. This information is used in aggregate to understand which versions are in use. Data is retained for 90 days.
+When ModbusScope checks for updates on startup, the request includes your app version and operating system type (e.g. "linux", "winnt"). We derive a pseudonymous identifier (a one-way hash of your IP address) to count unique users. The raw IP address is not stored. Data is kept for 90 days, then anonymised. See the [privacy policy](https://modbusscope.com/privacy/).
