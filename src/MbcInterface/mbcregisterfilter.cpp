@@ -32,12 +32,14 @@ bool MbcRegisterFilter::filterAcceptsRow(int source_row, const QModelIndex& sour
  */
 void MbcRegisterFilter::setTab(QString tab)
 {
+    beginFilterChange();
+
     if (tab != _tab)
     {
         _tab = tab;
     }
 
-    invalidateFilter();
+    endFilterChange();
 }
 
 /*!
@@ -46,12 +48,14 @@ void MbcRegisterFilter::setTab(QString tab)
  */
 void MbcRegisterFilter::setTextFilter(QString filterText)
 {
+    beginFilterChange();
+
     if (filterText.trimmed() != _textFilter)
     {
         _textFilter = filterText.trimmed();
     }
 
-    invalidateFilter();
+    endFilterChange();
 }
 
 bool MbcRegisterFilter::performTabFilter(int source_row, const QModelIndex& source_parent) const

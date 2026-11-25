@@ -47,7 +47,7 @@ public:
         QString str;
         if (number < 0.0001)
         {
-            str = locale.toString(number, 'g', QLocale::FloatingPointShortest);
+            str = locale.toString(number, 'G', QLocale::FloatingPointShortest);
         }
         else
         {

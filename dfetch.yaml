@@ -18,7 +18,8 @@ manifest:
 
   - name: qcustomplot
     dst: libraries/qcustomplot
-    branch: v2.1.1_Qt6.8_port
+    tag: v2.1.1_Qt6.10_port
+    src: qcustomplot
     repo-path: jgeudens/qcustomplot-release
     patch: libraries/patches/axis_deselect_modifier.patch
 
