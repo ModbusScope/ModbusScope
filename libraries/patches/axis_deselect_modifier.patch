@@ -1,19 +1,22 @@
 diff --git a/qcustomplot.cpp b/qcustomplot.cpp
-index 9c0f6c5..2b5309c 100644
+index 9551631b..1a982168 100644
 --- a/qcustomplot.cpp
 +++ b/qcustomplot.cpp
-@@ -15697,7 +15697,13 @@ void QCustomPlot::mouseReleaseEvent(QMouseEvent *event)
+@@ -15723,8 +15723,16 @@ void QCustomPlot::mouseReleaseEvent(QMouseEvent *event)
    {
      if (mSelectionRect && mSelectionRect->isActive()) // a simple click shouldn't successfully finish a selection rect, so cancel it here
        mSelectionRect->cancel();
 -    if (event->button() == Qt::LeftButton)
 +
 +    /* CHANGE for ModbusScope
-+     * Don't process click event when modifier is pressed (except for multi select)
-+     */
++    * Don't process click event when modifier is pressed (except for multi select)
++    */
 +    bool modifier = event->modifiers() & (~mMultiSelectModifier);
 +
 +    if (event->button() == Qt::LeftButton && !modifier)
++    {
        processPointSelection(event);
++    }
      
      // emit specialized click signals of QCustomPlot instance:
+     if (QCPAbstractPlottable *ap = qobject_cast<QCPAbstractPlottable*>(mMouseSignalLayerable))
