@@ -23,10 +23,12 @@ bool DiagnosticFilter::filterAcceptsRow(int source_row, const QModelIndex& sourc
 
 void DiagnosticFilter::setFilterBitmask(quint32 bitmask)
 {
+    beginFilterChange();
+
     if (bitmask != _filterBitmask)
     {
         _filterBitmask = bitmask;
     }
 
-    invalidateFilter();
+    endFilterChange();
 }
